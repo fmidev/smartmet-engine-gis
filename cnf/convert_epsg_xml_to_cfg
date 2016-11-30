@@ -1,0 +1,51 @@
+#!/usr/bin/php -q
+<?php
+
+// Extract SRS bounds from http://www.epsg-registry.org/ GML file with EPSG metadata
+    
+$txt = file_get_contents("GmlDictionary.xml");
+
+// namespaces seem to confuse xpath()
+$txt = str_replace("xlink:","",$txt);
+$txt = str_replace("gml:","",$txt);
+$txt = str_replace("gmd:","",$txt);
+$txt = str_replace("gco:","",$txt);
+$txt = str_replace("epsg:","",$txt);
+
+$xml = simplexml_load_string($txt);
+
+echo 'bbox:',"\n{\n";
+
+$i = 0;
+foreach($xml->xpath("dictionaryEntry/ProjectedCRS") as $proj)
+{
+    $id = $proj->xpath("identifier")[0];
+
+    $epsg = explode(':',$id)[6];
+    
+    $domain = $proj->xpath("domainOfValidity")[0]['href'];
+
+    $area = $xml->xpath("dictionaryEntry/ExtentDefinition[identifier='$domain']")[0];
+    $box = $area->xpath("extent/AreaOfUse/geographicElement/EX_GeographicBoundingBox");
+    if(!empty($box))
+    {
+	if($i++ > 0)
+	    echo "\n";
+    
+	$box = $box[0];
+	$west  = format_num($box->westBoundLongitude->Decimal);
+	$east  = format_num($box->eastBoundLongitude->Decimal);
+	$south = format_num($box->southBoundLatitude->Decimal);
+	$north = format_num($box->northBoundLatitude->Decimal);
+	echo "\tepsg-$epsg\t= [ $west, $east, $south, $north ];";
+    }
+}
+echo "\n};\n";
+
+function format_num($num)
+{
+    $num = (string) $num;
+    if(strpos($num,".") === FALSE)
+	$num = sprintf("%.1f",$num);
+    return $num;
+}
