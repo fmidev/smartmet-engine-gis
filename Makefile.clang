@@ -48,10 +48,9 @@ INCLUDES = -isystem $(includedir) \
 	-isystem $(includedir)/mysql
 
 LIBS = -L$(libdir) \
-	-lsmartmet_brainstorm-spine \
-	-lsmartmet_newbase \
-	-lsmartmet_macgyver \
-	-lsmartmet_tron \
+	-lsmartmet-brainstorm-spine \
+	-lsmartmet-newbase \
+	-lsmartmet-macgyver \
 	-lgeos \
 	-lgdal \
 	-lboost_date_time-mt \
