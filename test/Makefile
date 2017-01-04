@@ -21,7 +21,7 @@ INCLUDES = \
 LIBS = \
 	../gis.so \
 	-lsmartmet-spine \
-	-lsmartmet_gis \
+	-lsmartmet-gis \
 	-lgeos \
 	-lgdal \
 	-lboost_system \

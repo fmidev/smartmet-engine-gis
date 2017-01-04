@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 16.11.30
+Version: 17.1.4
 Release: 1%{?dist}.fmi
 License: FMI
 Group: SmartMet/Engines
@@ -14,13 +14,13 @@ BuildRequires: boost-devel
 BuildRequires: gdal-devel
 BuildRequires: geos-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 16.11.29 
-BuildRequires: libsmartmet-gis-devel >= 16.5.25
+BuildRequires: smartmet-library-spine-devel >= 17.1.4 
+BuildRequires: smartmet-library-gis-devel >= 16.12.20
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 16.11.29 
-Requires: libsmartmet-gis >= 16.5.25
+Requires: smartmet-library-spine >= 17.1.4 
+Requires: smartmet-library-gis >= 16.12.20
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -67,6 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Jan  4 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.4-1.fmi
+- Changed to use renamed SmartMet base libraries
+
 * Wed Nov 30 2016 Mika Heiskanen <mika.heiskanen@fmi.fi> - 16.11.30-1.fmi
 - Using test database in sample and test configuration
 - Dedicated engine conf for tests (problem with relative conf paths)
