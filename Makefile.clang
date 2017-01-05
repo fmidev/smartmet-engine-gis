@@ -108,10 +108,6 @@ debug: all
 release: all
 profile: all
 
-configtest:
-	@echo Validating cnf/gis.conf
-	@cfgvalidate -v cnf/gis.conf
-
 $(LIBFILE): $(OBJS)
 	$(CC) $(CFLAGS) -shared -rdynamic -o $(LIBFILE) $(OBJS) $(LIBS)
 
