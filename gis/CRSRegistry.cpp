@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <boost/foreach.hpp>
 #include <gdal/ogr_srs_api.h>
-#include <macgyver/String.h>
+#include <macgyver/StringConversion.h>
 #include <macgyver/TypeName.h>
 #include <boost/spirit/include/qi.hpp>
 

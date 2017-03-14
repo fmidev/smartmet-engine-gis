@@ -3,7 +3,7 @@
 #include "Engine.h"
 
 #include <spine/Exception.h>
-#include <macgyver/String.h>
+#include <macgyver/StringConversion.h>
 
 #include <gis/Host.h>
 #include <gis/OGR.h>
