@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 17.3.14
+Version: 17.3.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -14,13 +14,13 @@ BuildRequires: boost-devel
 BuildRequires: gdal-devel
 BuildRequires: geos-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 17.3.13 
-BuildRequires: smartmet-library-gis-devel >= 17.1.18
+BuildRequires: smartmet-library-spine-devel >= 17.3.15 
+BuildRequires: smartmet-library-gis-devel >= 17.3.14
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 17.3.13 
-Requires: smartmet-library-gis >= 17.1.18
+Requires: smartmet-library-spine >= 17.3.15 
+Requires: smartmet-library-gis >= 17.3.14
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -67,6 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Mar 15 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.3.15-1.fmi
+- Recompiled since Spine::Exception changed
+
 * Tue Mar 14 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.3.14-1.fmi
 - Switched to use macgyver StringConversion tools
 
