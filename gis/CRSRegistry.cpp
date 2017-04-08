@@ -1,11 +1,11 @@
 #include "CRSRegistry.h"
-#include <spine/Exception.h>
-#include <stdexcept>
 #include <boost/foreach.hpp>
+#include <boost/spirit/include/qi.hpp>
 #include <gdal/ogr_srs_api.h>
 #include <macgyver/StringConversion.h>
 #include <macgyver/TypeName.h>
-#include <boost/spirit/include/qi.hpp>
+#include <spine/Exception.h>
+#include <stdexcept>
 
 namespace ba = boost::algorithm;
 namespace qi = boost::spirit::qi;
@@ -379,11 +379,10 @@ void CRSRegistry::handle_get_attribute_error(const std::string& crs_name,
 {
   try
   {
-    SmartMet::Spine::Exception exception(
-        BCP, "Type mismatch of attribute '" + attrib_name + "' for CRS '" + crs_name + "'!");
-    exception.addParameter("Expected", Fmi::demangle_cpp_type_name(expected_type.name()));
-    exception.addParameter("Found", Fmi::demangle_cpp_type_name(actual_type.name()));
-    throw exception;
+    throw SmartMet::Spine::Exception(
+        BCP, "Type mismatch of attribute '" + attrib_name + "' for CRS '" + crs_name + "'!")
+        .addParameter("Expected", Fmi::demangle_cpp_type_name(expected_type.name()))
+        .addParameter("Found", Fmi::demangle_cpp_type_name(actual_type.name()));
   }
   catch (...)
   {

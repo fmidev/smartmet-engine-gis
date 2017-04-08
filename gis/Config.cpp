@@ -2,12 +2,12 @@
 
 #include "Config.h"
 #include "CRSRegistry.h"
-#include <spine/ConfigBase.h>
-#include <spine/Exception.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <gdal/cpl_conv.h>  // For configuring GDAL
+#include <spine/ConfigBase.h>
+#include <spine/Exception.h>
 #include <stdexcept>
 
 namespace fs = boost::filesystem;
@@ -116,9 +116,8 @@ void read_crs_dir(const fs::path& theDir, CRSRegistry& theRegistry)
         }
         catch (...)
         {
-          SmartMet::Spine::Exception exception(BCP, "Invalid CRS description!", NULL);
-          exception.addParameter("File", entry.string());
-          throw exception;
+          throw SmartMet::Spine::Exception(BCP, "Invalid CRS description!", NULL)
+              .addParameter("File", entry.string());
         }
       }
     }
@@ -154,46 +153,40 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
 
       if (!itsConfig.exists("postgis.host"))
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'postgis.host' attribute not set!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'postgis.host' attribute not set!")
+            .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.port"))
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'postgis.port' attribute not set!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'postgis.port' attribute not set!")
+            .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.database"))
       {
-        SmartMet::Spine::Exception exception(BCP,
-                                             "The 'postgis.database' attribute not set!"
-                                             "");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP,
+                                         "The 'postgis.database' attribute not set!"
+                                         "")
+            .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.username"))
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'postgis.username' attribute not set!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'postgis.username' attribute not set!")
+            .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.password"))
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'postgis.password' attribute not set!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'postgis.password' attribute not set!")
+            .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.encoding"))
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'postgis.encoding' attribute not set!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'postgis.encoding' attribute not set!")
+            .addParameter("Configuration file", theFileName);
       }
 
       itsConfig.lookupValue("postgis.host", itsHost);
@@ -245,9 +238,8 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
 
       if (!itsConfig.exists("cache.max_size"))
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'cache.max_size' attribute not set!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'cache.max_size' attribute not set!")
+            .addParameter("Configuration file", theFileName);
       }
 
       itsConfig.lookupValue("cache.max_size", itsMaxCacheSize);
@@ -257,9 +249,8 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
       const auto& bboxes = itsConfig.lookup("bbox");
       if (!bboxes.isGroup())
       {
-        SmartMet::Spine::Exception exception(BCP, "The 'bbox' attribute must be a group!");
-        exception.addParameter("Configuration file", theFileName);
-        throw exception;
+        throw SmartMet::Spine::Exception(BCP, "The 'bbox' attribute must be a group!")
+            .addParameter("Configuration file", theFileName);
       }
 
       for (int i = 0; i < bboxes.getLength(); i++)
@@ -267,18 +258,15 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
         const auto& value = bboxes[i];
         if (!value.isArray())
         {
-          SmartMet::Spine::Exception exception(BCP, "The 'bbox' element must contain arrays!");
-          exception.addParameter("Configuration file", theFileName);
-          throw exception;
+          throw SmartMet::Spine::Exception(BCP, "The 'bbox' element must contain arrays!")
+              .addParameter("Configuration file", theFileName);
         }
 
         if (value.getLength() != 4)
         {
-          SmartMet::Spine::Exception exception(BCP,
-                                               "The 'bbox' elements must be arrays of size 4!");
-          exception.addDetail("Found an array of length " + std::to_string(value.getLength()));
-          exception.addParameter("Configuration file", theFileName);
-          throw exception;
+          throw SmartMet::Spine::Exception(BCP, "The 'bbox' elements must be arrays of size 4!")
+              .addDetail("Found an array of length " + std::to_string(value.getLength()))
+              .addParameter("Configuration file", theFileName);
         }
         std::string name = value.getName();
         int epsg = boost::lexical_cast<int>(name.substr(5));
@@ -296,10 +284,9 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
         const auto& settings = itsConfig.lookup("gdal");
         if (!settings.isGroup())
         {
-          SmartMet::Spine::Exception exception(
-              BCP, "The 'gdal' parameter must be a group of GDAL settings!");
-          exception.addParameter("Configuration file", theFileName);
-          throw exception;
+          throw SmartMet::Spine::Exception(BCP,
+                                           "The 'gdal' parameter must be a group of GDAL settings!")
+              .addParameter("Configuration file", theFileName);
         }
 
         for (int i = 0; i < settings.getLength(); i++)
@@ -312,26 +299,23 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
     }
     catch (const libconfig::SettingException& err)
     {
-      SmartMet::Spine::Exception exception(BCP, "Configuration file setting error!");
-      exception.addParameter("Configuration file", theFileName);
-      exception.addParameter("Path", err.getPath());
-      exception.addParameter("Error description", err.what());
-      throw exception;
+      throw SmartMet::Spine::Exception(BCP, "Configuration file setting error!")
+          .addParameter("Configuration file", theFileName)
+          .addParameter("Path", err.getPath())
+          .addParameter("Error description", err.what());
     }
     catch (libconfig::ParseException& err)
     {
-      SmartMet::Spine::Exception exception(BCP, "Configuration file parsing failed!");
-      exception.addParameter("Configuration file", theFileName);
-      exception.addParameter("Error line", std::to_string(err.getLine()));
-      exception.addParameter("Error description", err.getError());
-      throw exception;
+      throw SmartMet::Spine::Exception(BCP, "Configuration file parsing failed!")
+          .addParameter("Configuration file", theFileName)
+          .addParameter("Error line", std::to_string(err.getLine()))
+          .addParameter("Error description", err.getError());
     }
     catch (const libconfig::ConfigException& err)
     {
-      SmartMet::Spine::Exception exception(BCP, "Configuration exception!");
-      exception.addParameter("Configuration file", theFileName);
-      exception.addParameter("Error description", err.what());
-      throw exception;
+      throw SmartMet::Spine::Exception(BCP, "Configuration exception!")
+          .addParameter("Configuration file", theFileName)
+          .addParameter("Error description", err.what());
     }
   }
   catch (...)
