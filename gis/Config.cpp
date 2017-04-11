@@ -147,6 +147,12 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
 
       std::string crs_dir;
       itsConfig.lookupValue("crsDefinitionDir", crs_dir);
+      if (!crs_dir.empty() && crs_dir[0] != '/')
+      {
+        // Handle relative paths assuming they are relative to the config itself
+        boost::filesystem::path p(theFileName);
+        crs_dir = p.parent_path().string() + "/" + crs_dir;
+      }
       read_crs_dir(crs_dir, itsCRSRegistry);
 
       // Read postgis settings
