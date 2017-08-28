@@ -2,8 +2,8 @@
 
 #include "Engine.h"
 
-#include <spine/Exception.h>
 #include <macgyver/StringConversion.h>
+#include <spine/Exception.h>
 
 #include <gis/Host.h>
 #include <gis/OGR.h>
@@ -16,10 +16,7 @@
 #include <memory>
 #include <stdexcept>
 
-auto featuredeleter = [](OGRFeature* p)
-{
-  OGRFeature::DestroyFeature(p);
-};
+auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
 using SafeFeature = std::unique_ptr<OGRFeature, decltype(featuredeleter)>;
 
 namespace
@@ -31,10 +28,7 @@ int getEpsgCode(const OGRDataSourcePtr& connection,
 {
   try
   {
-    auto layerdeleter = [&](OGRLayer* p)
-    {
-      connection->ReleaseResultSet(p);
-    };
+    auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
 
     std::string sqlStmt =
@@ -71,10 +65,7 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
     std::string sqlStmt = "SELECT ST_EstimatedExtent('" + schema + "', '" + table + "', '" +
                           geometry_column + "')::geometry as extent";
 
-    auto layerdeleter = [&](OGRLayer* p)
-    {
-      connection->ReleaseResultSet(p);
-    };
+    auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
 
     SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
@@ -432,10 +423,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
 
     auto connection = db_connection(*itsConfig, theOptions.pgname);
 
-    auto layerdeleter = [&](OGRLayer* p)
-    {
-      connection->ReleaseResultSet(p);
-    };
+    auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
 
     // 1) Get timesteps
@@ -471,7 +459,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
 
         if (!ret)
         {
-          std::cout << "Reading values from time column '" << theOptions.time_column << "' failed!"
+          std::cout << "Reading values from time column '" << *theOptions.time_column << "' failed!"
                     << std::endl;
           break;
         }
