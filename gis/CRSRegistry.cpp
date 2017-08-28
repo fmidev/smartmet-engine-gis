@@ -411,7 +411,7 @@ CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std:
       }
       catch (...)
       {
-        std::cerr << METHOD_NAME << ": failed to parse PERL regular expression '" << text << "'"
+        std::cerr << METHOD_NAME << ": failed to parse PERL regular expression '" << *text << "'"
                   << std::endl;
 
         SmartMet::Spine::Exception exception(BCP, "Failed to parse PERL regular expression");
