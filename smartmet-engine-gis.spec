@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 17.4.11
+Version: 17.8.28
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -16,13 +16,13 @@ BuildRequires: boost-devel
 BuildRequires: gdal-devel
 BuildRequires: geos-devel
 BuildRequires: libconfig-devel
-BuildRequires: smartmet-library-spine-devel >= 17.3.15 
-BuildRequires: smartmet-library-gis-devel >= 17.3.14
+BuildRequires: smartmet-library-spine-devel >= 17.8.28 
+BuildRequires: smartmet-library-gis-devel >= 17.8.28
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 17.3.15 
-Requires: smartmet-library-gis >= 17.3.14
+Requires: smartmet-library-spine >= 17.8.28 
+Requires: smartmet-library-gis >= 17.8.28
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -69,6 +69,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Aug 28 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.8.28-1.fmi
+- Upgrade to boost 1.65
+
 * Tue Apr 11 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.4.11-1.fmi
 - crsDefinitionDir can now be relative to the configuration file itself
 
