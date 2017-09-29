@@ -16,6 +16,9 @@ BuildRequires: boost-devel
 BuildRequires: gdal-devel
 BuildRequires: geos-devel
 BuildRequires: libconfig-devel
+BuildRequires: bzip2-devel
+BuildRequires: zlib-devel
+BuildRequires: smartmet-library-newbase-devel
 BuildRequires: smartmet-library-spine-devel >= 17.8.28 
 BuildRequires: smartmet-library-gis-devel >= 17.8.28
 Requires: gdal
