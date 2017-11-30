@@ -4,14 +4,15 @@
 
 #include "BBox.h"
 #include "Config.h"
+#include "GeometryStorage.h"
 #include "MapOptions.h"
 #include "MetaData.h"
-#include <spine/SmartMetEngine.h>
-#include <gis/Types.h>
-#include <macgyver/Cache.h>
+#include <boost/shared_ptr.hpp>
 #include <gdal/ogr_geometry.h>
 #include <gdal/ogr_spatialref.h>
-#include <boost/shared_ptr.hpp>
+#include <gis/Types.h>
+#include <macgyver/Cache.h>
+#include <spine/SmartMetEngine.h>
 #include <libconfig.h++>
 #include <string>
 
@@ -42,6 +43,9 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   BBox getBBox(int theEPSG) const;
 
   MetaData getMetaData(const MetaDataQueryOptions& theOptions) const;
+
+  void populateGeometryStorage(const PostGISIdentifierVector& thePostGISIdentifiers,
+                               GeometryStorage& theGeometryStorage) const;
 
  protected:
   virtual void init();

@@ -114,8 +114,7 @@ OGRDataSourcePtr db_connection(const Config& config, const std::string& pgname)
     // Read it from the database
     const postgis_connection_info& pgci = config.getPostGISConnectionInfo(pgname);
 
-    Fmi::Host host(
-        pgci.itsHost, pgci.itsDatabase, pgci.itsUsername, pgci.itsPassword, pgci.itsPort);
+    Fmi::Host host(pgci.host, pgci.database, pgci.username, pgci.password, pgci.port);
 
     return host.connect();
   }
@@ -528,6 +527,146 @@ BBox Engine::getBBox(int theEPSG) const
   try
   {
     return itsConfig->getBBox(theEPSG);
+  }
+  catch (...)
+  {
+    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+  }
+}
+
+void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISIdentifiers,
+                                     GeometryStorage& theGeometryStorage) const
+{
+  try
+  {
+    for (auto pgId : thePostGISIdentifiers)
+    {
+      if (itsShutdownRequested)
+        return;
+
+      std::string queryParam(pgId.host + pgId.port + pgId.database + pgId.schema + pgId.table +
+                             pgId.field + pgId.encoding);
+      if (theGeometryStorage.itsQueryParameters.find(queryParam) !=
+          theGeometryStorage.itsQueryParameters.end())
+        continue;
+
+      theGeometryStorage.itsQueryParameters.insert(std::make_pair(queryParam, 1));
+
+      SmartMet::Engine::Gis::MapOptions mo;
+      mo.schema = pgId.schema;
+      mo.table = pgId.table;
+      mo.fieldnames.insert(pgId.field);
+
+      Fmi::Features features = getFeatures(nullptr, mo);
+
+      for (auto feature : features)
+      {
+        const OGRGeometry* geom = feature->geom.get();
+
+        if (geom)
+        {
+          Fmi::Attribute attribute = feature->attributes.at(pgId.field);
+          AttributeToString ats;
+          std::string areaName = boost::apply_visitor(ats, attribute);
+          // convert to lower case
+          boost::algorithm::to_lower(areaName);
+
+          OGRwkbGeometryType geomType = geom->getGeometryType();
+
+          if (theGeometryStorage.itsGeometries.find(geomType) ==
+              theGeometryStorage.itsGeometries.end())
+          {
+            // if that type of geometries not found, add new one
+            NameOGRGeometryMap nameOGRGeometryMap;
+            nameOGRGeometryMap.insert(
+                make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+            theGeometryStorage.itsGeometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
+          }
+          else
+          {
+            // that type of geometries found
+            NameOGRGeometryMap& nameOGRGeometryMap = theGeometryStorage.itsGeometries[geomType];
+            // if named area not found, add new one
+            if (nameOGRGeometryMap.find(areaName) == nameOGRGeometryMap.end())
+            {
+              nameOGRGeometryMap.insert(
+                  std::make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+            }
+            else
+            {
+              // if area was found, make union of the new and old one
+              boost::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[areaName];
+              previousGeom.reset(previousGeom->Union(geom));
+            }
+          }
+
+          if (geomType == wkbPolygon || geomType == wkbMultiPolygon)
+          {
+            std::string svgString = Fmi::OGR::exportToWkt(*geom);
+            boost::algorithm::replace_all(svgString, "MULTIPOLYGON ", "");
+            boost::algorithm::replace_all(svgString, "POLYGON ", "");
+            boost::algorithm::replace_all(svgString, "),(", " Z M ");
+            boost::algorithm::replace_all(svgString, ",", " L ");
+            boost::algorithm::replace_all(svgString, "(", "");
+            boost::algorithm::replace_all(svgString, ")", "");
+            svgString.insert(0, "\"M ");
+            svgString.append(" Z\"\n");
+
+#ifdef MYDEBUG
+            cout << "POLYGON in SVG format: " << svgString << endl;
+#endif
+            if (theGeometryStorage.itsPolygons.find(areaName) !=
+                theGeometryStorage.itsPolygons.end())
+              theGeometryStorage.itsPolygons[areaName] = svgString;
+            else
+              theGeometryStorage.itsPolygons.insert(std::make_pair(areaName, svgString));
+          }
+          else if (geomType == wkbPoint)
+          {
+            const OGRPoint* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
+            if (theGeometryStorage.itsPoints.find(areaName) != theGeometryStorage.itsPoints.end())
+              theGeometryStorage.itsPoints[areaName] =
+                  std::make_pair(ogrPoint->getX(), ogrPoint->getY());
+            else
+              theGeometryStorage.itsPoints.insert(
+                  std::make_pair(areaName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
+          }
+          else if (geomType == wkbLineString || geomType == wkbMultiLineString)
+          {
+            // path
+            std::string svgString = Fmi::OGR::exportToWkt(*geom);
+            boost::algorithm::replace_all(svgString, "MULTILINESTRING ", "");
+            boost::algorithm::replace_all(svgString, "LINESTRING ", "");
+            boost::algorithm::replace_all(svgString, "))((", ",");
+            boost::algorithm::replace_all(svgString, ",", " L ");
+            boost::algorithm::replace_all(svgString, "(", "");
+            boost::algorithm::replace_all(svgString, ")", "");
+            svgString.append(" \"\n");
+
+            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
+            {
+              std::string previousPart(theGeometryStorage.itsLines[areaName]);
+              boost::algorithm::replace_all(previousPart, " \"", " ");
+              boost::algorithm::replace_all(previousPart, " \n", " ");
+              svgString = (previousPart + "L " + svgString);
+            }
+            else
+            {
+              svgString.insert(0, "\"M ");
+            }
+
+            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
+              theGeometryStorage.itsLines[areaName] = svgString;
+            else
+              theGeometryStorage.itsLines.insert(std::make_pair(areaName, svgString));
+
+#ifdef MYDEBUG
+            cout << "LINE in SVG format: " << svgString << endl;
+#endif
+          }
+        }
+      }
+    }
   }
   catch (...)
   {

@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 17.11.1
+Version: 17.11.30
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -72,6 +72,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Nov 30 2017 Anssi Reponen <anssi.reponen@fmi.fi> - 17.11.30-1.fmi
+- Function and a class added to get geometries from several
+PostGIS sources at once (different dbs, tables) (BRAINSTORM-722)
+
 * Wed Nov  1 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.11.1-1.fmi
 - Rebuilt due to GIS library API change
 

@@ -4,8 +4,8 @@
 
 #include "BBox.h"
 #include "CRSRegistry.h"
-#include <libconfig.h++>
 #include <boost/utility.hpp>
+#include <libconfig.h++>
 #include <string>
 
 namespace SmartMet
@@ -17,12 +17,12 @@ namespace Gis
 // postgis settings
 struct postgis_connection_info
 {
-  int itsPort;
-  std::string itsHost;
-  std::string itsDatabase;
-  std::string itsUsername;
-  std::string itsPassword;
-  std::string itsEncoding;
+  int port;
+  std::string host;
+  std::string database;
+  std::string username;
+  std::string password;
+  std::string encoding;
 };
 
 class Config : private boost::noncopyable
@@ -34,12 +34,6 @@ class Config : private boost::noncopyable
   // return the CRS registry
   CRSRegistry& getCRSRegistry();
 
-  int getPort() const { return itsPort; }
-  const std::string& getHost() const { return itsHost; }
-  const std::string& getDatabase() const { return itsDatabase; }
-  const std::string& getUsername() const { return itsUsername; }
-  const std::string& getPassword() const { return itsPassword; }
-  const std::string& getEncoding() const { return itsEncoding; }
   const postgis_connection_info& getPostGISConnectionInfo(const std::string thePGName) const;
 
   int getMaxCacheSize() const { return itsMaxCacheSize; }
@@ -49,15 +43,9 @@ class Config : private boost::noncopyable
   libconfig::Config itsConfig;
   CRSRegistry itsCRSRegistry;
 
-  // postgis settings
-  int itsPort;
-  std::string itsHost;
-  std::string itsDatabase;
-  std::string itsUsername;
-  std::string itsPassword;
-  std::string itsEncoding;
-
-  std::map<std::string, postgis_connection_info> postgis_settings;
+  // PostGIS settings
+  postgis_connection_info itsDefaultConnectionInfo;
+  std::map<std::string, postgis_connection_info> itsConnectionInfo;
 
   // cache settings
   int itsMaxCacheSize;
