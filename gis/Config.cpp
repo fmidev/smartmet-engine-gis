@@ -195,12 +195,12 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
             .addParameter("Configuration file", theFileName);
       }
 
-      itsConfig.lookupValue("postgis.host", itsHost);
-      itsConfig.lookupValue("postgis.port", itsPort);
-      itsConfig.lookupValue("postgis.database", itsDatabase);
-      itsConfig.lookupValue("postgis.username", itsUsername);
-      itsConfig.lookupValue("postgis.password", itsPassword);
-      itsConfig.lookupValue("postgis.encoding", itsEncoding);
+      itsConfig.lookupValue("postgis.host", itsDefaultConnectionInfo.host);
+      itsConfig.lookupValue("postgis.port", itsDefaultConnectionInfo.port);
+      itsConfig.lookupValue("postgis.database", itsDefaultConnectionInfo.database);
+      itsConfig.lookupValue("postgis.username", itsDefaultConnectionInfo.username);
+      itsConfig.lookupValue("postgis.password", itsDefaultConnectionInfo.password);
+      itsConfig.lookupValue("postgis.encoding", itsDefaultConnectionInfo.encoding);
 
       libconfig::Setting& pg_sett = itsConfig.lookup("postgis");
       unsigned int n_pgsett = pg_sett.getLength();
@@ -213,34 +213,16 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
           std::string sett_name(sett.getName());
           postgis_connection_info pgci;
 
-          itsConfig.lookupValue("postgis." + sett_name + ".host", pgci.itsHost);
-          itsConfig.lookupValue("postgis." + sett_name + ".port", pgci.itsPort);
-          itsConfig.lookupValue("postgis." + sett_name + ".database", pgci.itsDatabase);
-          itsConfig.lookupValue("postgis." + sett_name + ".username", pgci.itsUsername);
-          itsConfig.lookupValue("postgis." + sett_name + ".password", pgci.itsPassword);
-          itsConfig.lookupValue("postgis." + sett_name + ".encoding", pgci.itsEncoding);
+          itsConfig.lookupValue("postgis." + sett_name + ".host", pgci.host);
+          itsConfig.lookupValue("postgis." + sett_name + ".port", pgci.port);
+          itsConfig.lookupValue("postgis." + sett_name + ".database", pgci.database);
+          itsConfig.lookupValue("postgis." + sett_name + ".username", pgci.username);
+          itsConfig.lookupValue("postgis." + sett_name + ".password", pgci.password);
+          itsConfig.lookupValue("postgis." + sett_name + ".encoding", pgci.encoding);
 
-          postgis_settings.insert(make_pair(sett_name, pgci));
+          itsConnectionInfo.insert(make_pair(sett_name, pgci));
         }
       }
-
-      /*
-      std::cout << "ANSSI:\n";
-
-      //	  typedef std::map<std::string, postgis_id> pg_setting_map;
-      for(std::map<std::string, postgis_connection_info>::const_iterator iter =
-      postgis_settings.begin();
-              iter != postgis_settings.end(); ++iter)
-            {
-              std::cout << iter->first << std::endl
-                                    << iter->second.itsHost << ","
-                                    << iter->second.itsPort << ","
-                                    << iter->second.itsDatabase << ","
-                                    << iter->second.itsUsername << ","
-                                    << iter->second.itsPassword << ","
-                                    << iter->second.itsEncoding << std::endl;
-            }
-      */
 
       if (!itsConfig.exists("cache.max_size"))
       {
@@ -370,17 +352,20 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
     // THIS IS VERY QUESTIONABLE!!!!! PGNAME SHOULD BE MANDATORY ARGUMENT!!!!!!!
     if (thePGName.empty())
     {
-      auto it = postgis_settings.find("gis");
-      if (it == postgis_settings.end())
+      // If pgname is empty try default
+      if (!itsDefaultConnectionInfo.host.empty())
+        return itsDefaultConnectionInfo;
+      auto it = itsConnectionInfo.find("gis");
+      if (it == itsConnectionInfo.end())
         throw SmartMet::Spine::Exception(BCP, "Default postgis setting missing: \"gis\"");
       else
         return it->second;
     }
 
-    if (postgis_settings.find(thePGName) == postgis_settings.end())
+    if (itsConnectionInfo.find(thePGName) == itsConnectionInfo.end())
       throw SmartMet::Spine::Exception(BCP, "No postgis settings found for '" + thePGName + "'");
 
-    return postgis_settings.find(thePGName)->second;
+    return itsConnectionInfo.find(thePGName)->second;
   }
   catch (...)
   {
