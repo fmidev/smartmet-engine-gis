@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 17.11.30
+Version: 18.1.31
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,13 +19,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 17.11.30 
-BuildRequires: smartmet-library-gis-devel >= 17.11.22
+BuildRequires: smartmet-library-spine-devel >= 18.1.15 
+BuildRequires: smartmet-library-gis-devel >= 18.1.15
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 17.11.30 
-Requires: smartmet-library-gis >= 17.11.22
+Requires: smartmet-library-spine >= 18.1.15 
+Requires: smartmet-library-gis >= 18.1.15
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -72,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Jan 31 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.1.31-1.fmi
+- Use ST_Extent since not all tables have been analyzed as required by ST_EstimatedExtent
+
 * Thu Nov 30 2017 Anssi Reponen <anssi.reponen@fmi.fi> - 17.11.30-1.fmi
 - Function and a class added to get geometries from several
 PostGIS sources at once (different dbs, tables) (BRAINSTORM-722)

@@ -62,8 +62,12 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
 {
   try
   {
+#if 0
     std::string sqlStmt = "SELECT ST_EstimatedExtent('" + schema + "', '" + table + "', '" +
                           geometry_column + "')::geometry as extent";
+#else
+    std::string sqlStmt = "SELECT ST_Extent(geom)::geometry as extent FROM " + schema + "." + table;
+#endif
 
     auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
@@ -97,7 +101,7 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
     throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
   }
 }
-}
+}  // namespace
 
 namespace SmartMet
 {
@@ -123,7 +127,7 @@ OGRDataSourcePtr db_connection(const Config& config, const std::string& pgname)
     throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
   }
 }
-}
+}  // namespace
 
 // ----------------------------------------------------------------------
 /*!
@@ -175,9 +179,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig()
-{
-}
+Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig() {}
 
 // ----------------------------------------------------------------------
 /*!
