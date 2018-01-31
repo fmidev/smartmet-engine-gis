@@ -4,7 +4,7 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 18.1.31
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -72,12 +72,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Jan 31 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.1.31-2.fmi
+- Added setting 'default_epsg' to set SRID for geometries whose SRID is not set
+- Added setting 'quiet' to disable warnings from unset SRIDs if default_epgs is used
+
 * Wed Jan 31 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.1.31-1.fmi
 - Use ST_Extent since not all tables have been analyzed as required by ST_EstimatedExtent
 
 * Thu Nov 30 2017 Anssi Reponen <anssi.reponen@fmi.fi> - 17.11.30-1.fmi
-- Function and a class added to get geometries from several
-PostGIS sources at once (different dbs, tables) (BRAINSTORM-722)
+- Function and a class added to get geometries from several PostGIS sources at once (different dbs, tables)
 
 * Wed Nov  1 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.11.1-1.fmi
 - Rebuilt due to GIS library API change

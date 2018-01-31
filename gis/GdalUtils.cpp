@@ -25,7 +25,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -47,7 +47,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -82,7 +82,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -98,7 +98,7 @@ std::string WKT(const OGRGeometry &geometry)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -125,7 +125,7 @@ int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -147,7 +147,7 @@ int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

@@ -4,6 +4,7 @@
 
 #include "BBox.h"
 #include "CRSRegistry.h"
+#include <boost/optional.hpp>
 #include <boost/utility.hpp>
 #include <libconfig.h++>
 #include <string>
@@ -39,6 +40,9 @@ class Config : private boost::noncopyable
   int getMaxCacheSize() const { return itsMaxCacheSize; }
   BBox getBBox(int theEPSG) const;
 
+  boost::optional<int> getDefaultEPSG() const;
+  bool quiet() const;
+  
  private:
   libconfig::Config itsConfig;
   CRSRegistry itsCRSRegistry;
@@ -50,6 +54,12 @@ class Config : private boost::noncopyable
   // cache settings
   int itsMaxCacheSize;
 
+  // Default EPSG for PostGIS geometries which have no SRID
+  boost::optional<int> itsDefaultEPSG;
+
+  // Quiet mode
+  bool itsQuiet = true;
+  
   // EPSG bounding boxes
   typedef std::map<int, BBox> BBoxMap;
   BBoxMap itsBBoxes;

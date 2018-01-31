@@ -1,6 +1,7 @@
 // ======================================================================
 
 #include "Engine.h"
+#include "Config.h"
 
 #include <macgyver/StringConversion.h>
 #include <spine/Exception.h>
@@ -19,12 +20,19 @@
 auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
 using SafeFeature = std::unique_ptr<OGRFeature, decltype(featuredeleter)>;
 
+namespace SmartMet
+{
+namespace Engine
+{
+namespace Gis
+{
 namespace
 {
 int getEpsgCode(const OGRDataSourcePtr& connection,
                 const std::string& schema,
                 const std::string& table,
-                const std::string& geometry_column)
+                const std::string& geometry_column,
+                const SmartMet::Engine::Gis::Config& config)
 {
   try
   {
@@ -37,28 +45,34 @@ int getEpsgCode(const OGRDataSourcePtr& connection,
     SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
 
     if (!pLayer)
-      throw SmartMet::Spine::Exception(
-          BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+      throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
     SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
 
-    if (!pFeature)
-      throw SmartMet::Spine::Exception(BCP, "Gis-engine: Null feature received from " + sqlStmt);
+    if (pFeature)
+      return pFeature->GetFieldAsInteger(0);
 
-    int epsg = pFeature->GetFieldAsInteger(0);
+    if (config.getDefaultEPSG())
+    {
+      if (!config.quiet())
+        std::cerr << "Warning: sqlStmt returned NULL. Setting EPSG to default value "
+                  << *config.getDefaultEPSG() << std::endl;
+      return *config.getDefaultEPSG();
+    }
 
-    return epsg;
+    throw Spine::Exception(BCP, "Gis-engine: Null feature received from " + sqlStmt);
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
 OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
                              const std::string& schema,
                              const std::string& table,
-                             const std::string& geometry_column)
+                             const std::string& geometry_column,
+                             bool quiet)
 {
   try
   {
@@ -66,7 +80,8 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
     std::string sqlStmt = "SELECT ST_EstimatedExtent('" + schema + "', '" + table + "', '" +
                           geometry_column + "')::geometry as extent";
 #else
-    std::string sqlStmt = "SELECT ST_Extent(geom)::geometry as extent FROM " + schema + "." + table;
+    std::string sqlStmt = "SELECT ST_Extent(" + geometry_column + ")::geometry as extent FROM " +
+                          schema + "." + table;
 #endif
 
     auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
@@ -75,21 +90,23 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
     SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
 
     if (!pLayer)
-      throw SmartMet::Spine::Exception(
-          BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+      throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
     SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
 
     if (!pFeature)
-      throw SmartMet::Spine::Exception(
-          BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+      throw Spine::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
 
     // get geometry
     OGRGeometry* pGeometry = pFeature->GetGeometryRef();
 
     if (!pGeometry)
-      throw SmartMet::Spine::Exception(
-          BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+    {
+      Spine::Exception ex(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+      if (quiet)
+        ex.disableLogging();
+      throw ex;
+    }
 
     OGREnvelope bbox;
     pGeometry->getEnvelope(&bbox);
@@ -98,19 +115,10 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
-}  // namespace
 
-namespace SmartMet
-{
-namespace Engine
-{
-namespace Gis
-{
-namespace
-{
 OGRDataSourcePtr db_connection(const Config& config, const std::string& pgname)
 {
   try
@@ -124,7 +132,7 @@ OGRDataSourcePtr db_connection(const Config& config, const std::string& pgname)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 }  // namespace
@@ -169,7 +177,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -207,7 +215,7 @@ void Engine::init()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -236,7 +244,7 @@ CRSRegistry& Engine::getCRSRegistry()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -254,9 +262,9 @@ OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& th
   {
     // Validate options
     if (theOptions.schema.empty())
-      throw SmartMet::Spine::Exception(BCP, "PostGIS database name missing from map query");
+      throw Spine::Exception(BCP, "PostGIS database name missing from map query");
     if (theOptions.table.empty())
-      throw SmartMet::Spine::Exception(BCP, "PostGIS table name missing from map query");
+      throw Spine::Exception(BCP, "PostGIS table name missing from map query");
 
     // Find simplified map from the cache
 
@@ -321,7 +329,7 @@ OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& th
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -331,9 +339,9 @@ Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& 
   {
     // Validate options
     if (theOptions.schema.empty())
-      throw SmartMet::Spine::Exception(BCP, "PostGIS database name missing from map query");
+      throw Spine::Exception(BCP, "PostGIS database name missing from map query");
     if (theOptions.table.empty())
-      throw SmartMet::Spine::Exception(BCP, "PostGIS table name missing from map query");
+      throw Spine::Exception(BCP, "PostGIS table name missing from map query");
 
     // Find simplified map from the cache
     auto keys = cache_keys(theOptions, theSR);
@@ -404,7 +412,7 @@ Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& 
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -438,8 +446,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
       SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
 
       if (!pLayer)
-        throw SmartMet::Spine::Exception(
-            BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+        throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
       while (true)
       {
@@ -480,16 +487,19 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     metadata.xmax = 0.0;
     metadata.ymax = 0.0;
 
-    int epsg =
-        ::getEpsgCode(connection, theOptions.schema, theOptions.table, theOptions.geometry_column);
+    int epsg = getEpsgCode(
+        connection, theOptions.schema, theOptions.table, theOptions.geometry_column, *itsConfig);
+
     OGRSpatialReference oSourceSRS;
     oSourceSRS.importFromEPSGA(epsg);
     OGRSpatialReference oTargetSRS;
     oTargetSRS.importFromEPSGA(4326);
 
-    OGREnvelope table_envelope = ::getTableEnvelope(
-        connection, theOptions.schema, theOptions.table, theOptions.geometry_column);
-    //-------------------
+    OGREnvelope table_envelope = getTableEnvelope(connection,
+                                                  theOptions.schema,
+                                                  theOptions.table,
+                                                  theOptions.geometry_column,
+                                                  itsConfig->quiet());
 
     // convert source spatial reference system to EPSG:4326
 
@@ -497,8 +507,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         OGRCreateCoordinateTransformation(&oSourceSRS, &oTargetSRS));
 
     if (!poCT)
-      throw SmartMet::Spine::Exception(BCP,
-                                       "OGRCreateCoordinateTransformation function call failed");
+      throw Spine::Exception(BCP, "OGRCreateCoordinateTransformation function call failed");
 
     bool transformation_ok = (poCT->Transform(1, &(table_envelope.MinX), &(table_envelope.MinY)) &&
                               poCT->Transform(1, &(table_envelope.MaxX), &(table_envelope.MaxY)));
@@ -514,7 +523,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -532,7 +541,7 @@ BBox Engine::getBBox(int theEPSG) const
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -672,7 +681,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

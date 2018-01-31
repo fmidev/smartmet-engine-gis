@@ -68,7 +68,7 @@ class CRSRegistry::TransformationImpl : public CRSRegistry::Transformation
 
 #define CHECK_NAME(name)   \
   if (crs_map.count(name)) \
-    throw SmartMet::Spine::Exception(BCP, "Duplicate name of coordinate system (" + name + ")!");
+    throw Spine::Exception(BCP, "Duplicate name of coordinate system (" + name + ")!");
 
 CRSRegistry::CRSRegistry()
 {
@@ -85,14 +85,14 @@ void CRSRegistry::register_epsg(const std::string& name,
 {
   try
   {
-    SmartMet::Spine::WriteLock lock(rw_lock);
+    Spine::WriteLock lock(rw_lock);
     const std::string nm = Fmi::ascii_tolower_copy(name);
     CHECK_NAME(nm);
 
     MapEntry entry(name, regex);
     if (entry.cs->importFromEPSG(epsg_code) != OGRERR_NONE)
     {
-      throw SmartMet::Spine::Exception(BCP, "Failed to register projection EPSG:" + epsg_code);
+      throw Spine::Exception(BCP, "Failed to register projection EPSG:" + epsg_code);
     }
     entry.swap_coord = swap_coord;
 
@@ -103,7 +103,7 @@ void CRSRegistry::register_epsg(const std::string& name,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -114,7 +114,7 @@ void CRSRegistry::register_proj4(const std::string& name,
 {
   try
   {
-    SmartMet::Spine::WriteLock lock(rw_lock);
+    Spine::WriteLock lock(rw_lock);
 
     const std::string nm = Fmi::ascii_tolower_copy(name);
     CHECK_NAME(nm);
@@ -122,7 +122,7 @@ void CRSRegistry::register_proj4(const std::string& name,
     MapEntry entry(name, regex);
     if (entry.cs->importFromProj4(proj4_def.c_str()) != OGRERR_NONE)
     {
-      throw SmartMet::Spine::Exception(BCP,
+      throw Spine::Exception(BCP,
                                        "Failed to parse PROJ.4 definition '" + proj4_def + "'!");
     }
 
@@ -134,7 +134,7 @@ void CRSRegistry::register_proj4(const std::string& name,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -145,7 +145,7 @@ void CRSRegistry::register_wkt(const std::string& name,
 {
   try
   {
-    SmartMet::Spine::WriteLock lock(rw_lock);
+    Spine::WriteLock lock(rw_lock);
 
     const std::string nm = Fmi::ascii_tolower_copy(name);
     CHECK_NAME(nm);
@@ -173,11 +173,11 @@ void CRSRegistry::register_wkt(const std::string& name,
 
     entry.swap_coord = swap_coord;
 
-    throw SmartMet::Spine::Exception(BCP, "Failed to parse PROJ.4 definition '" + wkt_def + "'!");
+    throw Spine::Exception(BCP, "Failed to parse PROJ.4 definition '" + wkt_def + "'!");
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -203,11 +203,11 @@ boost::shared_ptr<CRSRegistry::Transformation> CRSRegistry::create_transformatio
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
-SmartMet::Spine::BoundingBox CRSRegistry::convert_bbox(const SmartMet::Spine::BoundingBox& src,
+Spine::BoundingBox CRSRegistry::convert_bbox(const Spine::BoundingBox& src,
                                                        const std::string& to)
 {
   try
@@ -247,7 +247,7 @@ SmartMet::Spine::BoundingBox CRSRegistry::convert_bbox(const SmartMet::Spine::Bo
     OGREnvelope envelope;
     polygon.getEnvelope(&envelope);
 
-    SmartMet::Spine::BoundingBox result;
+    Spine::BoundingBox result;
     result.xMin = envelope.MinX;
     result.yMin = envelope.MinY;
     result.xMax = envelope.MaxX;
@@ -258,7 +258,7 @@ SmartMet::Spine::BoundingBox CRSRegistry::convert_bbox(const SmartMet::Spine::Bo
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -275,7 +275,7 @@ std::string CRSRegistry::get_proj4(const std::string& name)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -291,7 +291,7 @@ void CRSRegistry::dump_info(std::ostream& output)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -308,7 +308,7 @@ std::vector<std::string> CRSRegistry::get_crs_keys() const
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -316,7 +316,7 @@ CRSRegistry::MapEntry& CRSRegistry::get_entry(const std::string& name)
 {
   try
   {
-    SmartMet::Spine::ReadLock lock(rw_lock);
+    Spine::ReadLock lock(rw_lock);
     const std::string name_lower = Fmi::ascii_tolower_copy(name);
     auto it = crs_map.find(name_lower);
 
@@ -363,12 +363,12 @@ CRSRegistry::MapEntry& CRSRegistry::get_entry(const std::string& name)
       }
 
       // Still not found ==> throw an error
-      throw SmartMet::Spine::Exception(BCP, "Coordinate system '" + name + "' not found!");
+      throw Spine::Exception(BCP, "Coordinate system '" + name + "' not found!");
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -379,14 +379,14 @@ void CRSRegistry::handle_get_attribute_error(const std::string& crs_name,
 {
   try
   {
-    throw SmartMet::Spine::Exception(
+    throw Spine::Exception(
         BCP, "Type mismatch of attribute '" + attrib_name + "' for CRS '" + crs_name + "'!")
         .addParameter("Expected", Fmi::demangle_cpp_type_name(expected_type.name()))
         .addParameter("Found", Fmi::demangle_cpp_type_name(actual_type.name()));
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -414,7 +414,7 @@ CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std:
         std::cerr << METHOD_NAME << ": failed to parse PERL regular expression '" << *text << "'"
                   << std::endl;
 
-        SmartMet::Spine::Exception exception(BCP, "Failed to parse PERL regular expression");
+        Spine::Exception exception(BCP, "Failed to parse PERL regular expression");
         if (text)
           exception.addParameter("text", *text);
         throw exception;
@@ -423,7 +423,7 @@ CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std:
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -473,14 +473,14 @@ CRSRegistry::TransformationImpl::TransformationImpl(const CRSRegistry::MapEntry&
   {
     if (not conv)
     {
-      throw SmartMet::Spine::Exception(
+      throw Spine::Exception(
           BCP,
           "Failed to create coordinate transformation '" + from_name + "' to '" + to_name + "'!");
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -495,7 +495,7 @@ CRSRegistry::TransformationImpl::~TransformationImpl()
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -525,12 +525,12 @@ NFmiPoint CRSRegistry::TransformationImpl::transform(const NFmiPoint& src)
       std::ostringstream msg;
       msg << "Coordinate transformatiom from " << from_name << " to " << to_name << " failed for ("
           << src.X() << ", " << src.Y() << ")";
-      throw SmartMet::Spine::Exception(BCP, msg.str());
+      throw Spine::Exception(BCP, msg.str());
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -555,12 +555,12 @@ boost::array<double, 3> CRSRegistry::TransformationImpl::transform(
       std::ostringstream msg;
       msg << "Coordinate transformatiom from " << from_name << " to " << to_name << " failed for ("
           << src[0] << ", " << src[1] << ", " << src[1] << ")";
-      throw SmartMet::Spine::Exception(BCP, msg.str());
+      throw Spine::Exception(BCP, msg.str());
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception(BCP, "Operation failed!", NULL);
   }
 }
 
@@ -576,12 +576,12 @@ void CRSRegistry::TransformationImpl::transform(OGRGeometry& geometry)
       geometry.exportToWkt(&gText);
       msg << "Failed to transform geometry " << gText << " to " << to_name;
       OGRFree(gText);
-      throw SmartMet::Spine::Exception(BCP, msg.str());
+      throw Spine::Exception(BCP, msg.str());
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

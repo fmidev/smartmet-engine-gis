@@ -25,7 +25,7 @@ namespace Gis
  */
 // ----------------------------------------------------------------------
 
-void parse_single_crs_def(SmartMet::Spine::ConfigBase& theConfig,
+void parse_single_crs_def(Spine::ConfigBase& theConfig,
                           libconfig::Setting& theEntry,
                           CRSRegistry& theRegistry)
 {
@@ -77,7 +77,7 @@ void parse_single_crs_def(SmartMet::Spine::ConfigBase& theConfig,
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -92,11 +92,11 @@ void read_crs_dir(const fs::path& theDir, CRSRegistry& theRegistry)
   try
   {
     if (not fs::exists(theDir))
-      throw SmartMet::Spine::Exception(
+      throw Spine::Exception(
           BCP, "Gis config: CRS directory '" + theDir.string() + "' not found");
 
     if (not fs::is_directory(theDir))
-      throw SmartMet::Spine::Exception(
+      throw Spine::Exception(
           BCP, "Gis config: CRS directory '" + theDir.string() + "' is not a directory");
 
     for (auto it = fs::directory_iterator(theDir); it != fs::directory_iterator(); ++it)
@@ -106,8 +106,8 @@ void read_crs_dir(const fs::path& theDir, CRSRegistry& theRegistry)
       if (fs::is_regular_file(entry) and not ba::starts_with(fn, ".") and
           not ba::starts_with(fn, "#") and ba::ends_with(fn, ".conf"))
       {
-        boost::shared_ptr<SmartMet::Spine::ConfigBase> desc(
-            new SmartMet::Spine::ConfigBase(entry.string(), "CRS description"));
+        boost::shared_ptr<Spine::ConfigBase> desc(
+            new Spine::ConfigBase(entry.string(), "CRS description"));
 
         try
         {
@@ -116,7 +116,7 @@ void read_crs_dir(const fs::path& theDir, CRSRegistry& theRegistry)
         }
         catch (...)
         {
-          throw SmartMet::Spine::Exception(BCP, "Invalid CRS description!", NULL)
+          throw Spine::Exception::Trace(BCP, "Invalid CRS description!")
               .addParameter("File", entry.string());
         }
       }
@@ -124,7 +124,7 @@ void read_crs_dir(const fs::path& theDir, CRSRegistry& theRegistry)
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -155,23 +155,34 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
       }
       read_crs_dir(crs_dir, itsCRSRegistry);
 
+      // Default EPSG, if any, for tables whose SRID is not set
+
+      if(itsConfig.exists("default_epsg"))
+      {
+        int epsg = 0;
+        itsConfig.lookupValue("default_epsg", epsg);
+        itsDefaultEPSG = epsg;
+      }
+
+      itsConfig.lookupValue("quiet", itsQuiet);
+      
       // Read postgis settings
 
       if (!itsConfig.exists("postgis.host"))
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'postgis.host' attribute not set!")
+        throw Spine::Exception(BCP, "The 'postgis.host' attribute not set!")
             .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.port"))
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'postgis.port' attribute not set!")
+        throw Spine::Exception(BCP, "The 'postgis.port' attribute not set!")
             .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.database"))
       {
-        throw SmartMet::Spine::Exception(BCP,
+        throw Spine::Exception(BCP,
                                          "The 'postgis.database' attribute not set!"
                                          "")
             .addParameter("Configuration file", theFileName);
@@ -179,19 +190,19 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
 
       if (!itsConfig.exists("postgis.username"))
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'postgis.username' attribute not set!")
+        throw Spine::Exception(BCP, "The 'postgis.username' attribute not set!")
             .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.password"))
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'postgis.password' attribute not set!")
+        throw Spine::Exception(BCP, "The 'postgis.password' attribute not set!")
             .addParameter("Configuration file", theFileName);
       }
 
       if (!itsConfig.exists("postgis.encoding"))
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'postgis.encoding' attribute not set!")
+        throw Spine::Exception(BCP, "The 'postgis.encoding' attribute not set!")
             .addParameter("Configuration file", theFileName);
       }
 
@@ -226,7 +237,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
 
       if (!itsConfig.exists("cache.max_size"))
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'cache.max_size' attribute not set!")
+        throw Spine::Exception(BCP, "The 'cache.max_size' attribute not set!")
             .addParameter("Configuration file", theFileName);
       }
 
@@ -237,7 +248,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
       const auto& bboxes = itsConfig.lookup("bbox");
       if (!bboxes.isGroup())
       {
-        throw SmartMet::Spine::Exception(BCP, "The 'bbox' attribute must be a group!")
+        throw Spine::Exception(BCP, "The 'bbox' attribute must be a group!")
             .addParameter("Configuration file", theFileName);
       }
 
@@ -246,13 +257,13 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
         const auto& value = bboxes[i];
         if (!value.isArray())
         {
-          throw SmartMet::Spine::Exception(BCP, "The 'bbox' element must contain arrays!")
+          throw Spine::Exception(BCP, "The 'bbox' element must contain arrays!")
               .addParameter("Configuration file", theFileName);
         }
 
         if (value.getLength() != 4)
         {
-          throw SmartMet::Spine::Exception(BCP, "The 'bbox' elements must be arrays of size 4!")
+          throw Spine::Exception(BCP, "The 'bbox' elements must be arrays of size 4!")
               .addDetail("Found an array of length " + std::to_string(value.getLength()))
               .addParameter("Configuration file", theFileName);
         }
@@ -272,7 +283,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
         const auto& settings = itsConfig.lookup("gdal");
         if (!settings.isGroup())
         {
-          throw SmartMet::Spine::Exception(BCP,
+          throw Spine::Exception(BCP,
                                            "The 'gdal' parameter must be a group of GDAL settings!")
               .addParameter("Configuration file", theFileName);
         }
@@ -287,28 +298,28 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
     }
     catch (const libconfig::SettingException& err)
     {
-      throw SmartMet::Spine::Exception(BCP, "Configuration file setting error!")
+      throw Spine::Exception(BCP, "Configuration file setting error!")
           .addParameter("Configuration file", theFileName)
           .addParameter("Path", err.getPath())
           .addParameter("Error description", err.what());
     }
     catch (libconfig::ParseException& err)
     {
-      throw SmartMet::Spine::Exception(BCP, "Configuration file parsing failed!")
+      throw Spine::Exception(BCP, "Configuration file parsing failed!")
           .addParameter("Configuration file", theFileName)
           .addParameter("Error line", std::to_string(err.getLine()))
           .addParameter("Error description", err.getError());
     }
     catch (const libconfig::ConfigException& err)
     {
-      throw SmartMet::Spine::Exception(BCP, "Configuration exception!")
+      throw Spine::Exception(BCP, "Configuration exception!")
           .addParameter("Configuration file", theFileName)
           .addParameter("Error description", err.what());
     }
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -341,7 +352,7 @@ BBox Config::getBBox(int theEPSG) const
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -357,20 +368,42 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
         return itsDefaultConnectionInfo;
       auto it = itsConnectionInfo.find("gis");
       if (it == itsConnectionInfo.end())
-        throw SmartMet::Spine::Exception(BCP, "Default postgis setting missing: \"gis\"");
+        throw Spine::Exception(BCP, "Default postgis setting missing: \"gis\"");
       else
         return it->second;
     }
 
     if (itsConnectionInfo.find(thePGName) == itsConnectionInfo.end())
-      throw SmartMet::Spine::Exception(BCP, "No postgis settings found for '" + thePGName + "'");
+      throw Spine::Exception(BCP, "No postgis settings found for '" + thePGName + "'");
 
     return itsConnectionInfo.find(thePGName)->second;
   }
   catch (...)
   {
-    throw SmartMet::Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Get the default EPSG for tables whose SRID is missing
+ */
+// ----------------------------------------------------------------------
+
+boost::optional<int> Config::getDefaultEPSG() const
+{
+  return itsDefaultEPSG;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return true for quiet mode
+ */
+// ----------------------------------------------------------------------
+
+bool Config::quiet() const
+{
+  return itsQuiet;
 }
 
 }  // namespace Gis
