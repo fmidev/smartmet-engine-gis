@@ -3,8 +3,8 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.1.31
-Release: 2%{?dist}.fmi
+Version: 18.2.9
+Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -19,12 +19,12 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 18.1.15 
+BuildRequires: smartmet-library-spine-devel >= 18.2.9 
 BuildRequires: smartmet-library-gis-devel >= 18.1.15
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 18.1.15 
+Requires: smartmet-library-spine >= 18.2.9 
 Requires: smartmet-library-gis >= 18.1.15
 %if 0%{rhel} >= 7
 Requires: boost-date-time
@@ -72,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri Feb  9 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.2.9-1.fmi
+- Repackaged since base class SmartMetEngine size changed
+
 * Wed Jan 31 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.1.31-2.fmi
 - Added setting 'default_epsg' to set SRID for geometries whose SRID is not set
 - Added setting 'quiet' to disable warnings from unset SRIDs if default_epgs is used
