@@ -19,13 +19,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 18.2.9 
-BuildRequires: smartmet-library-gis-devel >= 18.1.15
+BuildRequires: smartmet-library-spine-devel >= 18.2.14 
+BuildRequires: smartmet-library-gis-devel >= 18.2.8
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 18.2.9 
-Requires: smartmet-library-gis >= 18.1.15
+Requires: smartmet-library-spine >= 18.2.14 
+Requires: smartmet-library-gis >= 18.2.8
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
