@@ -187,7 +187,9 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig() {}
+Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig()
+{
+}
 
 // ----------------------------------------------------------------------
 /*!
@@ -441,7 +443,8 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     if (theOptions.time_column)
     {
       sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " + theOptions.schema +
-                "." + theOptions.table + " ORDER by " + *theOptions.time_column;
+                "." + theOptions.table + " WHERE " + *theOptions.time_column +
+                " IS NOT NULL ORDER by " + *theOptions.time_column;
 
       SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
 
@@ -467,8 +470,8 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
 
         if (!ret)
         {
-          std::cout << "Reading values from time column '" << *theOptions.time_column << "' failed!"
-                    << std::endl;
+          std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
+                    << "." << *theOptions.time_column << "' failed!" << std::endl;
           break;
         }
 
