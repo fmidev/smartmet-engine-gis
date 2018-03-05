@@ -1,7 +1,7 @@
 #pragma once
 
 #include <boost/date_time/posix_time/posix_time.hpp>
-
+#include <boost/optional.hpp>
 #include <vector>
 
 namespace SmartMet
@@ -24,6 +24,7 @@ struct MetaDataQueryOptions
   std::string table;
   std::string geometry_column;
   boost::optional<std::string> time_column;
+  std::size_t hash_value() const;
 };
 
 struct MetaData

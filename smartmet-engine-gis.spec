@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.2.20
+Version: 18.3.5
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,12 +19,12 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 18.2.14 
+BuildRequires: smartmet-library-spine-devel >= 18.2.27 
 BuildRequires: smartmet-library-gis-devel >= 18.2.8
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 18.2.14 
+Requires: smartmet-library-spine >= 18.2.27 
 Requires: smartmet-library-gis >= 18.2.8
 %if 0%{rhel} >= 7
 Requires: boost-date-time
@@ -72,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Mar  5 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.3.5-1.fmi
+- Cache envelope queries to increase WMS GetCapabilities speed
+
 * Tue Feb 20 2018 Anssi Reponen <anssi.reponen@fmi.fi> - 18.2.20-1.fmi
 - Checking NULL value in metadata query
 

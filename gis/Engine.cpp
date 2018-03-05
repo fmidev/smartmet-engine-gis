@@ -187,9 +187,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig()
-{
-}
+Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig() {}
 
 // ----------------------------------------------------------------------
 /*!
@@ -208,8 +206,8 @@ void Engine::init()
     itsConfig.reset(new Config(itsConfigFile));
 
     itsCache.resize(itsConfig->getMaxCacheSize());
-
     itsFeaturesCache.resize(itsConfig->getMaxCacheSize());
+    itsEnvelopeCache.resize(itsConfig->getMaxCacheSize());
 
     // Register all drivers just once
 
@@ -439,12 +437,12 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
 
     // 1) Get timesteps
 
-    std::string sqlStmt;
     if (theOptions.time_column)
     {
-      sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " + theOptions.schema +
-                "." + theOptions.table + " WHERE " + *theOptions.time_column +
-                " IS NOT NULL ORDER by " + *theOptions.time_column;
+      std::string sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " +
+                            theOptions.schema + "." + theOptions.table + " WHERE " +
+                            *theOptions.time_column + " IS NOT NULL ORDER by " +
+                            *theOptions.time_column;
 
       SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
 
@@ -498,6 +496,25 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     OGRSpatialReference oTargetSRS;
     oTargetSRS.importFromEPSGA(4326);
 
+    // Cache envelopes. We assume no need to reduce envelope sizes when old data is deleted
+
+    auto hash = theOptions.hash_value();
+    if (theOptions.time_column && !metadata.timesteps.empty())
+    {
+      const auto& last_time = metadata.timesteps.back();
+      boost::hash_combine(hash, boost::hash_value(Fmi::to_iso_string(last_time)));
+    }
+
+    auto obj = itsEnvelopeCache.find(hash);
+    if (obj)
+    {
+      metadata.xmin = obj->MinX;
+      metadata.ymin = obj->MinY;
+      metadata.xmax = obj->MaxX;
+      metadata.ymax = obj->MaxY;
+      return metadata;
+    }
+
     OGREnvelope table_envelope = getTableEnvelope(connection,
                                                   theOptions.schema,
                                                   theOptions.table,
@@ -521,6 +538,8 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
       metadata.xmax = table_envelope.MaxX;
       metadata.ymax = table_envelope.MaxY;
     }
+
+    itsEnvelopeCache.insert(hash, table_envelope);
 
     return metadata;
   }

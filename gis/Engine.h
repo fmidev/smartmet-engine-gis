@@ -59,9 +59,14 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   // Cached contents
   typedef Fmi::Cache::Cache<std::string, OGRGeometryPtr> GeometryCache;
   mutable GeometryCache itsCache;
+
   // cache for geometries with attributes
   typedef Fmi::Cache::Cache<std::string, Fmi::Features> FeaturesCache;
   mutable FeaturesCache itsFeaturesCache;
+
+  // cache for envelopes
+  typedef Fmi::Cache::Cache<std::size_t, OGREnvelope> EnvelopeCache;
+  mutable EnvelopeCache itsEnvelopeCache;
 
 };  // class Engine
 
