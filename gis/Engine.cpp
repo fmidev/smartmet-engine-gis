@@ -187,7 +187,9 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig() {}
+Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig()
+{
+}
 
 // ----------------------------------------------------------------------
 /*!
@@ -432,11 +434,13 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
 
     auto connection = db_connection(*itsConfig, theOptions.pgname);
 
+    // Get time always in UTC
+    connection->ExecuteSQL("SET TIME ZONE UTC", nullptr, nullptr);
+
     auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
 
     // 1) Get timesteps
-
     if (theOptions.time_column)
     {
       std::string sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " +
@@ -481,23 +485,12 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     }
 
     // 2) Get bounding box
-
-    // set default values
     metadata.xmin = 0.0;
     metadata.ymin = 0.0;
     metadata.xmax = 0.0;
     metadata.ymax = 0.0;
 
-    int epsg = getEpsgCode(
-        connection, theOptions.schema, theOptions.table, theOptions.geometry_column, *itsConfig);
-
-    OGRSpatialReference oSourceSRS;
-    oSourceSRS.importFromEPSGA(epsg);
-    OGRSpatialReference oTargetSRS;
-    oTargetSRS.importFromEPSGA(4326);
-
     // Cache envelopes. We assume no need to reduce envelope sizes when old data is deleted
-
     auto hash = theOptions.hash_value();
     if (theOptions.time_column && !metadata.timesteps.empty())
     {
@@ -522,6 +515,13 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
                                                   itsConfig->quiet());
 
     // convert source spatial reference system to EPSG:4326
+    int epsg = getEpsgCode(
+        connection, theOptions.schema, theOptions.table, theOptions.geometry_column, *itsConfig);
+
+    OGRSpatialReference oSourceSRS;
+    oSourceSRS.importFromEPSGA(epsg);
+    OGRSpatialReference oTargetSRS;
+    oTargetSRS.importFromEPSGA(4326);
 
     std::unique_ptr<OGRCoordinateTransformation> poCT(
         OGRCreateCoordinateTransformation(&oSourceSRS, &oTargetSRS));
