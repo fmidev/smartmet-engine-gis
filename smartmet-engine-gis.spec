@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.3.6
+Version: 18.3.7
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,12 +20,12 @@ BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
 BuildRequires: smartmet-library-spine-devel >= 18.2.27 
-BuildRequires: smartmet-library-gis-devel >= 18.3.6
+BuildRequires: smartmet-library-gis-devel >= 18.3.7
 Requires: gdal
 Requires: geos
 Requires: libconfig
 Requires: smartmet-library-spine >= 18.2.27 
-Requires: smartmet-library-gis >= 18.3.6
+Requires: smartmet-library-gis >= 18.3.7
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -72,7 +72,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
-* Tue Mar 6 2018 Anssi Reponen <anssi.reponen@fmi.fi> - 18.3.6-1.fmi
+* Wed Mar 7 2018 Anssi Reponen <anssi.reponen@fmi.fi> - 18.3.7-1.fmi
 - Use UTC timezone when reading data from PostGIS database (BRAINSTORM-1049)
 
 * Mon Mar  5 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.3.5-1.fmi
