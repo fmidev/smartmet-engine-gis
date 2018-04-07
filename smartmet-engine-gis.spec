@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.3.20
+Version: 18.4.7
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,13 +19,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 18.2.27 
-BuildRequires: smartmet-library-gis-devel >= 18.3.7
+BuildRequires: smartmet-library-spine-devel >= 18.4.7 
+BuildRequires: smartmet-library-gis-devel >= 18.4.7
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 18.2.27 
-Requires: smartmet-library-gis >= 18.3.7
+Requires: smartmet-library-spine >= 18.4.7 
+Requires: smartmet-library-gis >= 18.4.7
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -72,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Sat Apr  7 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.4.7-1.fmi
+- Upgrade to boost 1.66
+
 * Tue Mar 20 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.3.20-1.fmi
 - Full repackaging of the server
 
