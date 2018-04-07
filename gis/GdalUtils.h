@@ -1,12 +1,12 @@
 #pragma once
 
-#include <limits>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <gdal/ogr_geometry.h>
 #include <gdal/ogr_spatialref.h>
-#include <newbase/NFmiRect.h>
 #include <newbase/NFmiPoint.h>
+#include <newbase/NFmiRect.h>
+#include <limits>
 
 namespace SmartMet
 {
@@ -38,6 +38,7 @@ class GeometryConv : public OGRCoordinateTransformation
  private:
   virtual OGRSpatialReference *GetSourceCS() { return NULL; }
   virtual OGRSpatialReference *GetTargetCS() { return NULL; }
+
  private:
   boost::function1<NFmiPoint, NFmiPoint> conv;
 };

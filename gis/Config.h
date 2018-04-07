@@ -42,7 +42,7 @@ class Config : private boost::noncopyable
 
   boost::optional<int> getDefaultEPSG() const;
   bool quiet() const;
-  
+
  private:
   libconfig::Config itsConfig;
   CRSRegistry itsCRSRegistry;
@@ -59,7 +59,7 @@ class Config : private boost::noncopyable
 
   // Quiet mode
   bool itsQuiet = true;
-  
+
   // EPSG bounding boxes
   typedef std::map<int, BBox> BBoxMap;
   BBoxMap itsBBoxes;

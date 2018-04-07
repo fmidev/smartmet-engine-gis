@@ -92,8 +92,7 @@ void read_crs_dir(const fs::path& theDir, CRSRegistry& theRegistry)
   try
   {
     if (not fs::exists(theDir))
-      throw Spine::Exception(
-          BCP, "Gis config: CRS directory '" + theDir.string() + "' not found");
+      throw Spine::Exception(BCP, "Gis config: CRS directory '" + theDir.string() + "' not found");
 
     if (not fs::is_directory(theDir))
       throw Spine::Exception(
@@ -157,7 +156,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
 
       // Default EPSG, if any, for tables whose SRID is not set
 
-      if(itsConfig.exists("default_epsg"))
+      if (itsConfig.exists("default_epsg"))
       {
         int epsg = 0;
         itsConfig.lookupValue("default_epsg", epsg);
@@ -165,7 +164,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
       }
 
       itsConfig.lookupValue("quiet", itsQuiet);
-      
+
       // Read postgis settings
 
       if (!itsConfig.exists("postgis.host"))
@@ -183,8 +182,8 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
       if (!itsConfig.exists("postgis.database"))
       {
         throw Spine::Exception(BCP,
-                                         "The 'postgis.database' attribute not set!"
-                                         "")
+                               "The 'postgis.database' attribute not set!"
+                               "")
             .addParameter("Configuration file", theFileName);
       }
 
@@ -283,8 +282,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
         const auto& settings = itsConfig.lookup("gdal");
         if (!settings.isGroup())
         {
-          throw Spine::Exception(BCP,
-                                           "The 'gdal' parameter must be a group of GDAL settings!")
+          throw Spine::Exception(BCP, "The 'gdal' parameter must be a group of GDAL settings!")
               .addParameter("Configuration file", theFileName);
         }
 

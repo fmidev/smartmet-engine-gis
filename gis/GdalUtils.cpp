@@ -102,13 +102,9 @@ std::string WKT(const OGRGeometry &geometry)
   }
 }
 
-GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : conv(theConv)
-{
-}
+GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : conv(theConv) {}
 
-GeometryConv::~GeometryConv()
-{
-}
+GeometryConv::~GeometryConv() {}
 
 // BUG?? nCount is unused
 int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)

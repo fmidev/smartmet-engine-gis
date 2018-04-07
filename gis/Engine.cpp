@@ -187,9 +187,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig()
-{
-}
+Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig() {}
 
 // ----------------------------------------------------------------------
 /*!

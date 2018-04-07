@@ -70,13 +70,9 @@ class CRSRegistry::TransformationImpl : public CRSRegistry::Transformation
   if (crs_map.count(name)) \
     throw Spine::Exception(BCP, "Duplicate name of coordinate system (" + name + ")!");
 
-CRSRegistry::CRSRegistry()
-{
-}
+CRSRegistry::CRSRegistry() {}
 
-CRSRegistry::~CRSRegistry()
-{
-}
+CRSRegistry::~CRSRegistry() {}
 
 void CRSRegistry::register_epsg(const std::string& name,
                                 int epsg_code,
@@ -122,8 +118,7 @@ void CRSRegistry::register_proj4(const std::string& name,
     MapEntry entry(name, regex);
     if (entry.cs->importFromProj4(proj4_def.c_str()) != OGRERR_NONE)
     {
-      throw Spine::Exception(BCP,
-                                       "Failed to parse PROJ.4 definition '" + proj4_def + "'!");
+      throw Spine::Exception(BCP, "Failed to parse PROJ.4 definition '" + proj4_def + "'!");
     }
 
     entry.swap_coord = swap_coord;
@@ -207,8 +202,7 @@ boost::shared_ptr<CRSRegistry::Transformation> CRSRegistry::create_transformatio
   }
 }
 
-Spine::BoundingBox CRSRegistry::convert_bbox(const Spine::BoundingBox& src,
-                                                       const std::string& to)
+Spine::BoundingBox CRSRegistry::convert_bbox(const Spine::BoundingBox& src, const std::string& to)
 {
   try
   {
@@ -390,13 +384,9 @@ void CRSRegistry::handle_get_attribute_error(const std::string& crs_name,
   }
 }
 
-CRSRegistry::Transformation::Transformation()
-{
-}
+CRSRegistry::Transformation::Transformation() {}
 
-CRSRegistry::Transformation::~Transformation()
-{
-}
+CRSRegistry::Transformation::~Transformation() {}
 
 CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std::string> text)
     : name(theName), cs(new OGRSpatialReference)
@@ -432,9 +422,7 @@ CRSRegistry::IdentityTransformation::IdentityTransformation(const std::string& t
 {
 }
 
-CRSRegistry::IdentityTransformation::~IdentityTransformation()
-{
-}
+CRSRegistry::IdentityTransformation::~IdentityTransformation() {}
 std::string CRSRegistry::IdentityTransformation::get_src_name() const
 {
   return crs_name;

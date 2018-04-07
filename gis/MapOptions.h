@@ -7,8 +7,8 @@
 #pragma once
 
 #include <boost/optional.hpp>
-#include <string>
 #include <set>
+#include <string>
 
 namespace SmartMet
 {

@@ -1,20 +1,20 @@
 #pragma once
 
-#include <map>
-#include <ostream>
-#include <typeinfo>
 #include <boost/any.hpp>
 #include <boost/array.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
-#include <gdal/ogr_spatialref.h>
 #include <gdal/ogr_geometry.h>
-#include <newbase/NFmiPoint.h>
+#include <gdal/ogr_spatialref.h>
 #include <macgyver/TypeName.h>
-#include <spine/Value.h>
+#include <newbase/NFmiPoint.h>
 #include <spine/Thread.h>
+#include <spine/Value.h>
+#include <map>
+#include <ostream>
+#include <typeinfo>
 
 namespace SmartMet
 {
