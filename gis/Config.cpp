@@ -301,7 +301,7 @@ Config::Config(const std::string& theFileName) : itsConfig(), itsCRSRegistry()
           .addParameter("Path", err.getPath())
           .addParameter("Error description", err.what());
     }
-    catch (libconfig::ParseException& err)
+    catch (const libconfig::ParseException& err)
     {
       throw Spine::Exception(BCP, "Configuration file parsing failed!")
           .addParameter("Configuration file", theFileName)
