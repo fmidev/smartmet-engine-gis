@@ -27,7 +27,7 @@ class CRSRegistry::IdentityTransformation : public CRSRegistry::Transformation
  public:
   IdentityTransformation(const std::string& crs_name);
 
-  virtual ~IdentityTransformation();
+  virtual ~IdentityTransformation() = default;
 
   virtual std::string get_src_name() const;
 
@@ -422,7 +422,6 @@ CRSRegistry::IdentityTransformation::IdentityTransformation(const std::string& t
 {
 }
 
-CRSRegistry::IdentityTransformation::~IdentityTransformation() {}
 std::string CRSRegistry::IdentityTransformation::get_src_name() const
 {
   return crs_name;
