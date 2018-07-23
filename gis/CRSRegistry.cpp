@@ -88,7 +88,8 @@ void CRSRegistry::register_epsg(const std::string& name,
     MapEntry entry(name, regex);
     if (entry.cs->importFromEPSG(epsg_code) != OGRERR_NONE)
     {
-      throw Spine::Exception(BCP, "Failed to register projection EPSG:" + epsg_code);
+      throw Spine::Exception(BCP,
+                             "Failed to register projection EPSG:" + Fmi::to_string(epsg_code));
     }
     entry.swap_coord = swap_coord;
 
