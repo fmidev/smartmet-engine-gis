@@ -42,7 +42,7 @@ int getEpsgCode(const OGRDataSourcePtr& connection,
     std::string sqlStmt =
         "select st_srid(" + geometry_column + ") from " + schema + "." + table + " limit 1;";
 
-    SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
+    SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
     if (!pLayer)
       throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
@@ -55,7 +55,7 @@ int getEpsgCode(const OGRDataSourcePtr& connection,
     if (config.getDefaultEPSG())
     {
       if (!config.quiet())
-        std::cerr << "Warning: sqlStmt returned NULL. Setting EPSG to default value "
+        std::cerr << "Warning: sqlStmt returned null. Setting EPSG to default value "
                   << *config.getDefaultEPSG() << std::endl;
       return *config.getDefaultEPSG();
     }
@@ -87,7 +87,7 @@ OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
     auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
 
-    SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
+    SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
     if (!pLayer)
       throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
@@ -446,7 +446,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
                             *theOptions.time_column + " IS NOT NULL ORDER by " +
                             *theOptions.time_column;
 
-      SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), NULL, NULL), layerdeleter);
+      SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
       if (!pLayer)
         throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");

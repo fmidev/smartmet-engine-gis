@@ -30,14 +30,14 @@ class GeometryConv : public OGRCoordinateTransformation
 
   virtual ~GeometryConv();
 
-  virtual int Transform(int nCount, double *x, double *y, double *z = NULL);
+  virtual int Transform(int nCount, double *x, double *y, double *z = nullptr);
 
   virtual int TransformEx(
-      int nCount, double *x, double *y, double *z = NULL, int *pabSuccess = NULL);
+      int nCount, double *x, double *y, double *z = nullptr, int *pabSuccess = nullptr);
 
  private:
-  virtual OGRSpatialReference *GetSourceCS() { return NULL; }
-  virtual OGRSpatialReference *GetTargetCS() { return NULL; }
+  virtual OGRSpatialReference *GetSourceCS() { return nullptr; }
+  virtual OGRSpatialReference *GetTargetCS() { return nullptr; }
 
  private:
   boost::function1<NFmiPoint, NFmiPoint> conv;

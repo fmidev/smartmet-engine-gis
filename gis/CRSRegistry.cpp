@@ -261,7 +261,7 @@ std::string CRSRegistry::get_proj4(const std::string& name)
 {
   try
   {
-    char* tmp = NULL;
+    char* tmp = nullptr;
     auto& entry = get_entry(name);
     entry.cs->exportToProj4(&tmp);
     std::string result(tmp);
@@ -503,7 +503,7 @@ NFmiPoint CRSRegistry::TransformationImpl::transform(const NFmiPoint& src)
   {
     double x = swap1 ? src.Y() : src.X();
     double y = swap1 ? src.X() : src.Y();
-    if (conv->Transform(1, &x, &y, NULL))
+    if (conv->Transform(1, &x, &y, nullptr))
     {
       NFmiPoint result(swap2 ? y : x, swap2 ? x : y);
       return result;
@@ -548,7 +548,7 @@ boost::array<double, 3> CRSRegistry::TransformationImpl::transform(
   }
   catch (...)
   {
-    throw Spine::Exception(BCP, "Operation failed!", NULL);
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -560,7 +560,7 @@ void CRSRegistry::TransformationImpl::transform(OGRGeometry& geometry)
     if (err != OGRERR_NONE)
     {
       std::ostringstream msg;
-      char* gText = NULL;
+      char* gText = nullptr;
       geometry.exportToWkt(&gText);
       msg << "Failed to transform geometry " << gText << " to " << to_name;
       OGRFree(gText);

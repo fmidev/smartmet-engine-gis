@@ -90,7 +90,7 @@ std::string WKT(const OGRGeometry &geometry)
 {
   try
   {
-    char *wkt = NULL;
+    char *wkt = nullptr;
     geometry.exportToWkt(&wkt);
     std::string result = wkt;
     OGRFree(wkt);
