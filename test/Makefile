@@ -25,7 +25,8 @@ LIBS = \
 	-lgeos \
 	-lgdal \
 	-lboost_system \
-	`pkg-config --libs libconfig++`
+	`pkg-config --libs libconfig++` \
+	-lpthread
 
 all: $(PROG)
 clean:

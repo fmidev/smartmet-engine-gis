@@ -4,6 +4,7 @@
 
 #include "BBox.h"
 #include "Config.h"
+#include "EPSG.h"
 #include "GeometryStorage.h"
 #include "MapOptions.h"
 #include "MetaData.h"
@@ -41,6 +42,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   Fmi::Features getFeatures(OGRSpatialReference* theSR, const MapOptions& theOptions) const;
 
   BBox getBBox(int theEPSG) const;
+  boost::optional<EPSG> getEPSG(int theEPSG) const;
 
   MetaData getMetaData(const MetaDataQueryOptions& theOptions) const;
 

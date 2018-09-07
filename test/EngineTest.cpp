@@ -16,13 +16,13 @@ void getBBox()
 
   auto bbox = gengine->getBBox(2393);
   if (bbox.west != 19.24)
-    TEST_FAILED("YKJ west limit should be 19.24");
+    TEST_FAILED("YKJ west limit should be 19.24, not " + std::to_string(bbox.west));
   if (bbox.east != 31.59)
-    TEST_FAILED("YKJ east limit should be 31.59");
+    TEST_FAILED("YKJ east limit should be 31.59, not " + std::to_string(bbox.east));
   if (bbox.south != 59.75)
-    TEST_FAILED("YKJ south limit should be 59.75");
+    TEST_FAILED("YKJ south limit should be 59.75, not " + std::to_string(bbox.south));
   if (bbox.north != 70.09)
-    TEST_FAILED("YKJ north limit should be 70.09");
+    TEST_FAILED("YKJ north limit should be 70.09, not " + std::to_string(bbox.north));
 
   // Undefined EPSG
   bbox = gengine->getBBox(666);
@@ -38,13 +38,55 @@ void getBBox()
   TEST_PASSED();
 }
 
+// ----------------------------------------------------------------------
+
+void getEPSG()
+{
+  using namespace SmartMet;
+
+  {
+    auto epsg = gengine->getEPSG(3035);
+    if (!epsg)
+      TEST_FAILED("Failed to get EPSG information for EPSG:3035 (LAEA Europe)");
+
+    if (epsg->number != 3035)
+      TEST_FAILED("Got wrong ID for EPSG:3035");
+
+    if (epsg->name != "ETRS89 / LAEA Europe")
+      TEST_FAILED("Got wrong name for EPSG:3035");
+
+    if (epsg->scope.empty())
+      TEST_FAILED("EPSG:3035 scope should not be empty, it should cover all Europe");
+
+    if (epsg->source.empty())
+      TEST_FAILED("EPSG:3035 source should be the European Commission Joint Research Centre");
+
+    if (epsg->deprecated)
+      TEST_FAILED("EPSG:3035 should not be deprecated");
+  }
+
+  // Undefined EPSG
+
+  {
+    auto epsg = gengine->getEPSG(666);
+    if (epsg)
+      TEST_FAILED("Should not find EPSG:666");
+  }
+
+  TEST_PASSED();
+}
+
 // Test driver
 class tests : public tframe::tests
 {
   // Overridden message separator
   virtual const char *error_message_prefix() const { return "\n\t"; }
   // Main test suite
-  void test() { TEST(getBBox); }
+  void test()
+  {
+    TEST(getBBox);
+    TEST(getEPSG);
+  }
 };  // class tests
 
 }  // namespace Tests

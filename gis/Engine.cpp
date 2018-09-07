@@ -565,6 +565,24 @@ BBox Engine::getBBox(int theEPSG) const
   }
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return EPSG information
+ */
+// ----------------------------------------------------------------------
+
+boost::optional<EPSG> Engine::getEPSG(int theEPSG) const
+{
+  try
+  {
+    return itsConfig->getEPSG(theEPSG);
+  }
+  catch (...)
+  {
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+
 void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISIdentifiers,
                                      GeometryStorage& theGeometryStorage) const
 {

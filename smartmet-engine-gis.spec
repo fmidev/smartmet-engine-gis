@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.7.25
+Version: 18.9.7
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -73,6 +73,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri Sep  7 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.9.7-1.fmi
+- Updated to EPSG 9.5 data
+- Store also EPSG name, scope, source and deprecation status, already stored bbox
+- Deprecated configuration variable bbox, added variable epsg
+
 * Wed Jul 25 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.7.25-1.fmi
 - Prefer nullptr over NULL
 

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "BBox.h"
 #include "CRSRegistry.h"
+#include "EPSG.h"
 #include <boost/optional.hpp>
 #include <boost/utility.hpp>
 #include <libconfig.h++>
@@ -30,7 +30,7 @@ class Config : private boost::noncopyable
 {
  public:
   Config() = delete;
-  Config(const std::string& theFileName);
+  Config(std::string theFileName);
 
   // return the CRS registry
   CRSRegistry& getCRSRegistry();
@@ -39,12 +39,24 @@ class Config : private boost::noncopyable
 
   int getMaxCacheSize() const { return itsMaxCacheSize; }
   BBox getBBox(int theEPSG) const;
+  boost::optional<EPSG> getEPSG(int theEPSG) const;
 
   boost::optional<int> getDefaultEPSG() const;
   bool quiet() const;
 
  private:
+  void read_crs_settings();
+  void require_postgis_settings() const;
+  void read_postgis_settings();
+  void read_cache_settings();
+  void read_gdal_settings();
+  void read_epsg_settings();
+  void read_bbox_settings();
+  BBox read_bbox(const libconfig::Setting& theSetting) const;
+  EPSG read_epsg(const libconfig::Setting& theSetting) const;
+
   libconfig::Config itsConfig;
+  std::string itsFileName;
   CRSRegistry itsCRSRegistry;
 
   // PostGIS settings
@@ -60,9 +72,9 @@ class Config : private boost::noncopyable
   // Quiet mode
   bool itsQuiet = true;
 
-  // EPSG bounding boxes
-  typedef std::map<int, BBox> BBoxMap;
-  BBoxMap itsBBoxes;
+  // EPSG bounding boxes etc
+  using EPSGMap = std::map<int, EPSG>;
+  EPSGMap itsEPSGMap;
 };
 
 }  // namespace Gis
