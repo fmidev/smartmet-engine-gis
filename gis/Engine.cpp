@@ -6,6 +6,7 @@
 #include <macgyver/StringConversion.h>
 #include <spine/Exception.h>
 
+#include <gis/Box.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
@@ -661,18 +662,10 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
             }
           }
 
+          std::string svgString = Fmi::OGR::exportToSvg(*geom, Fmi::Box::identity(), 6);
+
           if (geomType == wkbPolygon || geomType == wkbMultiPolygon)
           {
-            std::string svgString = Fmi::OGR::exportToWkt(*geom);
-            boost::algorithm::replace_all(svgString, "MULTIPOLYGON ", "");
-            boost::algorithm::replace_all(svgString, "POLYGON ", "");
-            boost::algorithm::replace_all(svgString, "),(", " Z M ");
-            boost::algorithm::replace_all(svgString, ",", " L ");
-            boost::algorithm::replace_all(svgString, "(", "");
-            boost::algorithm::replace_all(svgString, ")", "");
-            svgString.insert(0, "\"M ");
-            svgString.append(" Z\"\n");
-
 #ifdef MYDEBUG
             cout << "POLYGON in SVG format: " << svgString << endl;
 #endif
@@ -681,6 +674,18 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
               theGeometryStorage.itsPolygons[areaName] = svgString;
             else
               theGeometryStorage.itsPolygons.insert(std::make_pair(areaName, svgString));
+          }
+          else if (geomType == wkbLineString || geomType == wkbMultiLineString)
+          {
+#ifdef MYDEBUG
+            std::cout << "LINE in SVG format: " << svgString << std::endl;
+#endif
+            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
+            {
+              theGeometryStorage.itsLines[areaName].append(svgString);
+            }
+            else
+              theGeometryStorage.itsLines.insert(std::make_pair(areaName, svgString));
           }
           else if (geomType == wkbPoint)
           {
@@ -692,41 +697,19 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
               theGeometryStorage.itsPoints.insert(
                   std::make_pair(areaName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
           }
-          else if (geomType == wkbLineString || geomType == wkbMultiLineString)
-          {
-            // path
-            std::string svgString = Fmi::OGR::exportToWkt(*geom);
-            boost::algorithm::replace_all(svgString, "MULTILINESTRING ", "");
-            boost::algorithm::replace_all(svgString, "LINESTRING ", "");
-            boost::algorithm::replace_all(svgString, "))((", ",");
-            boost::algorithm::replace_all(svgString, ",", " L ");
-            boost::algorithm::replace_all(svgString, "(", "");
-            boost::algorithm::replace_all(svgString, ")", "");
-            svgString.append(" \"\n");
-
-            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
-            {
-              std::string previousPart(theGeometryStorage.itsLines[areaName]);
-              boost::algorithm::replace_all(previousPart, " \"", " ");
-              boost::algorithm::replace_all(previousPart, " \n", " ");
-              svgString = (previousPart + "L " + svgString);
-            }
-            else
-            {
-              svgString.insert(0, "\"M ");
-            }
-
-            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
-              theGeometryStorage.itsLines[areaName] = svgString;
-            else
-              theGeometryStorage.itsLines.insert(std::make_pair(areaName, svgString));
-
-#ifdef MYDEBUG
-            cout << "LINE in SVG format: " << svgString << endl;
-#endif
-          }
         }
       }
+    }
+    // Add quotation mark in the beginning and in the end
+    for (auto& svg : theGeometryStorage.itsLines)
+    {
+      svg.second.insert(0, "\"");
+      svg.second.append("\"");
+    }
+    for (auto& svg : theGeometryStorage.itsPolygons)
+    {
+      svg.second.insert(0, "\"");
+      svg.second.append("\"");
     }
   }
   catch (...)
