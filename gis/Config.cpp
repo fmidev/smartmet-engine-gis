@@ -215,6 +215,42 @@ void Config::read_postgis_settings()
   }
 }
 
+void Config::read_postgis_info()
+{
+  if (!itsConfig.exists("info"))
+    return;
+
+  const auto& info = itsConfig.lookup("info");
+  if (!info.isGroup())
+    throw Spine::Exception(BCP, "info setting must be a group");
+
+  for (int i = 0; i < info.getLength(); i++)
+  {
+    const auto& schema = info[i];
+
+    if (!schema.isGroup())
+      throw Spine::Exception(BCP, "info settings must be groups");
+
+    std::string schema_name = schema.getName();
+
+    for (int j = 0; j < schema.getLength(); j++)
+    {
+      const auto& table = schema[j];
+      if (!table.isGroup())
+        throw Spine::Exception(BCP, "info schema settings must be groups");
+
+      std::string table_name = table.getName();
+
+      if (table.exists("bbox"))
+      {
+        auto bbox = read_bbox(table["bbox"]);
+        std::string key = schema_name + '.' + table_name;
+        itsPostGisInfo.insert(std::make_pair(key, bbox));
+      }
+    }
+  }
+}
+
 void Config::read_cache_settings()
 {
   if (!itsConfig.exists("cache.max_size"))
@@ -375,6 +411,7 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
       read_cache_settings();
       read_gdal_settings();
       read_epsg_settings();
+      read_postgis_info();
     }
     catch (const libconfig::SettingException& err)
     {
@@ -475,6 +512,22 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
 boost::optional<int> Config::getDefaultEPSG() const
 {
   return itsDefaultEPSG;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return precomputed/fixed bbox if there is one
+ */
+// ----------------------------------------------------------------------
+
+boost::optional<BBox> Config::getTableBBox(const std::string& theSchema,
+                                           const std::string& theTable) const
+{
+  std::string key = theSchema + "." + theTable;
+  auto pos = itsPostGisInfo.find(key);
+  if (pos == itsPostGisInfo.end())
+    return {};
+  return pos->second;
 }
 
 // ----------------------------------------------------------------------

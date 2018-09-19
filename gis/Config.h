@@ -42,12 +42,15 @@ class Config : private boost::noncopyable
   boost::optional<EPSG> getEPSG(int theEPSG) const;
 
   boost::optional<int> getDefaultEPSG() const;
+  boost::optional<BBox> getTableBBox(const std::string& theSchema,
+                                     const std::string& theTable) const;
   bool quiet() const;
 
  private:
   void read_crs_settings();
   void require_postgis_settings() const;
   void read_postgis_settings();
+  void read_postgis_info();
   void read_cache_settings();
   void read_gdal_settings();
   void read_epsg_settings();
@@ -75,6 +78,10 @@ class Config : private boost::noncopyable
   // EPSG bounding boxes etc
   using EPSGMap = std::map<int, EPSG>;
   EPSGMap itsEPSGMap;
+
+  // Precomputed/fixed PostGIS information
+  using PostGisInfo = std::map<std::string, BBox>;
+  PostGisInfo itsPostGisInfo;
 };
 
 }  // namespace Gis

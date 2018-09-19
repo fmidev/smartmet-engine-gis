@@ -55,6 +55,13 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
  private:
   Engine();
+
+  OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
+                               const std::string& schema,
+                               const std::string& table,
+                               const std::string& geometry_column,
+                               bool quiet) const;
+
   std::string itsConfigFile;
   std::unique_ptr<Config> itsConfig;  // ptr for delayed initialization
 

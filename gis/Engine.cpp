@@ -68,57 +68,6 @@ int getEpsgCode(const OGRDataSourcePtr& connection,
   }
 }
 
-OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
-                             const std::string& schema,
-                             const std::string& table,
-                             const std::string& geometry_column,
-                             bool quiet)
-{
-  try
-  {
-#if 0
-    std::string sqlStmt = "SELECT ST_EstimatedExtent('" + schema + "', '" + table + "', '" +
-                          geometry_column + "')::geometry as extent";
-#else
-    std::string sqlStmt = "SELECT ST_Extent(" + geometry_column + ")::geometry as extent FROM " +
-                          schema + "." + table;
-#endif
-
-    auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
-    using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
-
-    SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
-
-    if (!pLayer)
-      throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
-
-    SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
-
-    if (!pFeature)
-      throw Spine::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
-
-    // get geometry
-    OGRGeometry* pGeometry = pFeature->GetGeometryRef();
-
-    if (!pGeometry)
-    {
-      Spine::Exception ex(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
-      if (quiet)
-        ex.disableLogging();
-      throw ex;
-    }
-
-    OGREnvelope bbox;
-    pGeometry->getEnvelope(&bbox);
-
-    return bbox;
-  }
-  catch (...)
-  {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
 OGRDataSourcePtr db_connection(const Config& config, const std::string& pgname)
 {
   try
@@ -174,6 +123,69 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
     key += Fmi::to_string(theOptions.mindistance ? *theOptions.mindistance : 0.0);
 
     return std::make_pair(basic, key);
+  }
+  catch (...)
+  {
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+
+OGREnvelope Engine::getTableEnvelope(const OGRDataSourcePtr& connection,
+                                     const std::string& schema,
+                                     const std::string& table,
+                                     const std::string& geometry_column,
+                                     bool quiet) const
+{
+  try
+  {
+    // we assume there is just one geometry column
+    auto fixed_bbox = itsConfig->getTableBBox(schema, table);
+    if (fixed_bbox)
+    {
+      OGREnvelope bbox;
+      bbox.MinX = fixed_bbox->west;
+      bbox.MinY = fixed_bbox->south;
+      bbox.MaxX = fixed_bbox->east;
+      bbox.MaxY = fixed_bbox->north;
+      return bbox;
+    }
+
+#if 0
+    std::string sqlStmt = "SELECT ST_EstimatedExtent('" + schema + "', '" + table + "', '" +
+                          geometry_column + "')::geometry as extent";
+#else
+    std::string sqlStmt = "SELECT ST_Extent(" + geometry_column + ")::geometry as extent FROM " +
+                          schema + "." + table;
+#endif
+
+    auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
+    using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
+
+    SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
+
+    if (!pLayer)
+      throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+
+    SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
+
+    if (!pFeature)
+      throw Spine::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+
+    // get geometry
+    OGRGeometry* pGeometry = pFeature->GetGeometryRef();
+
+    if (!pGeometry)
+    {
+      Spine::Exception ex(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+      if (quiet)
+        ex.disableLogging();
+      throw ex;
+    }
+
+    OGREnvelope bbox;
+    pGeometry->getEnvelope(&bbox);
+
+    return bbox;
   }
   catch (...)
   {

@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.9.17
+Version: 18.9.19
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Sep 19 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.9.19-1.fmi
+- Added possibility to fix PostGIS table spatial extents in the configuration file
+
 * Mon Sep 17 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.9.17-1.fmi
 - Repackaged due to gis-library API changes
 
