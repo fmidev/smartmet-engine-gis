@@ -3,8 +3,8 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.9.19
-Release: 2%{?dist}.fmi
+Version: 18.10.1
+Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Oct  1 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.1-1.fmi
+- Fixed code not to generate too many quotation marks around SVG paths
+
 * Wed Sep 19 2018 Anssi Reponen <anssi.reponen@fmi.fi> - 18.9.19-2.fmi
 - Removed duplicate code: start using Fmi::OGR::exportToSvg-function
 

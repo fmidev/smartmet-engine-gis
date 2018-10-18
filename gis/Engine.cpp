@@ -703,13 +703,19 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
     // Add quotation mark in the beginning and in the end
     for (auto& svg : theGeometryStorage.itsLines)
     {
-      svg.second.insert(0, "\"");
-      svg.second.append("\"");
+      if (!svg.second.empty() && svg.second[0] != '"')
+      {
+        svg.second.insert(0, "\"");
+        svg.second.append("\"");
+      }
     }
     for (auto& svg : theGeometryStorage.itsPolygons)
     {
-      svg.second.insert(0, "\"");
-      svg.second.append("\"");
+      if (!svg.second.empty() && svg.second[0] != '"')
+      {
+        svg.second.insert(0, "\"");
+        svg.second.append("\"");
+      }
     }
   }
   catch (...)
