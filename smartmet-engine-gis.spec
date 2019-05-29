@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 18.10.1
+Version: 19.5.29
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,13 +20,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 18.9.13 
-BuildRequires: smartmet-library-gis-devel >= 18.9.17
+BuildRequires: smartmet-library-spine-devel >= 19.5.8 
+BuildRequires: smartmet-library-gis-devel >= 19.3.14
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 18.9.13 
-Requires: smartmet-library-gis >= 18.9.17
+Requires: smartmet-library-spine >= 19.5.8 
+Requires: smartmet-library-gis >= 19.3.14
 %if 0%{rhel} >= 7
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed May 29 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.5.29-1.fmi
+- Added possibility to specify a fixed timestep for database layers
+
 * Mon Oct  1 2018 Mika Heiskanen <mika.heiskanen@fmi.fi> - 18.10.1-1.fmi
 - Fixed code not to generate too many quotation marks around SVG paths
 

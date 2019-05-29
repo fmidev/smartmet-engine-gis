@@ -44,6 +44,9 @@ class Config : private boost::noncopyable
   boost::optional<int> getDefaultEPSG() const;
   boost::optional<BBox> getTableBBox(const std::string& theSchema,
                                      const std::string& theTable) const;
+  boost::optional<boost::posix_time::time_duration> getTableTimeStep(
+      const std::string& theSchema, const std::string& theTable) const;
+
   bool quiet() const;
 
  private:
@@ -80,8 +83,11 @@ class Config : private boost::noncopyable
   EPSGMap itsEPSGMap;
 
   // Precomputed/fixed PostGIS information
-  using PostGisInfo = std::map<std::string, BBox>;
-  PostGisInfo itsPostGisInfo;
+  using PostGisBBoxMap = std::map<std::string, BBox>;
+  PostGisBBoxMap itsPostGisBBoxMap;
+
+  using PostGisTimeStepMap = std::map<std::string, boost::posix_time::time_duration>;
+  PostGisTimeStepMap itsPostGisTimeStepMap;
 };
 
 }  // namespace Gis

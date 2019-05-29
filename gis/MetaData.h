@@ -27,10 +27,18 @@ struct MetaDataQueryOptions
   std::size_t hash_value() const;
 };
 
+struct TimeInterval
+{
+  boost::posix_time::ptime starttime;
+  boost::posix_time::ptime endtime;
+  boost::posix_time::time_duration timestep;
+};
+
 struct MetaData
 {
-  // timesteps
+  // list of steps or fixed steps
   std::vector<boost::posix_time::ptime> timesteps;
+  boost::optional<TimeInterval> timeinterval;
 
   // bounding box of geometries
   double xmin;

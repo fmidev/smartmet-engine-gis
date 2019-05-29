@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <gdal/cpl_conv.h>  // For configuring GDAL
+#include <macgyver/TimeParser.h>
 #include <spine/ConfigBase.h>
 #include <spine/Exception.h>
 #include <stdexcept>
@@ -245,7 +246,14 @@ void Config::read_postgis_info()
       {
         auto bbox = read_bbox(table["bbox"]);
         std::string key = schema_name + '.' + table_name;
-        itsPostGisInfo.insert(std::make_pair(key, bbox));
+        itsPostGisBBoxMap.insert(std::make_pair(key, bbox));
+      }
+
+      if (table.exists("timestep"))
+      {
+        auto timestep = Fmi::TimeParser::parse_iso_duration(table["timestep"]);
+        std::string key = schema_name + '.' + table_name;
+        itsPostGisTimeStepMap.insert(std::make_pair(key, timestep));
       }
     }
   }
@@ -524,8 +532,24 @@ boost::optional<BBox> Config::getTableBBox(const std::string& theSchema,
                                            const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
-  auto pos = itsPostGisInfo.find(key);
-  if (pos == itsPostGisInfo.end())
+  auto pos = itsPostGisBBoxMap.find(key);
+  if (pos == itsPostGisBBoxMap.end())
+    return {};
+  return pos->second;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return configured timestep for PostGIS data
+ */
+// ----------------------------------------------------------------------
+
+boost::optional<boost::posix_time::time_duration> Config::getTableTimeStep(
+    const std::string& theSchema, const std::string& theTable) const
+{
+  std::string key = theSchema + "." + theTable;
+  auto pos = itsPostGisTimeStepMap.find(key);
+  if (pos == itsPostGisTimeStepMap.end())
     return {};
   return pos->second;
 }

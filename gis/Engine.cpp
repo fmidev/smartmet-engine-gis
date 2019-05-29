@@ -454,44 +454,108 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     // 1) Get timesteps
     if (theOptions.time_column)
     {
-      std::string sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " +
-                            theOptions.schema + "." + theOptions.table + " WHERE " +
-                            *theOptions.time_column + " IS NOT NULL ORDER by " +
-                            *theOptions.time_column;
-
-      SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
-
-      if (!pLayer)
-        throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
-
-      while (true)
+      auto timestep = itsConfig->getTableTimeStep(theOptions.schema, theOptions.table);
+      if (!timestep)
       {
+        // List all available times
+        std::string sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " +
+                              theOptions.schema + "." + theOptions.table + " WHERE " +
+                              *theOptions.time_column + " IS NOT NULL ORDER by " +
+                              *theOptions.time_column;
+
+        SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
+
+        if (!pLayer)
+          throw Spine::Exception(BCP,
+                                 "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+
+        while (true)
+        {
+          SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
+          if (!pFeature)
+            break;
+
+          tm timeinfo;
+
+          bool ret = pFeature->GetFieldAsDateTime(0,
+                                                  &timeinfo.tm_year,
+                                                  &timeinfo.tm_mon,
+                                                  &timeinfo.tm_mday,
+                                                  &timeinfo.tm_hour,
+                                                  &timeinfo.tm_min,
+                                                  &timeinfo.tm_sec,
+                                                  &timeinfo.tm_isdst);
+
+          if (!ret)
+          {
+            std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
+                      << "." << *theOptions.time_column << "' failed!" << std::endl;
+            break;
+          }
+
+          timeinfo.tm_year -= 1900;  // years after 1900
+          timeinfo.tm_mon -= 1;      // months 0..11
+
+          metadata.timesteps.push_back(boost::posix_time::ptime_from_tm(timeinfo));
+        }
+      }
+
+      else
+      {
+        // Establish starttime and endtime
+        std::string sqlStmt = "SELECT min(" + *theOptions.time_column + ") as mintime, max(" +
+                              *theOptions.time_column + ") as maxtime FROM " + theOptions.schema +
+                              "." + theOptions.table + " WHERE " + *theOptions.time_column +
+                              " IS NOT NULL";
+
+        SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
+
+        if (!pLayer)
+          throw Spine::Exception(BCP,
+                                 "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+
         SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
+
         if (!pFeature)
-          break;
+          throw Spine::Exception(BCP,
+                                 "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
 
-        tm timeinfo;
+        tm start_tm, end_tm;
 
-        bool ret = pFeature->GetFieldAsDateTime(0,
-                                                &timeinfo.tm_year,
-                                                &timeinfo.tm_mon,
-                                                &timeinfo.tm_mday,
-                                                &timeinfo.tm_hour,
-                                                &timeinfo.tm_min,
-                                                &timeinfo.tm_sec,
-                                                &timeinfo.tm_isdst);
+        bool ret1 = pFeature->GetFieldAsDateTime(0,
+                                                 &start_tm.tm_year,
+                                                 &start_tm.tm_mon,
+                                                 &start_tm.tm_mday,
+                                                 &start_tm.tm_hour,
+                                                 &start_tm.tm_min,
+                                                 &start_tm.tm_sec,
+                                                 &start_tm.tm_isdst);
+        bool ret2 = pFeature->GetFieldAsDateTime(1,
+                                                 &end_tm.tm_year,
+                                                 &end_tm.tm_mon,
+                                                 &end_tm.tm_mday,
+                                                 &end_tm.tm_hour,
+                                                 &end_tm.tm_min,
+                                                 &end_tm.tm_sec,
+                                                 &end_tm.tm_isdst);
 
-        if (!ret)
+        if (!ret1 || !ret2)
         {
           std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
                     << "." << *theOptions.time_column << "' failed!" << std::endl;
-          break;
         }
+        else
+        {
+          start_tm.tm_year -= 1900;  // years after 1900
+          start_tm.tm_mon -= 1;      // months 0..11
 
-        timeinfo.tm_year -= 1900;  // years after 1900
-        timeinfo.tm_mon -= 1;      // months 0..11
+          end_tm.tm_year -= 1900;  // years after 1900
+          end_tm.tm_mon -= 1;      // months 0..11
 
-        metadata.timesteps.push_back(boost::posix_time::ptime_from_tm(timeinfo));
+          auto starttime = boost::posix_time::ptime_from_tm(start_tm);
+          auto endtime = boost::posix_time::ptime_from_tm(end_tm);
+          metadata.timeinterval = TimeInterval{starttime, endtime, *timestep};
+        }
       }
     }
 
