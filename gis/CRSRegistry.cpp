@@ -474,17 +474,8 @@ CRSRegistry::TransformationImpl::TransformationImpl(const CRSRegistry::MapEntry&
 
 CRSRegistry::TransformationImpl::~TransformationImpl()
 {
-  try
-  {
-    if (conv)
-    {
-      OGRCoordinateTransformation::DestroyCT(conv);
-    }
-  }
-  catch (...)
-  {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
-  }
+  if (conv)
+    OGRCoordinateTransformation::DestroyCT(conv);
 }
 
 std::string CRSRegistry::TransformationImpl::get_src_name() const
