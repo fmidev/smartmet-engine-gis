@@ -27,7 +27,8 @@ class CRSRegistry : protected virtual boost::noncopyable
   struct MapEntry
   {
     std::string name;
-    boost::basic_regex<char> regex;
+    boost::regex regex;
+    std::string regex_str;
     boost::shared_ptr<OGRSpatialReference> cs;
     std::map<std::string, boost::any> attrib_map;
     bool swap_coord;

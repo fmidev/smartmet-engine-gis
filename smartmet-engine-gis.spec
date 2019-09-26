@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 19.5.29
+Version: 19.9.26
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,21 +20,19 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 19.5.8 
-BuildRequires: smartmet-library-gis-devel >= 19.3.14
+BuildRequires: smartmet-library-spine-devel >= 19.9.26 
+BuildRequires: smartmet-library-gis-devel >= 19.9.26
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 19.5.8 
-Requires: smartmet-library-gis >= 19.3.14
-%if 0%{rhel} >= 7
+Requires: smartmet-library-spine >= 19.9.26 
+Requires: smartmet-library-gis >= 19.9.26
+Requires: boost-regex
 Requires: boost-date-time
 Requires: boost-filesystem
 Requires: boost-iostreams
-Requires: boost-regex
 Requires: boost-system
 Requires: boost-thread
-%endif
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -73,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Sep 26 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.9.26-1.fmi
+- Added support for GDAL 2
+
 * Wed May 29 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.5.29-1.fmi
 - Added possibility to specify a fixed timestep for database layers
 
