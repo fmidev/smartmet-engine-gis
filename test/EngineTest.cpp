@@ -52,8 +52,9 @@ void getEPSG()
     if (epsg->number != 3035)
       TEST_FAILED("Got wrong ID for EPSG:3035");
 
-    if (epsg->name != "ETRS89 / LAEA Europe")
-      TEST_FAILED("Got wrong name for EPSG:3035");
+    // Depends on EPSG version:
+    if (epsg->name != "ETRS89 / LAEA Europe" && epsg->name != "ETRS89-extended / LAEA Europe")
+      TEST_FAILED("Got wrong name for EPSG:3035 : '" + epsg->name + "'");
 
     if (epsg->scope.empty())
       TEST_FAILED("EPSG:3035 scope should not be empty, it should cover all Europe");
