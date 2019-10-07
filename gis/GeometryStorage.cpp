@@ -10,7 +10,6 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace boost;
 
 namespace SmartMet
 {

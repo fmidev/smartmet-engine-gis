@@ -12,6 +12,7 @@
 #include <gis/PostGIS.h>
 
 #include <gdal/ogrsf_frmts.h>
+#include <gdal/gdal_version.h>
 
 #include <boost/algorithm/string/join.hpp>
 
@@ -29,7 +30,7 @@ namespace Gis
 {
 namespace
 {
-int getEpsgCode(const OGRDataSourcePtr& connection,
+int getEpsgCode(const GDALDataPtr& connection,
                 const std::string& schema,
                 const std::string& table,
                 const std::string& geometry_column,
@@ -69,7 +70,7 @@ int getEpsgCode(const OGRDataSourcePtr& connection,
   }
 }
 
-OGRDataSourcePtr db_connection(const Config& config, const std::string& pgname)
+GDALDataPtr db_connection(const Config& config, const std::string& pgname)
 {
   try
   {
@@ -131,7 +132,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
   }
 }
 
-OGREnvelope Engine::getTableEnvelope(const OGRDataSourcePtr& connection,
+OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
                                      const std::string& schema,
                                      const std::string& table,
                                      const std::string& geometry_column,
@@ -224,7 +225,12 @@ void Engine::init()
 
     // Register all drivers just once
 
+#if GDAL_VERSION_MAJOR < 2
     OGRRegisterAll();
+#else
+    GDALAllRegister();
+#endif    
+    
   }
   catch (...)
   {

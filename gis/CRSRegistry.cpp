@@ -81,7 +81,6 @@ void CRSRegistry::register_epsg(const std::string& name,
 {
   try
   {
-    Spine::WriteLock lock(rw_lock);
     const std::string nm = Fmi::ascii_tolower_copy(name);
     CHECK_NAME(nm);
 
@@ -96,6 +95,7 @@ void CRSRegistry::register_epsg(const std::string& name,
     entry.attrib_map["epsg"] = epsg_code;
     entry.attrib_map["swapCoord"] = swap_coord;
 
+    Spine::WriteLock lock(rw_lock);
     crs_map.insert(std::make_pair(nm, entry));
   }
   catch (...)
@@ -111,8 +111,6 @@ void CRSRegistry::register_proj4(const std::string& name,
 {
   try
   {
-    Spine::WriteLock lock(rw_lock);
-
     const std::string nm = Fmi::ascii_tolower_copy(name);
     CHECK_NAME(nm);
 
@@ -126,6 +124,7 @@ void CRSRegistry::register_proj4(const std::string& name,
 
     entry.attrib_map["swapCoord"] = swap_coord;
 
+    Spine::WriteLock lock(rw_lock);
     crs_map.insert(std::make_pair(nm, entry));
   }
   catch (...)
@@ -141,8 +140,6 @@ void CRSRegistry::register_wkt(const std::string& name,
 {
   try
   {
-    Spine::WriteLock lock(rw_lock);
-
     const std::string nm = Fmi::ascii_tolower_copy(name);
     CHECK_NAME(nm);
 
@@ -150,6 +147,8 @@ void CRSRegistry::register_wkt(const std::string& name,
     char* str = const_cast<char*>(wkt_def.c_str());
 
     int ret = entry.cs->importFromWkt(&str);
+
+    Spine::WriteLock lock(rw_lock);
 
     if (ret == OGRERR_NONE)
     {
@@ -165,6 +164,7 @@ void CRSRegistry::register_wkt(const std::string& name,
       }
     }
 
+    // TODO: What's the point in here??? entry is local, and will be destroyed by throwing
     entry.attrib_map["swapCoord"] = swap_coord;
 
     entry.swap_coord = swap_coord;
@@ -280,7 +280,7 @@ void CRSRegistry::dump_info(std::ostream& output)
   {
     BOOST_FOREACH (const auto& item, crs_map)
     {
-      output << "CRSRegistry: name='" << item.second.name << "' regex='" << item.second.regex
+      output << "CRSRegistry: name='" << item.second.name << "' regex='" << item.second.regex_str
              << "' proj4='" << get_proj4(item.second.name) << "'" << std::endl;
     }
   }
@@ -344,13 +344,13 @@ CRSRegistry::MapEntry& CRSRegistry::get_entry(const std::string& name)
       // Not found by name: try searching using regex match
       BOOST_FOREACH (auto& item, crs_map)
       {
-        if (not item.second.regex.empty())
+        if (not item.second.regex_str.empty())
         {
-          if (isOpengis and boost::regex_match(epsgCode, item.second.regex))
+          if (isOpengis and boost::regex_search(epsgCode, item.second.regex))
           {
             return item.second;
           }
-          else if (boost::regex_match(name, item.second.regex))
+          else if (boost::regex_search(name, item.second.regex))
           {
             return item.second;
           }
@@ -398,14 +398,15 @@ CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std:
     {
       try
       {
-        regex.assign(*text, boost::regex_constants::perl | boost::regex_constants::icase);
+        regex.assign(*text, boost::regex_constants::ECMAScript | boost::regex_constants::icase);
+	regex_str = *text;
       }
       catch (...)
       {
-        std::cerr << METHOD_NAME << ": failed to parse PERL regular expression '" << *text << "'"
+        std::cerr << METHOD_NAME << ": failed to parse ECMAscript regular expression '" << *text << "'"
                   << std::endl;
 
-        Spine::Exception exception(BCP, "Failed to parse PERL regular expression");
+        Spine::Exception exception(BCP, "Failed to parse ECMAscript regular expression");
         if (text)
           exception.addParameter("text", *text);
         throw exception;
@@ -474,17 +475,8 @@ CRSRegistry::TransformationImpl::TransformationImpl(const CRSRegistry::MapEntry&
 
 CRSRegistry::TransformationImpl::~TransformationImpl()
 {
-  try
-  {
-    if (conv)
-    {
-      OGRCoordinateTransformation::DestroyCT(conv);
-    }
-  }
-  catch (...)
-  {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
-  }
+  if (conv)
+    OGRCoordinateTransformation::DestroyCT(conv);
 }
 
 std::string CRSRegistry::TransformationImpl::get_src_name() const

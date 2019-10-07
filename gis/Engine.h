@@ -56,7 +56,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
  private:
   Engine();
 
-  OGREnvelope getTableEnvelope(const OGRDataSourcePtr& connection,
+  OGREnvelope getTableEnvelope(const GDALDataPtr& connection,
                                const std::string& schema,
                                const std::string& table,
                                const std::string& geometry_column,
