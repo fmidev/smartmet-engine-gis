@@ -15,7 +15,7 @@ BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost-devel
 BuildRequires: gdal30-devel
-BuildRequires: geos-devel
+BuildRequires: geos38-devel
 BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
@@ -23,7 +23,7 @@ BuildRequires: smartmet-library-newbase-devel
 BuildRequires: smartmet-library-spine-devel >= 19.12.10
 BuildRequires: smartmet-library-gis-devel >= 19.12.10
 Requires: gdal30-libs
-Requires: geos
+Requires: geos38
 Requires: libconfig
 Requires: smartmet-library-spine >= 19.12.10
 Requires: smartmet-library-gis >= 19.12.10
@@ -72,7 +72,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Tue Dec 10 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.12.10-1.fmi
-- Upgrade to gdal30
+- Upgrade to GDAL 3.0 and GEOS 3.8
 
 * Wed Nov 20 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.11.20-1.fmi
 - Rebuilt due to newbase API changes

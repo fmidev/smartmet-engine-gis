@@ -31,8 +31,8 @@ LIBS = \
 	../gis.so \
 	-lsmartmet-spine \
 	-lsmartmet-gis \
-	-lgeos \
 	-L/usr/gdal30/lib -lgdal \
+	-L/usr/geos38/lib64 -lgeos \
 	-lboost_system \
 	`pkg-config --libs libconfig++` \
 	-lpthread

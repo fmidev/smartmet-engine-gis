@@ -94,8 +94,8 @@ LIBS = -L$(libdir) \
 	-lsmartmet-newbase \
 	-lsmartmet-macgyver \
 	-lsmartmet-gis \
-	-lgeos \
 	-L$(PREFIX)/gdal30/lib `pkg-config --libs gdal30` \
+	-L$(PREFIX)/geos38/lib64 -lgeos \
 	-lboost_regex \
 	-lboost_date_time \
 	-lboost_thread \
