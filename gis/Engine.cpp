@@ -11,8 +11,8 @@
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
 
-#include <gdal/ogrsf_frmts.h>
-#include <gdal/gdal_version.h>
+#include <gdal_version.h>
+#include <ogrsf_frmts.h>
 
 #include <boost/algorithm/string/join.hpp>
 
@@ -105,7 +105,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
       char* tmp;
       theSR->exportToWkt(&tmp);
       wkt = tmp;
-      OGRFree(tmp);  // Note: NOT delete!
+      CPLFree(tmp);  // Note: NOT delete!
     }
 
     std::string basic = theOptions.schema;
@@ -229,8 +229,7 @@ void Engine::init()
     OGRRegisterAll();
 #else
     GDALAllRegister();
-#endif    
-    
+#endif
   }
   catch (...)
   {

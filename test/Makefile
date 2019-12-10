@@ -24,6 +24,7 @@ CFLAGS = -DUNIX -O0 -g $(FLAGS) -Wno-write-strings
 INCLUDES = \
 	-I ../gis \
 	-I /usr/include/smartmet \
+	-I /usr/gdal30/include \
 	`pkg-config --cflags libconfig++`
 
 LIBS = \
@@ -31,7 +32,7 @@ LIBS = \
 	-lsmartmet-spine \
 	-lsmartmet-gis \
 	-lgeos \
-	-lgdal \
+	-L/usr/gdal30/lib -lgdal \
 	-lboost_system \
 	`pkg-config --libs libconfig++` \
 	-lpthread

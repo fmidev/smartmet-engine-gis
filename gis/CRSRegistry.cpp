@@ -1,10 +1,10 @@
 #include "CRSRegistry.h"
 #include <boost/foreach.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <gdal/ogr_srs_api.h>
 #include <macgyver/StringConversion.h>
 #include <macgyver/TypeName.h>
 #include <spine/Exception.h>
+#include <ogr_srs_api.h>
 #include <stdexcept>
 
 namespace ba = boost::algorithm;
@@ -144,7 +144,7 @@ void CRSRegistry::register_wkt(const std::string& name,
     CHECK_NAME(nm);
 
     MapEntry entry(name, regex);
-    char* str = const_cast<char*>(wkt_def.c_str());
+    const char* str = wkt_def.c_str();
 
     int ret = entry.cs->importFromWkt(&str);
 
@@ -265,7 +265,7 @@ std::string CRSRegistry::get_proj4(const std::string& name)
     auto& entry = get_entry(name);
     entry.cs->exportToProj4(&tmp);
     std::string result(tmp);
-    OGRFree(tmp);
+    CPLFree(tmp);
     return result;
   }
   catch (...)
@@ -399,12 +399,12 @@ CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std:
       try
       {
         regex.assign(*text, boost::regex_constants::ECMAScript | boost::regex_constants::icase);
-	regex_str = *text;
+        regex_str = *text;
       }
       catch (...)
       {
-        std::cerr << METHOD_NAME << ": failed to parse ECMAscript regular expression '" << *text << "'"
-                  << std::endl;
+        std::cerr << METHOD_NAME << ": failed to parse ECMAscript regular expression '" << *text
+                  << "'" << std::endl;
 
         Spine::Exception exception(BCP, "Failed to parse ECMAscript regular expression");
         if (text)
@@ -555,7 +555,7 @@ void CRSRegistry::TransformationImpl::transform(OGRGeometry& geometry)
       char* gText = nullptr;
       geometry.exportToWkt(&gText);
       msg << "Failed to transform geometry " << gText << " to " << to_name;
-      OGRFree(gText);
+      CPLFree(gText);
       throw Spine::Exception(BCP, msg.str());
     }
   }

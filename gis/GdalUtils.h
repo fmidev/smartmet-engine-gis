@@ -2,11 +2,11 @@
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <gdal/ogr_geometry.h>
-#include <gdal/ogr_spatialref.h>
 #include <newbase/NFmiPoint.h>
 #include <newbase/NFmiRect.h>
 #include <limits>
+#include <ogr_geometry.h>
+#include <ogr_spatialref.h>
 
 namespace SmartMet
 {
@@ -23,7 +23,8 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
 
 std::string WKT(const OGRGeometry &geometry);
 
-class GeometryConv : public OGRCoordinateTransformation
+// class GeometryConv : public OGRCoordinateTransformation
+class GeometryConv
 {
  public:
   GeometryConv(boost::function1<NFmiPoint, NFmiPoint> conv);
