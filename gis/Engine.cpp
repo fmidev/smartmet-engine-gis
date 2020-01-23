@@ -11,8 +11,8 @@
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
 
-#include <gdal/ogrsf_frmts.h>
 #include <gdal/gdal_version.h>
+#include <gdal/ogrsf_frmts.h>
 
 #include <boost/algorithm/string/join.hpp>
 
@@ -229,8 +229,7 @@ void Engine::init()
     OGRRegisterAll();
 #else
     GDALAllRegister();
-#endif    
-    
+#endif
   }
   catch (...)
   {
@@ -376,7 +375,9 @@ Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& 
     // Find full map from the cache
     obj = itsFeaturesCache.find(basic_key);
     if (obj)
+    {
       ret = *obj;
+    }
     else
     {
       // Read it from the database
@@ -676,8 +677,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       if (itsShutdownRequested)
         return;
 
-      std::string queryParam(pgId.host + pgId.port + pgId.database + pgId.schema + pgId.table +
-                             pgId.field + pgId.encoding);
+      std::string queryParam = pgId.key();
       if (theGeometryStorage.itsQueryParameters.find(queryParam) !=
           theGeometryStorage.itsQueryParameters.end())
         continue;
@@ -685,6 +685,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       theGeometryStorage.itsQueryParameters.insert(std::make_pair(queryParam, 1));
 
       SmartMet::Engine::Gis::MapOptions mo;
+      mo.pgname = pgId.pgname;
       mo.schema = pgId.schema;
       mo.table = pgId.table;
       mo.fieldnames.insert(pgId.field);

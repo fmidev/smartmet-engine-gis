@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 19.11.20
+Version: 20.1.23
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -71,6 +71,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Jan 23 2020 Anssi Reponen <anssi.reponen@fmi.fi> - 20.1.23-2.fmi
+- Redundant fields removed from postgis_identifier structure (BRAINSTORM-1746)
+- Textgen- and timeseries-plugin must be updated after this change
+
 * Wed Nov 20 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.11.20-1.fmi
 - Rebuilt due to newbase API changes
 
