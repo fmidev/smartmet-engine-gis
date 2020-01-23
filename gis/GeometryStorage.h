@@ -25,25 +25,14 @@ namespace Gis
 class Engine;
 struct postgis_identifier
 {
-  std::string host;
-  std::string port;
-  std::string database;
-  std::string username;
-  std::string password;
+  std::string pgname;
   std::string schema;
   std::string table;
   std::string field;
-  std::string encoding;
-  std::string key()
-  {
-    return (host + ";" + port + ";" + database + ";" + username + ";" + password + ";" + schema +
-            ";" + table + ";" + field + ";" + encoding);
-  }
+  std::string key() { return (pgname + ";" + schema + ";" + table + ";" + field); }
   bool allFieldsDefined()
   {
-    return (!host.empty() && !port.empty() && !database.empty() && !username.empty() &&
-            !password.empty() && !schema.empty() && !table.empty() && !field.empty() &&
-            !encoding.empty());
+    return (!pgname.empty() && !schema.empty() && !table.empty() && !field.empty());
   }
 };
 
