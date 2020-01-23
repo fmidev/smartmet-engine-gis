@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 19.12.10
+Version: 20.1.23
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,13 +20,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 19.12.10
-BuildRequires: smartmet-library-gis-devel >= 19.12.10
-Requires: gdal30-libs
-Requires: geos38
+BuildRequires: smartmet-library-spine-devel >= 20.1.15 
+BuildRequires: smartmet-library-gis-devel >= 19.12.4
+Requires: gdal
+Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 19.12.10
-Requires: smartmet-library-gis >= 19.12.10
+Requires: smartmet-library-spine >= 20.1.15 
+Requires: smartmet-library-gis >= 19.12.4
 Requires: boost-regex
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Jan 23 2020 Anssi Reponen <anssi.reponen@fmi.fi> - 20.1.23-2.fmi
+- Redundant fields removed from postgis_identifier structure (BRAINSTORM-1746)
+
 * Tue Dec 10 2019 Mika Heiskanen <mika.heiskanen@fmi.fi> - 19.12.10-1.fmi
 - Upgrade to GDAL 3.0 and GEOS 3.8
 
