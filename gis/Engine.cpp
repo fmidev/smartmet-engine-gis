@@ -2,20 +2,16 @@
 
 #include "Engine.h"
 #include "Config.h"
-
-#include <macgyver/StringConversion.h>
-#include <spine/Exception.h>
-
+#include <boost/algorithm/string/join.hpp>
+#include <gdal/gdal_version.h>
+#include <gdal/ogrsf_frmts.h>
 #include <gis/Box.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
-
-#include <gdal/gdal_version.h>
-#include <gdal/ogrsf_frmts.h>
-
-#include <boost/algorithm/string/join.hpp>
-
+#include <macgyver/StringConversion.h>
+#include <spine/Exception.h>
+#include <list>
 #include <memory>
 #include <stdexcept>
 
@@ -672,6 +668,13 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
 {
   try
   {
+    // First Collect features with the same attribute value together.
+
+    using FeatureList = std::list<const OGRGeometry*>;
+    using FeatureStore = std::map<std::string, FeatureList>;
+
+    FeatureStore featurestore;
+
     for (auto pgId : thePostGISIdentifiers)
     {
       if (itsShutdownRequested)
@@ -696,81 +699,92 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       {
         const OGRGeometry* geom = feature->geom.get();
 
-        if (geom)
-        {
-          Fmi::Attribute attribute = feature->attributes.at(pgId.field);
-          AttributeToString ats;
-          std::string areaName = boost::apply_visitor(ats, attribute);
-          // convert to lower case
-          boost::algorithm::to_lower(areaName);
+        if (!geom)
+          continue;
 
-          OGRwkbGeometryType geomType = geom->getGeometryType();
+        Fmi::Attribute attribute = feature->attributes.at(pgId.field);
+        AttributeToString ats;
+        std::string areaName = boost::apply_visitor(ats, attribute);
 
-          if (theGeometryStorage.itsGeometries.find(geomType) ==
-              theGeometryStorage.itsGeometries.end())
-          {
-            // if that type of geometries not found, add new one
-            NameOGRGeometryMap nameOGRGeometryMap;
-            nameOGRGeometryMap.insert(
-                make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
-            theGeometryStorage.itsGeometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
-          }
-          else
-          {
-            // that type of geometries found
-            NameOGRGeometryMap& nameOGRGeometryMap = theGeometryStorage.itsGeometries[geomType];
-            // if named area not found, add new one
-            if (nameOGRGeometryMap.find(areaName) == nameOGRGeometryMap.end())
-            {
-              nameOGRGeometryMap.insert(
-                  std::make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
-            }
-            else
-            {
-              // if area was found, make union of the new and old one
-              boost::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[areaName];
-              previousGeom.reset(previousGeom->Union(geom));
-            }
-          }
+        // skip unknown features
+        if (areaName.empty())
+          continue;
 
-          std::string svgString = Fmi::OGR::exportToSvg(*geom, Fmi::Box::identity(), 6);
+        // convert to lower case
+        boost::algorithm::to_lower(areaName);
 
-          if (geomType == wkbPolygon || geomType == wkbMultiPolygon)
-          {
-#ifdef MYDEBUG
-            cout << "POLYGON in SVG format: " << svgString << endl;
-#endif
-            if (theGeometryStorage.itsPolygons.find(areaName) !=
-                theGeometryStorage.itsPolygons.end())
-              theGeometryStorage.itsPolygons[areaName] = svgString;
-            else
-              theGeometryStorage.itsPolygons.insert(std::make_pair(areaName, svgString));
-          }
-          else if (geomType == wkbLineString || geomType == wkbMultiLineString)
-          {
-#ifdef MYDEBUG
-            std::cout << "LINE in SVG format: " << svgString << std::endl;
-#endif
-            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
-            {
-              theGeometryStorage.itsLines[areaName].append(svgString);
-            }
-            else
-              theGeometryStorage.itsLines.insert(std::make_pair(areaName, svgString));
-          }
-          else if (geomType == wkbPoint)
-          {
-            const OGRPoint* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
-            if (theGeometryStorage.itsPoints.find(areaName) != theGeometryStorage.itsPoints.end())
-              theGeometryStorage.itsPoints[areaName] =
-                  std::make_pair(ogrPoint->getX(), ogrPoint->getY());
-            else
-              theGeometryStorage.itsPoints.insert(
-                  std::make_pair(areaName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
-          }
-        }
+        auto& featurelist = featurestore[areaName];  // creates empty list if necessary
+        featurelist.push_back(geom);
       }
     }
+
+    // Now if any named feature has more one than one component, compute a CascadedUnion
+    // which should be much faster than performing an union two elements at a time. If
+    // there is only one component, we keep it as is.
+
+    for (auto& name_list : featurestore)
+    {
+      const auto& areaName = name_list.first;
+      auto& featurelist = name_list.second;
+
+      const OGRGeometry* geom = nullptr;
+
+      if (featurelist.size() == 1)
+        geom = featurelist.front();
+      else
+      {
+        std::unique_ptr<OGRGeometryCollection> collection(new OGRGeometryCollection);
+        for (auto geom_part : featurelist)
+          collection->addGeometry(geom_part);
+        geom = collection->UnionCascaded();
+      }
+
+      // Store based on type
+
+      OGRwkbGeometryType geomType = geom->getGeometryType();
+
+      if (theGeometryStorage.itsGeometries.find(geomType) == theGeometryStorage.itsGeometries.end())
+      {
+        // if that type of geometries not found, add new one
+        NameOGRGeometryMap nameOGRGeometryMap;
+        nameOGRGeometryMap.insert(
+            make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+        theGeometryStorage.itsGeometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
+      }
+      else
+      {
+        // that type of geometries found
+        NameOGRGeometryMap& nameOGRGeometryMap = theGeometryStorage.itsGeometries[geomType];
+        nameOGRGeometryMap.insert(
+            std::make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+      }
+
+      // Finally convert the geometries to SVG (for textgen??)
+
+      std::string svgString = Fmi::OGR::exportToSvg(*geom, Fmi::Box::identity(), 6);
+
+      if (geomType == wkbPolygon || geomType == wkbMultiPolygon)
+      {
+#ifdef MYDEBUG
+        cout << "POLYGON in SVG format: " << svgString << endl;
+#endif
+        theGeometryStorage.itsPolygons.insert(std::make_pair(areaName, svgString));
+      }
+      else if (geomType == wkbLineString || geomType == wkbMultiLineString)
+      {
+#ifdef MYDEBUG
+        std::cout << "LINE in SVG format: " << svgString << std::endl;
+#endif
+        theGeometryStorage.itsLines.insert(std::make_pair(areaName, svgString));
+      }
+      else if (geomType == wkbPoint)
+      {
+        const OGRPoint* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
+        theGeometryStorage.itsPoints.insert(
+            std::make_pair(areaName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
+      }
+    }
+
     // Add quotation mark in the beginning and in the end
     for (auto& svg : theGeometryStorage.itsLines)
     {
@@ -788,7 +802,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
         svg.second.append("\"");
       }
     }
-  }
+  }  // namespace Gis
   catch (...)
   {
     throw Spine::Exception::Trace(BCP, "Operation failed!");

@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.1.23
+Version: 20.1.28
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -71,6 +71,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Upcoming
+- Fixed named feature extraction to skip unnamed features
+- Fixed feature extraction to use UnionCascaded for speed
+
 * Thu Jan 23 2020 Anssi Reponen <anssi.reponen@fmi.fi> - 20.1.23-2.fmi
 - Redundant fields removed from postgis_identifier structure (BRAINSTORM-1746)
 - Textgen- and timeseries-plugin must be updated after this change
