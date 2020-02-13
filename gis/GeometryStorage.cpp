@@ -1,10 +1,8 @@
 #include "GeometryStorage.h"
 #include "MapOptions.h"
-#include <spine/Exception.h>
-
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/replace.hpp>
-
+#include <spine/Exception.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -53,8 +51,7 @@ std::pair<double, double> GeometryStorage::getPoint(const std::string& name) con
   }
 }
 
-const OGRGeometry* GeometryStorage::getOGRGeometry(const std::string& name,
-                                                   OGRwkbGeometryType type) const
+const OGRGeometry* GeometryStorage::getOGRGeometry(const std::string& name, int type) const
 {
   try
   {

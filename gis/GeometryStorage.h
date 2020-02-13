@@ -61,7 +61,7 @@ class GeometryStorage
   std::pair<double, double> getPoint(const std::string& name) const;
   std::list<std::string> areaNames() const;
 
-  const OGRGeometry* getOGRGeometry(const std::string& name, OGRwkbGeometryType type) const;
+  const OGRGeometry* getOGRGeometry(const std::string& name, int type) const;
 
  private:
   std::map<std::string, std::string> itsPolygons;
@@ -69,7 +69,7 @@ class GeometryStorage
   std::map<std::string, std::pair<double, double> > itsPoints;
   // OGR geometries are mapped by type and name
   // name is not unambiguous: e.g. there can be a Point and Polygon for Helsinki
-  std::map<OGRwkbGeometryType, NameOGRGeometryMap> itsGeometries;
+  std::map<int, NameOGRGeometryMap> itsGeometries;  // int == OGRwkbGeometryType
   std::map<std::string, int> itsQueryParameters;
 
   friend class SmartMet::Engine::Gis::Engine;
