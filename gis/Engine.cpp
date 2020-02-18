@@ -672,17 +672,26 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
 {
   try
   {
+    // If geometries with same name and type came from the same table (like roads) they are merged
+    // into one. Geometries with same name and type came are not merged if they are from different
+    // tables, for example same city can be in deffirent tables (like esri.europe_cities_eureffin
+    // and natural_earth.world_populated_places)
+    std::map<std::string, std::string> geomid_pgkey_map;
+
+    // This set is to prevent multiple readings of the same data source 'pgname:schema:table:field'
+    std::set<std::string> pgKeys;
+
     for (auto pgId : thePostGISIdentifiers)
     {
       if (itsShutdownRequested)
         return;
 
-      std::string queryParam = pgId.key();
-      if (theGeometryStorage.itsQueryParameters.find(queryParam) !=
-          theGeometryStorage.itsQueryParameters.end())
+      std::string pgKey = pgId.key();
+
+      if (pgKeys.find(pgKey) != pgKeys.end())
         continue;
 
-      theGeometryStorage.itsQueryParameters.insert(std::make_pair(queryParam, 1));
+      pgKeys.insert(pgKey);
 
       SmartMet::Engine::Gis::MapOptions mo;
       mo.pgname = pgId.pgname;
@@ -690,7 +699,10 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       mo.table = pgId.table;
       mo.fieldnames.insert(pgId.field);
 
-      Fmi::Features features = getFeatures(nullptr, mo);
+      OGRSpatialReference srs;
+      srs.importFromEPSGA(4326);
+
+      Fmi::Features features = getFeatures(&srs, mo);
 
       for (auto feature : features)
       {
@@ -700,36 +712,82 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
         {
           Fmi::Attribute attribute = feature->attributes.at(pgId.field);
           AttributeToString ats;
-          std::string areaName = boost::apply_visitor(ats, attribute);
-          // convert to lower case
-          boost::algorithm::to_lower(areaName);
+          std::string geomName = boost::apply_visitor(ats, attribute);
+          // Convert to lower case
+          boost::algorithm::to_lower(geomName);
+
+          // Geometry name can not be empty, since it is used for example in timesries queries like
+          // 'place=helsinki'
+          if (geomName.empty())
+            continue;
 
           OGRwkbGeometryType geomType = geom->getGeometryType();
 
+          std::string geom_id = (geomName + Fmi::to_string(static_cast<int>(geomType)));
+          if (geomid_pgkey_map.find(geom_id) != geomid_pgkey_map.end())
+          {
+            if (geomid_pgkey_map.at(geom_id) != pgKey)
+            {
+              // Geom of the same type processed already (from different database/table)
+              continue;
+            }
+
+            if (geomType == wkbPoint)
+            {
+              // Skip POINT-geometry with the same name and type. For example city 'Brest' can be
+              // found both in France and in Belarus. Other than POINT-geometries are
+              // merged below, for example roads are stored in small sections and must be merged
+              continue;
+            }
+          }
+          else
+          {
+            // Geometry (name+type) encountered first time
+            geomid_pgkey_map[geomName + Fmi::to_string(static_cast<int>(geomType))] = pgKey;
+          }
+
+          // If same name and type found
           if (theGeometryStorage.itsGeometries.find(geomType) ==
               theGeometryStorage.itsGeometries.end())
           {
-            // if that type of geometries not found, add new one
+            // If that type of geometries not found, add new one
             NameOGRGeometryMap nameOGRGeometryMap;
             nameOGRGeometryMap.insert(
-                make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+                make_pair(geomName, boost::shared_ptr<OGRGeometry>(geom->clone())));
             theGeometryStorage.itsGeometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
           }
           else
           {
-            // that type of geometries found
+            // That type of geometries found
             NameOGRGeometryMap& nameOGRGeometryMap = theGeometryStorage.itsGeometries[geomType];
-            // if named area not found, add new one
-            if (nameOGRGeometryMap.find(areaName) == nameOGRGeometryMap.end())
+            // If named area not found, add new one
+            if (nameOGRGeometryMap.find(geomName) == nameOGRGeometryMap.end())
             {
               nameOGRGeometryMap.insert(
-                  std::make_pair(areaName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+                  std::make_pair(geomName, boost::shared_ptr<OGRGeometry>(geom->clone())));
             }
             else
             {
-              // if area was found, make union of the new and old one
-              boost::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[areaName];
-              previousGeom.reset(previousGeom->Union(geom));
+              // Do the merge with the new and old one
+              boost::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[geomName];
+              if (geomType == wkbMultiLineString)
+              {
+                // Multilinestrings are merged with addGeometryDirectly-function
+                OGRMultiLineString* geom_tmp =
+                    static_cast<OGRMultiLineString*>(previousGeom->clone());
+                const OGRMultiLineString* new_geom = static_cast<const OGRMultiLineString*>(geom);
+                // Iterate the LINESTRINGS inside Multilinestring and add them to old one
+                for (int i = 0; i < new_geom->getNumGeometries(); i++)
+                {
+                  geom_tmp->addGeometryDirectly(new_geom->getGeometryRef(i)->clone());
+                }
+                previousGeom.reset(geom_tmp);
+              }
+              else
+              {
+                // For other geometries use Union-function
+                previousGeom.reset(previousGeom->Union(geom));
+              }
             }
           }
 
@@ -740,33 +798,33 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
 #ifdef MYDEBUG
             cout << "POLYGON in SVG format: " << svgString << endl;
 #endif
-            if (theGeometryStorage.itsPolygons.find(areaName) !=
+            if (theGeometryStorage.itsPolygons.find(geomName) !=
                 theGeometryStorage.itsPolygons.end())
-              theGeometryStorage.itsPolygons[areaName] = svgString;
+              theGeometryStorage.itsPolygons[geomName] = svgString;
             else
-              theGeometryStorage.itsPolygons.insert(std::make_pair(areaName, svgString));
+              theGeometryStorage.itsPolygons.insert(std::make_pair(geomName, svgString));
           }
           else if (geomType == wkbLineString || geomType == wkbMultiLineString)
           {
 #ifdef MYDEBUG
             std::cout << "LINE in SVG format: " << svgString << std::endl;
 #endif
-            if (theGeometryStorage.itsLines.find(areaName) != theGeometryStorage.itsLines.end())
+            if (theGeometryStorage.itsLines.find(geomName) != theGeometryStorage.itsLines.end())
             {
-              theGeometryStorage.itsLines[areaName].append(svgString);
+              theGeometryStorage.itsLines[geomName].append(svgString);
             }
             else
-              theGeometryStorage.itsLines.insert(std::make_pair(areaName, svgString));
+              theGeometryStorage.itsLines.insert(std::make_pair(geomName, svgString));
           }
           else if (geomType == wkbPoint)
           {
             const OGRPoint* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
-            if (theGeometryStorage.itsPoints.find(areaName) != theGeometryStorage.itsPoints.end())
-              theGeometryStorage.itsPoints[areaName] =
+            if (theGeometryStorage.itsPoints.find(geomName) != theGeometryStorage.itsPoints.end())
+              theGeometryStorage.itsPoints[geomName] =
                   std::make_pair(ogrPoint->getX(), ogrPoint->getY());
             else
               theGeometryStorage.itsPoints.insert(
-                  std::make_pair(areaName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
+                  std::make_pair(geomName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
           }
         }
       }
