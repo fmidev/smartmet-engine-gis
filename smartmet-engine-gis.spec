@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.1.23
+Version: 20.2.18
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -71,6 +71,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Feb 18 2020 Anssi Reponen <anssi.reponen@fmi.fi> - 20.2.18-2.fmi
+- Fix handling of duplicate geometries and geometries with no name (BRAINSTORM-1757)
+- Convert geometry SRS always to EPSG:4326
+- To merge MULTLINESTRING geometries (roads) use addGeometryDirectly-function
+instead of Union-function
+
 * Thu Jan 23 2020 Anssi Reponen <anssi.reponen@fmi.fi> - 20.1.23-2.fmi
 - Redundant fields removed from postgis_identifier structure (BRAINSTORM-1746)
 - Textgen- and timeseries-plugin must be updated after this change

@@ -70,7 +70,6 @@ class GeometryStorage
   // OGR geometries are mapped by type and name
   // name is not unambiguous: e.g. there can be a Point and Polygon for Helsinki
   std::map<OGRwkbGeometryType, NameOGRGeometryMap> itsGeometries;
-  std::map<std::string, int> itsQueryParameters;
 
   friend class SmartMet::Engine::Gis::Engine;
 };  // class GeometryStorage
