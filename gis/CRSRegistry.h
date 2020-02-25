@@ -6,8 +6,6 @@
 #include <boost/optional.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
-#include <ogr_geometry.h>
-#include <ogr_spatialref.h>
 #include <macgyver/TypeName.h>
 #include <newbase/NFmiPoint.h>
 #include <spine/Thread.h>
@@ -15,6 +13,9 @@
 #include <map>
 #include <ostream>
 #include <typeinfo>
+
+class OGRSpatialReference;
+class OGRGeometry;
 
 namespace SmartMet
 {

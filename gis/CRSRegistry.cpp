@@ -4,7 +4,8 @@
 #include <macgyver/StringConversion.h>
 #include <macgyver/TypeName.h>
 #include <spine/Exception.h>
-#include <ogr_srs_api.h>
+#include <ogr_geometry.h>
+#include <ogr_spatialref.h>
 #include <stdexcept>
 
 namespace ba = boost::algorithm;
