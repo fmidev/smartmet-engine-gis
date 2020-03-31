@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.2.18
+Version: 20.2.25
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,13 +20,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 20.1.15 
-BuildRequires: smartmet-library-gis-devel >= 19.12.4
+BuildRequires: smartmet-library-spine-devel >= 20.2.13 
+BuildRequires: smartmet-library-gis-devel >= 20.2.18
 Requires: gdal
 Requires: geos
 Requires: libconfig
-Requires: smartmet-library-spine >= 20.1.15 
-Requires: smartmet-library-gis >= 19.12.4
+Requires: smartmet-library-spine >= 20.2.13 
+Requires: smartmet-library-gis >= 20.2.18
 Requires: boost-regex
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Feb 25 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.2.25-1.fmi
+- Use GDAL forward declarations in headers to avoid dependency escalation
+
 * Tue Feb 18 2020 Anssi Reponen <anssi.reponen@fmi.fi> - 20.2.18-2.fmi
 - Fix handling of duplicate geometries and geometries with no name (BRAINSTORM-1757)
 - Convert geometry SRS always to EPSG:4326

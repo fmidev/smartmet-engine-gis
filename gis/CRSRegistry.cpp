@@ -5,6 +5,8 @@
 #include <macgyver/StringConversion.h>
 #include <macgyver/TypeName.h>
 #include <spine/Exception.h>
+#include <ogr_geometry.h>
+#include <ogr_spatialref.h>
 #include <stdexcept>
 
 namespace ba = boost::algorithm;
@@ -399,12 +401,12 @@ CRSRegistry::MapEntry::MapEntry(const std::string& theName, boost::optional<std:
       try
       {
         regex.assign(*text, boost::regex_constants::ECMAScript | boost::regex_constants::icase);
-	regex_str = *text;
+        regex_str = *text;
       }
       catch (...)
       {
-        std::cerr << METHOD_NAME << ": failed to parse ECMAscript regular expression '" << *text << "'"
-                  << std::endl;
+        std::cerr << METHOD_NAME << ": failed to parse ECMAscript regular expression '" << *text
+                  << "'" << std::endl;
 
         Spine::Exception exception(BCP, "Failed to parse ECMAscript regular expression");
         if (text)

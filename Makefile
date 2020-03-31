@@ -66,7 +66,8 @@ else
 
  INCLUDES = \
 	-I$(includedir) \
-	-I$(includedir)/smartmet
+	-I$(includedir)/smartmet \
+	-I$(includedir)/gdal
 
 endif
 
