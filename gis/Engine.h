@@ -37,8 +37,9 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
   // fetch a shape
 
-  OGRGeometryPtr getShape(const Fmi::SpatialReference& theSR, const MapOptions& theOptions) const;
+  OGRGeometryPtr getShape(const Fmi::SpatialReference* theSR, const MapOptions& theOptions) const;
 
+  Fmi::Features getFeatures(const MapOptions& theOptions) const;
   Fmi::Features getFeatures(const Fmi::SpatialReference& theSR, const MapOptions& theOptions) const;
 
   BBox getBBox(int theEPSG) const;
@@ -55,6 +56,8 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
  private:
   Engine();
+
+  Fmi::Features getFeatures(const Fmi::SpatialReference* theSR, const MapOptions& theOptions) const;
 
   OGREnvelope getTableEnvelope(const GDALDataPtr& connection,
                                const std::string& schema,

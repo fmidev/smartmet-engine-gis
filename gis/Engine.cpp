@@ -92,13 +92,13 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
 // ----------------------------------------------------------------------
 
 std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
-                                               const Fmi::SpatialReference& theSR)
+                                               const Fmi::SpatialReference* theSR)
 {
   try
   {
     std::string wkt = "NULL";
     if (theSR)
-      wkt = Fmi::OGR::exportToWkt(theSR);
+      wkt = Fmi::OGR::exportToWkt(*theSR);
 
     std::string basic = theOptions.schema;
     basic += '|';
@@ -266,7 +266,7 @@ CRSRegistry& Engine::getCRSRegistry()
  */
 // ----------------------------------------------------------------------
 
-OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference& theSR,
+OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
                                 const MapOptions& theOptions) const
 {
   try
@@ -344,7 +344,18 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference& theSR,
   }
 }
 
+Fmi::Features Engine::getFeatures(const MapOptions& theOptions) const
+{
+  return getFeatures(nullptr, theOptions);
+}
+
 Fmi::Features Engine::getFeatures(const Fmi::SpatialReference& theSR,
+                                  const MapOptions& theOptions) const
+{
+  return getFeatures(&theSR, theOptions);
+}
+
+Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
                                   const MapOptions& theOptions) const
 {
   try
