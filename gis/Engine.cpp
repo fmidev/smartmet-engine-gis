@@ -2,21 +2,18 @@
 
 #include "Engine.h"
 #include "Config.h"
-
-#include <macgyver/StringConversion.h>
-#include <spine/Exception.h>
-
+#include <boost/algorithm/string/join.hpp>
+#include <fmt/format.h>
 #include <gis/Box.h>
+#include <gis/CoordinateTransformation.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
-
+#include <macgyver/StringConversion.h>
+#include <spine/Exception.h>
 #include <gdal_version.h>
-#include <ogrsf_frmts.h>
-
-#include <boost/algorithm/string/join.hpp>
-
 #include <memory>
+#include <ogrsf_frmts.h>
 #include <stdexcept>
 
 auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
@@ -95,18 +92,13 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
 // ----------------------------------------------------------------------
 
 std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
-                                               OGRSpatialReference* theSR)
+                                               const Fmi::SpatialReference& theSR)
 {
   try
   {
     std::string wkt = "NULL";
     if (theSR)
-    {
-      char* tmp;
-      theSR->exportToWkt(&tmp);
-      wkt = tmp;
-      CPLFree(tmp);  // Note: NOT delete!
-    }
+      wkt = Fmi::OGR::exportToWkt(theSR);
 
     std::string basic = theOptions.schema;
     basic += '|';
@@ -274,7 +266,8 @@ CRSRegistry& Engine::getCRSRegistry()
  */
 // ----------------------------------------------------------------------
 
-OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& theOptions) const
+OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference& theSR,
+                                const MapOptions& theOptions) const
 {
   try
   {
@@ -351,7 +344,8 @@ OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& th
   }
 }
 
-Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& theOptions) const
+Fmi::Features Engine::getFeatures(const Fmi::SpatialReference& theSR,
+                                  const MapOptions& theOptions) const
 {
   try
   {
@@ -600,20 +594,13 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     int epsg = getEpsgCode(
         connection, theOptions.schema, theOptions.table, theOptions.geometry_column, *itsConfig);
 
-    OGRSpatialReference oSourceSRS;
-    oSourceSRS.importFromEPSGA(epsg);
-    OGRSpatialReference oTargetSRS;
-    oTargetSRS.importFromEPSGA(4326);
+    Fmi::SpatialReference source(epsg);
+    Fmi::SpatialReference target("WGS84");
+    Fmi::CoordinateTransformation transformation(source, target);
 
-    std::unique_ptr<OGRCoordinateTransformation> poCT(
-        OGRCreateCoordinateTransformation(&oSourceSRS, &oTargetSRS));
-
-    if (!poCT)
-      throw Spine::Exception(BCP, "OGRCreateCoordinateTransformation function call failed");
-
-    bool transformation_ok = (poCT->Transform(1, &(table_envelope.MinX), &(table_envelope.MinY)) &&
-                              poCT->Transform(1, &(table_envelope.MaxX), &(table_envelope.MaxY)));
-    if (transformation_ok)
+    bool ok = (transformation.Transform(table_envelope.MinX, table_envelope.MinY) &&
+               transformation.Transform(table_envelope.MaxX, table_envelope.MaxY));
+    if (ok)
     {
       metadata.xmin = table_envelope.MinX;
       metadata.ymin = table_envelope.MinY;
@@ -699,10 +686,9 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       mo.table = pgId.table;
       mo.fieldnames.insert(pgId.field);
 
-      OGRSpatialReference srs;
-      srs.importFromEPSGA(4326);
+      Fmi::SpatialReference srs("WGS84");
 
-      Fmi::Features features = getFeatures(&srs, mo);
+      Fmi::Features features = getFeatures(srs, mo);
 
       for (auto feature : features)
       {

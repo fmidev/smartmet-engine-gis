@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.3.30
+Version: 20.4.6
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,14 +19,14 @@ BuildRequires: geos38-devel
 BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
-BuildRequires: smartmet-library-newbase-devel >= 20.3.30
+BuildRequires: smartmet-library-newbase-devel >= 20.4.6
 BuildRequires: smartmet-library-spine-devel >= 20.3.9 
-BuildRequires: smartmet-library-gis-devel >= 20.3.26
+BuildRequires: smartmet-library-gis-devel >= 20.4.6
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
 Requires: smartmet-library-spine >= 20.3.9 
-Requires: smartmet-library-gis >= 20.3.26
+Requires: smartmet-library-gis >= 20.4.6
 Requires: boost-regex
 Requires: boost-date-time
 Requires: boost-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Apr  6 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.6-1.fmi
+- Start using Fmi::CoordinateTransformation and Fmi::SpatialReference
+
 * Mon Mar 30 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.3.30-1.fmi
 - Full repackaging of the server
 

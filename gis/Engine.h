@@ -9,12 +9,12 @@
 #include "MapOptions.h"
 #include "MetaData.h"
 #include <boost/shared_ptr.hpp>
-#include <ogr_geometry.h>
-#include <ogr_spatialref.h>
+#include <gis/SpatialReference.h>
 #include <gis/Types.h>
 #include <macgyver/Cache.h>
 #include <spine/SmartMetEngine.h>
 #include <libconfig.h++>
+#include <ogr_geometry.h>
 #include <string>
 
 namespace SmartMet
@@ -37,9 +37,9 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
   // fetch a shape
 
-  OGRGeometryPtr getShape(OGRSpatialReference* theSR, const MapOptions& theOptions) const;
+  OGRGeometryPtr getShape(const Fmi::SpatialReference& theSR, const MapOptions& theOptions) const;
 
-  Fmi::Features getFeatures(OGRSpatialReference* theSR, const MapOptions& theOptions) const;
+  Fmi::Features getFeatures(const Fmi::SpatialReference& theSR, const MapOptions& theOptions) const;
 
   BBox getBBox(int theEPSG) const;
   boost::optional<EPSG> getEPSG(int theEPSG) const;
