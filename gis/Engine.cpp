@@ -609,8 +609,8 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     Fmi::SpatialReference target("WGS84");
     Fmi::CoordinateTransformation transformation(source, target);
 
-    bool ok = (transformation.Transform(table_envelope.MinX, table_envelope.MinY) &&
-               transformation.Transform(table_envelope.MaxX, table_envelope.MaxY));
+    bool ok = (transformation.transform(table_envelope.MinX, table_envelope.MinY) &&
+               transformation.transform(table_envelope.MaxX, table_envelope.MaxY));
     if (ok)
     {
       metadata.xmin = table_envelope.MinX;
