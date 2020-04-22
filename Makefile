@@ -39,6 +39,20 @@ ifneq "$(wildcard /usr/include/boost169)" ""
   LIBS += -L/usr/lib64/boost169
 endif
 
+ifneq "$(wildcard /usr/gdal30/include)" ""
+  INCLUDES += -I/usr/gdal30/include
+  LIBS += -L/usr/gdal30/lib
+else
+  INCLUDES += -I/usr/include/gdal
+endif
+
+ifneq "$(wildcard /usr/geos38/include)" ""
+  INCLUDES += -I/usr/geos38/include
+  LIBS += -L/usr/geos38/lib64
+else
+  INCLUDES += -I/usr/include/geos
+endif
+
 ifeq ($(CXX), clang++)
 
  FLAGS = \
@@ -51,8 +65,7 @@ ifeq ($(CXX), clang++)
 
  INCLUDES += \
 	-isystem $(includedir) \
-	-isystem $(includedir)/smartmet \
-	-isystem $(PREFIX)/gdal30/include
+	-isystem $(includedir)/smartmet
 
 else
 
@@ -73,8 +86,7 @@ else
 
  INCLUDES += \
 	-I$(includedir) \
-	-I$(includedir)/smartmet \
-	-I$(PREFIX)/gdal30/include
+	-I$(includedir)/smartmet
 
 endif
 
@@ -101,8 +113,8 @@ LIBS += -L$(libdir) \
 	-lsmartmet-newbase \
 	-lsmartmet-macgyver \
 	-lsmartmet-gis \
-	-L$(PREFIX)/gdal30/lib `pkg-config --libs gdal30` \
-	-L$(PREFIX)/geos38/lib64 -lgeos \
+	-lgdal \
+	-lgeos \
 	-lboost_regex \
 	-lboost_date_time \
 	-lboost_thread \
