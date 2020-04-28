@@ -23,8 +23,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
 
 std::string WKT(const OGRGeometry &geometry);
 
-// class GeometryConv : public OGRCoordinateTransformation
-class GeometryConv
+class GeometryConv : public OGRCoordinateTransformation
 {
  public:
   GeometryConv(boost::function1<NFmiPoint, NFmiPoint> conv);

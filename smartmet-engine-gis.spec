@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.4.20
+Version: 20.4.28
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,14 +19,14 @@ BuildRequires: geos38-devel
 BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
-BuildRequires: smartmet-library-newbase-devel >= 20.4.20
+BuildRequires: smartmet-library-newbase-devel >= 20.4.23
 BuildRequires: smartmet-library-spine-devel >= 20.4.18 
-BuildRequires: smartmet-library-gis-devel >= 20.4.20
+BuildRequires: smartmet-library-gis-devel >= 20.4.28
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
 Requires: smartmet-library-spine >= 20.4.18
-Requires: smartmet-library-gis >= 20.4.20
+Requires: smartmet-library-gis >= 20.4.28
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Apr 28 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.28-1.fmi
+- Restored GeometryConv inheritance from OGRCoordinateTransformation
+
 * Wed Apr 22 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.20-1.fmi
 - Improved gdal30/geos38 linkage
 
