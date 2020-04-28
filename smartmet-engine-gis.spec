@@ -72,7 +72,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Tue Apr 28 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.28-1.fmi
-- Restored GeometryConv inheritance from OGRCoordinateTransformation
+- Removed GeometryConv as obsolete, OGRGeometry in GDAL 3.0 provides a visitor interface.
 
 * Wed Apr 22 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.4.20-1.fmi
 - Improved gdal30/geos38 linkage

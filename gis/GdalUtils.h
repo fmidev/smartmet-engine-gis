@@ -23,26 +23,6 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
 
 std::string WKT(const OGRGeometry &geometry);
 
-class GeometryConv : public OGRCoordinateTransformation
-{
- public:
-  GeometryConv(boost::function1<NFmiPoint, NFmiPoint> conv);
-
-  virtual ~GeometryConv();
-
-  virtual int Transform(int nCount, double *x, double *y, double *z = nullptr);
-
-  virtual int TransformEx(
-      int nCount, double *x, double *y, double *z = nullptr, int *pabSuccess = nullptr);
-
- private:
-  virtual OGRSpatialReference *GetSourceCS() { return nullptr; }
-  virtual OGRSpatialReference *GetTargetCS() { return nullptr; }
-
- private:
-  boost::function1<NFmiPoint, NFmiPoint> conv;
-};
-
 }  // namespace Gis
 }  // namespace Engine
 }  // namespace SmartMet

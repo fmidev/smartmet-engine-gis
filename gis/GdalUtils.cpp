@@ -102,51 +102,6 @@ std::string WKT(const OGRGeometry &geometry)
   }
 }
 
-GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : conv(theConv) {}
-
-GeometryConv::~GeometryConv() {}
-
-// BUG?? nCount is unused
-int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)
-{
-  try
-  {
-    NFmiPoint src(*x, *y);
-    NFmiPoint dest = conv(src);
-    *x = dest.X();
-    *y = dest.Y();
-    if (z)
-      *z = 0.0;
-    return TRUE;
-  }
-  catch (...)
-  {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *pabSuccess)
-{
-  try
-  {
-    for (int i = 0; i < nCount; i++)
-    {
-      NFmiPoint src(x[i], y[i]);
-      NFmiPoint dest = conv(src);
-      x[i] = dest.X();
-      y[i] = dest.Y();
-      if (z)
-        z[i] = 0.0;
-      pabSuccess[i] = TRUE;
-    }
-    return TRUE;
-  }
-  catch (...)
-  {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
 }  // namespace Gis
 }  // namespace Engine
 }  // namespace SmartMet
