@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CRSRegistry.h"
 #include "EPSG.h"
+#include <spine/CRSRegistry.h>
 #include <boost/optional.hpp>
 #include <boost/utility.hpp>
 #include <libconfig.h++>
@@ -15,6 +15,7 @@ namespace Engine
 {
 namespace Gis
 {
+
 // postgis settings
 struct postgis_connection_info
 {
@@ -33,7 +34,7 @@ class Config : private boost::noncopyable
   Config(std::string theFileName);
 
   // return the CRS registry
-  CRSRegistry& getCRSRegistry();
+  Spine::CRSRegistry& getCRSRegistry();
 
   const postgis_connection_info& getPostGISConnectionInfo(const std::string thePGName) const;
 
@@ -63,7 +64,7 @@ class Config : private boost::noncopyable
 
   libconfig::Config itsConfig;
   std::string itsFileName;
-  CRSRegistry itsCRSRegistry;
+  Spine::CRSRegistry itsCRSRegistry;
 
   // PostGIS settings
   postgis_connection_info itsDefaultConnectionInfo;
