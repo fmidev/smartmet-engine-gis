@@ -13,6 +13,7 @@
 #include <gdal/ogr_spatialref.h>
 #include <gis/Types.h>
 #include <macgyver/Cache.h>
+#include <spine/CRSRegistry.h>
 #include <spine/SmartMetEngine.h>
 #include <libconfig.h++>
 #include <string>
@@ -23,7 +24,8 @@ namespace Engine
 {
 namespace Gis
 {
-class CRSRegistry;
+
+using Spine::CRSRegistry;
 
 class Engine : public SmartMet::Spine::SmartMetEngine
 {
@@ -33,7 +35,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   Engine(const std::string& theFileName);
 
   // return the CRS registry
-  CRSRegistry& getCRSRegistry();
+  Spine::CRSRegistry& getCRSRegistry();
 
   // fetch a shape
 
