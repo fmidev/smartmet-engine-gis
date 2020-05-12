@@ -246,7 +246,7 @@ void Engine::shutdown()
  */
 // ----------------------------------------------------------------------
 
-CRSRegistry& Engine::getCRSRegistry()
+Spine::CRSRegistry& Engine::getCRSRegistry()
 {
   try
   {
