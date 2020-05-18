@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.5.7
+Version: 20.5.18
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,13 +20,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel >= 20.4.23
-BuildRequires: smartmet-library-spine-devel >= 20.4.18 
-BuildRequires: smartmet-library-gis-devel >= 20.4.28
+BuildRequires: smartmet-library-spine-devel >= 20.5.12 
+BuildRequires: smartmet-library-gis-devel >= 20.5.18
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
-Requires: smartmet-library-spine >= 20.4.18
-Requires: smartmet-library-gis >= 20.4.28
+Requires: smartmet-library-spine >= 20.5.12
+Requires: smartmet-library-gis >= 20.5.18
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon May 18 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.5.18-1.fmi
+- GIS-library API changed
+
 * Thu May  7 2020 Andris Pavenis <andris.pavenis@fmi.fi> - 20.5.7-1.fmi
 - Use CRSRegistry from smartmet-library-spine
 
