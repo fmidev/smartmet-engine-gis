@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.5.18
+Version: 20.6.30
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,14 +19,14 @@ BuildRequires: geos38-devel
 BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
-BuildRequires: smartmet-library-newbase-devel >= 20.4.23
-BuildRequires: smartmet-library-spine-devel >= 20.5.12 
-BuildRequires: smartmet-library-gis-devel >= 20.5.18
+BuildRequires: smartmet-library-newbase-devel >= 20.6.30
+BuildRequires: smartmet-library-spine-devel >= 20.6.8 
+BuildRequires: smartmet-library-gis-devel >= 20.6.29
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
-Requires: smartmet-library-spine >= 20.5.12
-Requires: smartmet-library-gis >= 20.5.18
+Requires: smartmet-library-spine >= 20.6.8
+Requires: smartmet-library-gis >= 20.6.29
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Jun 30 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.6.30-1.fmi
+- Simplified some GeometryStorage code
+
 * Mon May 18 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.5.18-1.fmi
 - GIS-library API changed
 

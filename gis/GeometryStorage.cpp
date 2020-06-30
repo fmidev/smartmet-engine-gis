@@ -55,17 +55,21 @@ const OGRGeometry* GeometryStorage::getOGRGeometry(const std::string& name, int 
 {
   try
   {
-    OGRGeometry* ret(0);
+    OGRGeometry* ret = nullptr;
 
     std::string key = boost::algorithm::to_lower_copy(name);
 
-    if (itsGeometries.find(type) != itsGeometries.end())
-    {
-      const NameOGRGeometryMap& nameOGRGeometryMap = itsGeometries.find(type)->second;
+    auto geomtype = itsGeometries.find(type);
 
-      if (nameOGRGeometryMap.find(key) != nameOGRGeometryMap.end())
+    if (geomtype != itsGeometries.end())
+    {
+      const auto& name_to_geom = geomtype->second;
+
+      const auto geom = name_to_geom.find(key);
+
+      if (geom != name_to_geom.end())
       {
-        boost::shared_ptr<OGRGeometry> g = nameOGRGeometryMap.find(key)->second;
+        auto g = geom->second;
         ret = g.get();
       }
     }
