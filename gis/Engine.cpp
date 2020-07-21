@@ -647,6 +647,11 @@ OGRSpatialReference* Engine::getSpatialReference(const std::string& theSR) const
       return obj->get();
 
     auto sr = std::make_shared<OGRSpatialReference>();
+
+    auto err = sr->SetFromUserInput(theSR.c_str());
+    if (err != OGRERR_NONE)
+      throw Spine::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
+
     itsSpatialReferenceCache.insert(theSR, sr);
     return sr.get();
   }
