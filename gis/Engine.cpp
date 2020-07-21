@@ -222,6 +222,7 @@ void Engine::init()
     itsCache.resize(itsConfig->getMaxCacheSize());
     itsFeaturesCache.resize(itsConfig->getMaxCacheSize());
     itsEnvelopeCache.resize(itsConfig->getMaxCacheSize());
+    itsSpatialReferenceCache.resize(itsConfig->getMaxCacheSize());
 
     // Register all drivers just once
 
@@ -624,6 +625,30 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     itsEnvelopeCache.insert(hash, table_envelope);
 
     return metadata;
+  }
+  catch (...)
+  {
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return cached spatial reference
+ */
+// ----------------------------------------------------------------------
+
+OGRSpatialReference* Engine::getSpatialReference(const std::string& theSR) const
+{
+  try
+  {
+    auto obj = itsSpatialReferenceCache.find(theSR);
+    if (obj)
+      return obj->get();
+
+    auto sr = std::make_shared<OGRSpatialReference>();
+    itsSpatialReferenceCache.insert(theSR, sr);
+    return sr.get();
   }
   catch (...)
   {
