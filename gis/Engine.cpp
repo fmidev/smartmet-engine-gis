@@ -2,20 +2,15 @@
 
 #include "Engine.h"
 #include "Config.h"
-
-#include <macgyver/StringConversion.h>
-#include <spine/Exception.h>
-
+#include <boost/algorithm/string/join.hpp>
+#include <gdal/gdal_version.h>
+#include <gdal/ogrsf_frmts.h>
 #include <gis/Box.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
-
-#include <gdal/gdal_version.h>
-#include <gdal/ogrsf_frmts.h>
-
-#include <boost/algorithm/string/join.hpp>
-
+#include <macgyver/StringConversion.h>
+#include <spine/Exception.h>
 #include <memory>
 #include <stdexcept>
 
@@ -223,6 +218,9 @@ void Engine::init()
     itsFeaturesCache.resize(itsConfig->getMaxCacheSize());
     itsEnvelopeCache.resize(itsConfig->getMaxCacheSize());
     itsSpatialReferenceCache.resize(itsConfig->getMaxCacheSize());
+#ifdef OGRCOORDINATETRANSFORMATION_CLONE_AVAILABLE
+    itsCoordinateTransformationCache.resize(itsConfig->getMaxCacheSize());
+#endif
 
     // Register all drivers just once
 
@@ -661,6 +659,48 @@ std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::stri
   }
 }
 
+#ifdef OGRCOORDINATETRANSFORMATION_CLONE_AVAILABLE
+// ----------------------------------------------------------------------
+/*!
+ * \brief Return cached coordinate transformation
+ */
+// ----------------------------------------------------------------------
+
+std::unique_ptr<OGRCoordinateTransformation> Engine::getCoordinateTransformation(
+    const std::string& theSource, const std::string& theTarget) const
+{
+  try
+  {
+    auto key = theSource + " --> " + theTarget;
+
+    auto obj = itsCoordinateTransformationCache.find(key);
+    if (obj)
+      return (*obj)->Clone();
+
+    auto source = getSpatialReference(theSource);
+    auto target = getSpatialReference(theTarget);
+
+    std::shared_ptr<OGRCoordinateTransformation> trans(
+        OGRCreateCoordinateTransformation(source.get(), target.get()));
+
+    if (!trans)
+    {
+      throw Spine::Exception(BCP, "Failed to create coordinate transformation")
+          .addParameter("Source", theSource)
+          .addParameter("Target", theTarget);
+    }
+
+    itsCoordinateTransformationCache.insert(key, trans);
+
+    return std::unique_ptr<OGRCoordinateTransformation>(trans->Clone());
+  }
+  catch (...)
+  {
+    throw Spine::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+#endif
+
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the bounding box for a EPSG
@@ -708,7 +748,8 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
     // and natural_earth.world_populated_places)
     std::map<std::string, std::string> geomid_pgkey_map;
 
-    // This set is to prevent multiple readings of the same data source 'pgname:schema:table:field'
+    // This set is to prevent multiple readings of the same data source
+    // 'pgname:schema:table:field'
     std::set<std::string> pgKeys;
 
     for (auto pgId : thePostGISIdentifiers)
@@ -746,8 +787,8 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
           // Convert to lower case
           boost::algorithm::to_lower(geomName);
 
-          // Geometry name can not be empty, since it is used for example in timesries queries like
-          // 'place=helsinki'
+          // Geometry name can not be empty, since it is used for example in timesries queries
+          // like 'place=helsinki'
           if (geomName.empty())
             continue;
 

@@ -42,7 +42,14 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
   Fmi::Features getFeatures(OGRSpatialReference* theSR, const MapOptions& theOptions) const;
 
+  // Spatial references are thread safe
   std::shared_ptr<OGRSpatialReference> getSpatialReference(const std::string& theSR) const;
+
+#ifdef OGRCOORDINATETRANSFORMATION_CLONE_AVAILABLE
+  // Coordinate transformations are not, you need your own copy
+  std::unique_ptr<OGRCoordinateTransformation> getCoordinateTransformation(
+      const std::string& theSource, const std::string& theTarget) const;
+#endif
 
   BBox getBBox(int theEPSG) const;
   boost::optional<EPSG> getEPSG(int theEPSG) const;
@@ -84,6 +91,13 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   using SpatialReferenceCache =
       Fmi::Cache::Cache<std::string, std::shared_ptr<OGRSpatialReference>>;
   mutable SpatialReferenceCache itsSpatialReferenceCache;
+
+#ifdef OGRCOORDINATETRANSFORMATION_CLONE_AVAILABLE
+  // cache for coordinate transformations
+  using CoordinateTransformationCache =
+      Fmi::Cache::Cache<std::string, std::shared_ptr<OGRCoordinateTransformation>>;
+  mutable CoordinateTransformationCache itsCoordinateTransformationCache;
+#endif
 
 };  // class Engine
 
