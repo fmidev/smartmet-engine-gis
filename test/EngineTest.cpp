@@ -77,6 +77,52 @@ void getEPSG()
   TEST_PASSED();
 }
 
+// ----------------------------------------------------------------------
+
+void getSpatialReference()
+{
+  using namespace SmartMet;
+
+  {
+    auto sr1 = gengine->getSpatialReference("WGS84");
+
+    if (sr1->GetReferenceCount() != 1)
+      TEST_FAILED("WGS84 reference count should be 1, not " +
+                  std::to_string(sr1->GetReferenceCount()));
+
+    if (sr1.use_count() != 2)
+      TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
+
+    {
+      auto sr2 = gengine->getSpatialReference("WGS84");
+
+      if (sr1->GetReferenceCount() != 1)
+        TEST_FAILED("WGS84 reference count should be 1 for 1st copy, not " +
+                    std::to_string(sr1->GetReferenceCount()));
+
+      if (sr2->GetReferenceCount() != 1)
+        TEST_FAILED("WGS84 reference count should be 1 for 2nd copy, not " +
+                    std::to_string(sr2->GetReferenceCount()));
+
+      if (sr1.use_count() != 3)
+        TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
+
+      if (sr2.use_count() != 3)
+        TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
+    }
+
+    if (sr1->GetReferenceCount() != 1)
+      TEST_FAILED("WGS84 reference count should be 1 at the end, not " +
+                  std::to_string(sr1->GetReferenceCount()));
+
+    if (sr1.use_count() != 2)
+      TEST_FAILED("WGS84 shared count should be 1 at the end, not " +
+                  std::to_string(sr1.use_count()));
+  }
+
+  TEST_PASSED();
+}
+
 // Test driver
 class tests : public tframe::tests
 {
@@ -87,6 +133,7 @@ class tests : public tframe::tests
   {
     TEST(getBBox);
     TEST(getEPSG);
+    TEST(getSpatialReference);
   }
 };  // class tests
 

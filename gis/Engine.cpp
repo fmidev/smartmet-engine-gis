@@ -638,13 +638,13 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
  */
 // ----------------------------------------------------------------------
 
-OGRSpatialReference* Engine::getSpatialReference(const std::string& theSR) const
+std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::string& theSR) const
 {
   try
   {
     auto obj = itsSpatialReferenceCache.find(theSR);
     if (obj)
-      return obj->get();
+      return *obj;
 
     auto sr = std::make_shared<OGRSpatialReference>();
 
@@ -653,7 +653,7 @@ OGRSpatialReference* Engine::getSpatialReference(const std::string& theSR) const
       throw Spine::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
 
     itsSpatialReferenceCache.insert(theSR, sr);
-    return sr.get();
+    return sr;
   }
   catch (...)
   {

@@ -42,7 +42,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
   Fmi::Features getFeatures(OGRSpatialReference* theSR, const MapOptions& theOptions) const;
 
-  OGRSpatialReference* getSpatialReference(const std::string& theSR) const;
+  std::shared_ptr<OGRSpatialReference> getSpatialReference(const std::string& theSR) const;
 
   BBox getBBox(int theEPSG) const;
   boost::optional<EPSG> getEPSG(int theEPSG) const;
