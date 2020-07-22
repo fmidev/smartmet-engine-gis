@@ -3,8 +3,8 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.7.21
-Release: 2%{?dist}.fmi
+Version: 20.7.22
+Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -71,7 +71,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
-* Tue Jul 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.21-2.fmi
+* Wed Jul 22 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.22-1.fmi
 - Added a factory for coordinate transformations
 
 * Tue Jul 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.21-1.fmi

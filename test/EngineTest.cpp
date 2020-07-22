@@ -123,6 +123,21 @@ void getSpatialReference()
   TEST_PASSED();
 }
 
+// ----------------------------------------------------------------------
+
+void getCoordinateTransformation()
+{
+  using namespace SmartMet;
+
+  auto tr = gengine->getCoordinateTransformation("WGS84", "EPSG:2393");
+  double x = 25;
+  double y = 60;
+  auto ok = tr->Transform(1, &x, &y);
+
+  if (!ok)
+    TEST_FAILED("Failed to project coordinate 25,60 to YKJ");
+}
+
 // Test driver
 class tests : public tframe::tests
 {
@@ -134,6 +149,7 @@ class tests : public tframe::tests
     TEST(getBBox);
     TEST(getEPSG);
     TEST(getSpatialReference);
+    TEST(getCoordinateTransformation);
   }
 };  // class tests
 

@@ -218,9 +218,6 @@ void Engine::init()
     itsFeaturesCache.resize(itsConfig->getMaxCacheSize());
     itsEnvelopeCache.resize(itsConfig->getMaxCacheSize());
     itsSpatialReferenceCache.resize(itsConfig->getMaxCacheSize());
-#ifdef OGRCOORDINATETRANSFORMATION_CLONE_AVAILABLE
-    itsCoordinateTransformationCache.resize(itsConfig->getMaxCacheSize());
-#endif
 
     // Register all drivers just once
 
@@ -659,47 +656,24 @@ std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::stri
   }
 }
 
-#ifdef OGRCOORDINATETRANSFORMATION_CLONE_AVAILABLE
 // ----------------------------------------------------------------------
 /*!
  * \brief Return cached coordinate transformation
  */
 // ----------------------------------------------------------------------
 
-std::unique_ptr<OGRCoordinateTransformation> Engine::getCoordinateTransformation(
+CoordinateTransformationCache::Ptr Engine::getCoordinateTransformation(
     const std::string& theSource, const std::string& theTarget) const
 {
   try
   {
-    auto key = theSource + " --> " + theTarget;
-
-    auto obj = itsCoordinateTransformationCache.find(key);
-    if (obj)
-      return (*obj)->Clone();
-
-    auto source = getSpatialReference(theSource);
-    auto target = getSpatialReference(theTarget);
-
-    std::shared_ptr<OGRCoordinateTransformation> trans(
-        OGRCreateCoordinateTransformation(source.get(), target.get()));
-
-    if (!trans)
-    {
-      throw Spine::Exception(BCP, "Failed to create coordinate transformation")
-          .addParameter("Source", theSource)
-          .addParameter("Target", theTarget);
-    }
-
-    itsCoordinateTransformationCache.insert(key, trans);
-
-    return std::unique_ptr<OGRCoordinateTransformation>(trans->Clone());
+    return itsCoordinateTransformationCache.get(theSource, theTarget, *this);
   }
   catch (...)
   {
     throw Spine::Exception::Trace(BCP, "Operation failed!");
   }
 }
-#endif
 
 // ----------------------------------------------------------------------
 /*!
