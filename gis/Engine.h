@@ -4,6 +4,7 @@
 
 #include "BBox.h"
 #include "Config.h"
+#include "CoordinateTransformationCache.h"
 #include "EPSG.h"
 #include "GeometryStorage.h"
 #include "MapOptions.h"
@@ -24,7 +25,6 @@ namespace Engine
 {
 namespace Gis
 {
-
 using Spine::CRSRegistry;
 
 class Engine : public SmartMet::Spine::SmartMetEngine
@@ -43,6 +43,14 @@ class Engine : public SmartMet::Spine::SmartMetEngine
 
   Fmi::Features getFeatures(const MapOptions& theOptions) const;
   Fmi::Features getFeatures(const Fmi::SpatialReference& theSR, const MapOptions& theOptions) const;
+
+  // Spatial references are thread safe
+  std::shared_ptr<OGRSpatialReference> getSpatialReference(const std::string& theSR) const;
+
+  // Coordinate transformations are not, you need your own copy
+
+  CoordinateTransformationCache::Ptr getCoordinateTransformation(
+      const std::string& theSource, const std::string& theTarget) const;
 
   BBox getBBox(int theEPSG) const;
   boost::optional<EPSG> getEPSG(int theEPSG) const;
@@ -71,16 +79,24 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   std::unique_ptr<Config> itsConfig;  // ptr for delayed initialization
 
   // Cached contents
-  typedef Fmi::Cache::Cache<std::string, OGRGeometryPtr> GeometryCache;
+  using GeometryCache = Fmi::Cache::Cache<std::string, OGRGeometryPtr>;
   mutable GeometryCache itsCache;
 
   // cache for geometries with attributes
-  typedef Fmi::Cache::Cache<std::string, Fmi::Features> FeaturesCache;
+  using FeaturesCache = Fmi::Cache::Cache<std::string, Fmi::Features>;
   mutable FeaturesCache itsFeaturesCache;
 
   // cache for envelopes
-  typedef Fmi::Cache::Cache<std::size_t, OGREnvelope> EnvelopeCache;
+  using EnvelopeCache = Fmi::Cache::Cache<std::size_t, OGREnvelope>;
   mutable EnvelopeCache itsEnvelopeCache;
+
+  // cache for spatial references
+  using SpatialReferenceCache =
+      Fmi::Cache::Cache<std::string, std::shared_ptr<OGRSpatialReference>>;
+  mutable SpatialReferenceCache itsSpatialReferenceCache;
+
+  // cache for coordinate transformations
+  mutable CoordinateTransformationCache itsCoordinateTransformationCache;
 
 };  // class Engine
 

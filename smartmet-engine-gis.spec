@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.7.2
+Version: 20.7.22
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -19,8 +19,8 @@ BuildRequires: geos38-devel
 BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
-BuildRequires: smartmet-library-newbase-devel >= 20.6.16
-BuildRequires: smartmet-library-spine-devel >= 20.6.8 
+BuildRequires: smartmet-library-newbase-devel
+BuildRequires: smartmet-library-spine-devel >= 20.6.8
 BuildRequires: smartmet-library-gis-devel >= 20.4.18
 Requires: gdal30
 Requires: geos38
@@ -71,6 +71,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Jul 22 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.22-1.fmi
+- Added a factory for coordinate transformations
+
+* Tue Jul 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.21-1.fmi
+- Added a factory for spatial references
+
 * Thu Jul  2 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.2-1.fmi
 - SpatialReference API changed
 
