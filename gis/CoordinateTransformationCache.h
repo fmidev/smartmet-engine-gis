@@ -1,9 +1,9 @@
 #pragma once
-#include <gdal/ogr_spatialref.h>
 #include <macgyver/Cache.h>
 #include <spine/Thread.h>
 #include <list>
 #include <memory>
+#include <ogr_spatialref.h>
 
 namespace SmartMet
 {

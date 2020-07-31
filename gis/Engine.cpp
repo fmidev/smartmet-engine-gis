@@ -4,8 +4,6 @@
 #include "Config.h"
 #include <boost/algorithm/string/join.hpp>
 #include <fmt/format.h>
-#include <gdal/gdal_version.h>
-#include <gdal/ogrsf_frmts.h>
 #include <gis/Box.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/Host.h>

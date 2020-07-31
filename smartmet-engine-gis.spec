@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.7.22
+Version: 20.7.31
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,13 +20,13 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 20.6.8
-BuildRequires: smartmet-library-gis-devel >= 20.4.18
+BuildRequires: smartmet-library-spine-devel >= 20.7.31
+BuildRequires: smartmet-library-gis-devel >= 20.7.2
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
-Requires: smartmet-library-spine >= 20.6.8
-Requires: smartmet-library-gis >= 20.4.18
+Requires: smartmet-library-spine >= 20.7.31
+Requires: smartmet-library-gis >= 20.7.2
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri Jul 31 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.31-1.fmi
+- Repackaged due to libpqxx upgrade
+
 * Wed Jul 22 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.22-1.fmi
 - Added a factory for coordinate transformations
 
