@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.7.31
+Version: 20.8.13
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -21,12 +21,12 @@ BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
 BuildRequires: smartmet-library-spine-devel >= 20.7.31
-BuildRequires: smartmet-library-gis-devel >= 20.7.2
+BuildRequires: smartmet-library-gis-devel >= 20.8.13
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
 Requires: smartmet-library-spine >= 20.7.31
-Requires: smartmet-library-gis >= 20.7.2
+Requires: smartmet-library-gis >= 20.8.13
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Aug 13 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.13-1.fmi
+- Repackaged due to GIS-library ABI changes
+
 * Fri Jul 31 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.31-1.fmi
 - Repackaged due to libpqxx upgrade
 
