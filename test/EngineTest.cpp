@@ -136,6 +136,7 @@ void getCoordinateTransformation()
 
   if (!ok)
     TEST_FAILED("Failed to project coordinate 25,60 to YKJ");
+  TEST_PASSED();
 }
 
 // Test driver
