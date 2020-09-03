@@ -10,8 +10,8 @@
 #include "MapOptions.h"
 #include "MetaData.h"
 #include <boost/shared_ptr.hpp>
-#include <gdal/ogr_geometry.h>
-#include <gdal/ogr_spatialref.h>
+#include <ogr_geometry.h>
+#include <ogr_spatialref.h>
 #include <gis/Types.h>
 #include <macgyver/Cache.h>
 #include <spine/CRSRegistry.h>

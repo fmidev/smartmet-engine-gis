@@ -3,8 +3,8 @@
 #include "Engine.h"
 #include "Config.h"
 #include <boost/algorithm/string/join.hpp>
-#include <gdal/gdal_version.h>
-#include <gdal/ogrsf_frmts.h>
+#include <gdal_version.h>
+#include <ogrsf_frmts.h>
 #include <gis/Box.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
@@ -100,7 +100,11 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
       char* tmp;
       theSR->exportToWkt(&tmp);
       wkt = tmp;
+#if GDAL_VERSION_MAJOR < 2      
       OGRFree(tmp);  // Note: NOT delete!
+#else
+      CPLFree(tmp);
+#endif      
     }
 
     std::string basic = theOptions.schema;

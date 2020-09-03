@@ -1,5 +1,6 @@
 #include "GdalUtils.h"
 #include <spine/Exception.h>
+#include <gdal_version.h>
 
 namespace SmartMet
 {
@@ -93,7 +94,11 @@ std::string WKT(const OGRGeometry &geometry)
     char *wkt = nullptr;
     geometry.exportToWkt(&wkt);
     std::string result = wkt;
+#if GDAL_VERSION_MAJOR < 2    
     OGRFree(wkt);
+#else
+    CPLFree(wkt);
+#endif    
     return result;
   }
   catch (...)

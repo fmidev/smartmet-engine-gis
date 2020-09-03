@@ -4,7 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <gdal/cpl_conv.h>  // For configuring GDAL
+#include <cpl_conv.h>  // For configuring GDAL
 #include <macgyver/TimeParser.h>
 #include <spine/ConfigBase.h>
 #include <spine/Exception.h>

@@ -14,16 +14,12 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: gdal-devel
-BuildRequires: geos-devel
 BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
 BuildRequires: smartmet-library-spine-devel >= 20.8.21
 BuildRequires: smartmet-library-gis-devel >= 20.8.21
-Requires: gdal
-Requires: geos
 Requires: libconfig
 Requires: smartmet-library-spine >= 20.8.21
 Requires: smartmet-library-gis >= 20.8.21
@@ -33,6 +29,17 @@ Requires: boost169-filesystem
 Requires: boost169-iostreams
 Requires: boost169-system
 Requires: boost169-thread
+%if 0%{rhel} >= 8
+BuildRequires: gdal30-devel
+BuildRequires: geos-devel
+Requires: gdal30-libs
+Requires: geos
+%else
+BuildRequires: gdal-devel
+BuildRequires: geos-devel
+Requires: gdal-libs
+Requires: geos
+%endif
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
