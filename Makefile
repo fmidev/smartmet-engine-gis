@@ -50,7 +50,6 @@ ifeq ($(CXX), clang++)
 
  FLAGS = \
 	-std=$(CXX_STD) -fPIC -MD \
-	-Weverything \
 	-Wno-c++98-compat \
 	-Wno-float-equal \
 	-Wno-padded \
