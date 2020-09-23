@@ -7,7 +7,7 @@
 #include <cpl_conv.h>  // For configuring GDAL
 #include <macgyver/TimeParser.h>
 #include <spine/ConfigBase.h>
-#include <spine/Exception.h>
+#include <macgyver/Exception.h>
 #include <stdexcept>
 
 namespace fs = boost::filesystem;
@@ -37,19 +37,19 @@ void Config::require_postgis_settings() const
 {
   if (!itsConfig.exists("postgis.host"))
   {
-    throw Spine::Exception(BCP, "The 'postgis.host' attribute not set!")
+    throw Fmi::Exception(BCP, "The 'postgis.host' attribute not set!")
         .addParameter("Configuration file", itsFileName);
   }
 
   if (!itsConfig.exists("postgis.port"))
   {
-    throw Spine::Exception(BCP, "The 'postgis.port' attribute not set!")
+    throw Fmi::Exception(BCP, "The 'postgis.port' attribute not set!")
         .addParameter("Configuration file", itsFileName);
   }
 
   if (!itsConfig.exists("postgis.database"))
   {
-    throw Spine::Exception(BCP,
+    throw Fmi::Exception(BCP,
                            "The 'postgis.database' attribute not set!"
                            "")
         .addParameter("Configuration file", itsFileName);
@@ -57,19 +57,19 @@ void Config::require_postgis_settings() const
 
   if (!itsConfig.exists("postgis.username"))
   {
-    throw Spine::Exception(BCP, "The 'postgis.username' attribute not set!")
+    throw Fmi::Exception(BCP, "The 'postgis.username' attribute not set!")
         .addParameter("Configuration file", itsFileName);
   }
 
   if (!itsConfig.exists("postgis.password"))
   {
-    throw Spine::Exception(BCP, "The 'postgis.password' attribute not set!")
+    throw Fmi::Exception(BCP, "The 'postgis.password' attribute not set!")
         .addParameter("Configuration file", itsFileName);
   }
 
   if (!itsConfig.exists("postgis.encoding"))
   {
-    throw Spine::Exception(BCP, "The 'postgis.encoding' attribute not set!")
+    throw Fmi::Exception(BCP, "The 'postgis.encoding' attribute not set!")
         .addParameter("Configuration file", itsFileName);
   }
 }
@@ -115,14 +115,14 @@ void Config::read_postgis_info()
 
   const auto& info = itsConfig.lookup("info");
   if (!info.isGroup())
-    throw Spine::Exception(BCP, "info setting must be a group");
+    throw Fmi::Exception(BCP, "info setting must be a group");
 
   for (int i = 0; i < info.getLength(); i++)
   {
     const auto& schema = info[i];
 
     if (!schema.isGroup())
-      throw Spine::Exception(BCP, "info settings must be groups");
+      throw Fmi::Exception(BCP, "info settings must be groups");
 
     std::string schema_name = schema.getName();
 
@@ -130,7 +130,7 @@ void Config::read_postgis_info()
     {
       const auto& table = schema[j];
       if (!table.isGroup())
-        throw Spine::Exception(BCP, "info schema settings must be groups");
+        throw Fmi::Exception(BCP, "info schema settings must be groups");
 
       std::string table_name = table.getName();
 
@@ -155,7 +155,7 @@ void Config::read_cache_settings()
 {
   if (!itsConfig.exists("cache.max_size"))
   {
-    throw Spine::Exception(BCP, "The 'cache.max_size' attribute not set!")
+    throw Fmi::Exception(BCP, "The 'cache.max_size' attribute not set!")
         .addParameter("Configuration file", itsFileName);
   }
 
@@ -170,7 +170,7 @@ void Config::read_gdal_settings()
   const auto& settings = itsConfig.lookup("gdal");
   if (!settings.isGroup())
   {
-    throw Spine::Exception(BCP, "The 'gdal' parameter must be a group of GDAL settings!")
+    throw Fmi::Exception(BCP, "The 'gdal' parameter must be a group of GDAL settings!")
         .addParameter("Configuration file", itsFileName);
   }
 
@@ -186,13 +186,13 @@ BBox Config::read_bbox(const libconfig::Setting& theSetting) const
 {
   if (!theSetting.isArray())
   {
-    throw Spine::Exception(BCP, "The 'bbox' element must contain arrays!")
+    throw Fmi::Exception(BCP, "The 'bbox' element must contain arrays!")
         .addParameter("Configuration file", itsFileName);
   }
 
   if (theSetting.getLength() != 4)
   {
-    throw Spine::Exception(BCP, "The 'bbox' elements must be arrays of size 4!")
+    throw Fmi::Exception(BCP, "The 'bbox' elements must be arrays of size 4!")
         .addDetail("Found an array of length " + std::to_string(theSetting.getLength()))
         .addParameter("Configuration file", itsFileName);
   }
@@ -208,14 +208,14 @@ EPSG Config::read_epsg(const libconfig::Setting& theSetting) const
 {
   if (!theSetting.isGroup())
   {
-    throw Spine::Exception(BCP, "The 'epsg' elements must be groups!")
+    throw Fmi::Exception(BCP, "The 'epsg' elements must be groups!")
         .addParameter("Configuration file", itsFileName);
   }
 
   if (!theSetting.exists("id"))
-    throw Spine::Exception(BCP, "The 'epsg' elements must have an 'id' field");
+    throw Fmi::Exception(BCP, "The 'epsg' elements must have an 'id' field");
   if (!theSetting.exists("bbox"))
-    throw Spine::Exception(BCP, "The 'epsg' elements must have a 'bbox' field");
+    throw Fmi::Exception(BCP, "The 'epsg' elements must have a 'bbox' field");
 
   EPSG epsg;
   epsg.bbox = read_bbox(theSetting["bbox"]);
@@ -236,7 +236,7 @@ void Config::read_bbox_settings()
   const auto& bboxes = itsConfig.lookup("bbox");
   if (!bboxes.isGroup())
   {
-    throw Spine::Exception(BCP, "The 'bbox' attribute must be a group!")
+    throw Fmi::Exception(BCP, "The 'bbox' attribute must be a group!")
         .addParameter("Configuration file", itsFileName);
   }
 
@@ -260,7 +260,7 @@ void Config::read_epsg_settings()
   const bool has_epsg = itsConfig.exists("epsg");
 
   if (has_bbox && has_epsg)
-    throw Spine::Exception(BCP,
+    throw Fmi::Exception(BCP,
                            "The config has both bbox and epsg settings, the former are deprecated")
         .addParameter("Configuration file", itsFileName);
 
@@ -275,7 +275,7 @@ void Config::read_epsg_settings()
 
     if (!epsg_list.isList())
     {
-      throw Spine::Exception(BCP, "The 'epsg' attribute must be a list of groups!")
+      throw Fmi::Exception(BCP, "The 'epsg' attribute must be a list of groups!")
           .addParameter("Configuration file", itsFileName);
     }
 
@@ -315,28 +315,28 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
     }
     catch (const libconfig::SettingException& err)
     {
-      throw Spine::Exception(BCP, "Configuration file setting error!")
+      throw Fmi::Exception(BCP, "Configuration file setting error!")
           .addParameter("Configuration file", itsFileName)
           .addParameter("Path", err.getPath())
           .addParameter("Error description", err.what());
     }
     catch (const libconfig::ParseException& err)
     {
-      throw Spine::Exception(BCP, "Configuration file parsing failed!")
+      throw Fmi::Exception(BCP, "Configuration file parsing failed!")
           .addParameter("Configuration file", itsFileName)
           .addParameter("Error line", std::to_string(err.getLine()))
           .addParameter("Error description", err.getError());
     }
     catch (const libconfig::ConfigException& err)
     {
-      throw Spine::Exception(BCP, "Configuration exception!")
+      throw Fmi::Exception(BCP, "Configuration exception!")
           .addParameter("Configuration file", itsFileName)
           .addParameter("Error description", err.what());
     }
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -356,7 +356,7 @@ BBox Config::getBBox(int theEPSG) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -371,7 +371,7 @@ boost::optional<EPSG> Config::getEPSG(int theEPSG) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -387,19 +387,19 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
         return itsDefaultConnectionInfo;
       auto it = itsConnectionInfo.find("gis");
       if (it == itsConnectionInfo.end())
-        throw Spine::Exception(BCP, "Default postgis setting missing: \"gis\"");
+        throw Fmi::Exception(BCP, "Default postgis setting missing: \"gis\"");
       else
         return it->second;
     }
 
     if (itsConnectionInfo.find(thePGName) == itsConnectionInfo.end())
-      throw Spine::Exception(BCP, "No postgis settings found for '" + thePGName + "'");
+      throw Fmi::Exception(BCP, "No postgis settings found for '" + thePGName + "'");
 
     return itsConnectionInfo.find(thePGName)->second;
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

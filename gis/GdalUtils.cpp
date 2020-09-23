@@ -1,5 +1,5 @@
 #include "GdalUtils.h"
-#include <spine/Exception.h>
+#include <macgyver/Exception.h>
 #include <gdal_version.h>
 
 namespace SmartMet
@@ -26,7 +26,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -48,7 +48,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -83,7 +83,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -103,7 +103,7 @@ std::string WKT(const OGRGeometry &geometry)
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -126,7 +126,7 @@ int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -148,7 +148,7 @@ int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

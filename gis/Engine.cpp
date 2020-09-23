@@ -10,7 +10,7 @@
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
 #include <macgyver/StringConversion.h>
-#include <spine/Exception.h>
+#include <macgyver/Exception.h>
 #include <memory>
 #include <stdexcept>
 
@@ -42,7 +42,7 @@ int getEpsgCode(const GDALDataPtr& connection,
     SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
     if (!pLayer)
-      throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+      throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
     SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
 
@@ -57,11 +57,11 @@ int getEpsgCode(const GDALDataPtr& connection,
       return *config.getDefaultEPSG();
     }
 
-    throw Spine::Exception(BCP, "Gis-engine: Null feature received from " + sqlStmt);
+    throw Fmi::Exception(BCP, "Gis-engine: Null feature received from " + sqlStmt);
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -78,7 +78,7 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 }  // namespace
@@ -127,7 +127,7 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -165,19 +165,19 @@ OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
     SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
     if (!pLayer)
-      throw Spine::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+      throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
     SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
 
     if (!pFeature)
-      throw Spine::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+      throw Fmi::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
 
     // get geometry
     OGRGeometry* pGeometry = pFeature->GetGeometryRef();
 
     if (!pGeometry)
     {
-      Spine::Exception ex(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+      Fmi::Exception ex(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
       if (quiet)
         ex.disableLogging();
       throw ex;
@@ -190,7 +190,7 @@ OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -233,7 +233,7 @@ void Engine::init()
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -262,7 +262,7 @@ Spine::CRSRegistry& Engine::getCRSRegistry()
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -280,9 +280,9 @@ OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& th
   {
     // Validate options
     if (theOptions.schema.empty())
-      throw Spine::Exception(BCP, "PostGIS database name missing from map query");
+      throw Fmi::Exception(BCP, "PostGIS database name missing from map query");
     if (theOptions.table.empty())
-      throw Spine::Exception(BCP, "PostGIS table name missing from map query");
+      throw Fmi::Exception(BCP, "PostGIS table name missing from map query");
 
     // Find simplified map from the cache
 
@@ -347,7 +347,7 @@ OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& th
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -357,9 +357,9 @@ Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& 
   {
     // Validate options
     if (theOptions.schema.empty())
-      throw Spine::Exception(BCP, "PostGIS database name missing from map query");
+      throw Fmi::Exception(BCP, "PostGIS database name missing from map query");
     if (theOptions.table.empty())
-      throw Spine::Exception(BCP, "PostGIS table name missing from map query");
+      throw Fmi::Exception(BCP, "PostGIS table name missing from map query");
 
     // Find simplified map from the cache
     auto keys = cache_keys(theOptions, theSR);
@@ -432,7 +432,7 @@ Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& 
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -473,7 +473,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
         if (!pLayer)
-          throw Spine::Exception(BCP,
+          throw Fmi::Exception(BCP,
                                  "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
         while (true)
@@ -518,13 +518,13 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
         if (!pLayer)
-          throw Spine::Exception(BCP,
+          throw Fmi::Exception(BCP,
                                  "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
         SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
 
         if (!pFeature)
-          throw Spine::Exception(BCP,
+          throw Fmi::Exception(BCP,
                                  "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
 
         tm start_tm, end_tm;
@@ -609,7 +609,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         OGRCreateCoordinateTransformation(&oSourceSRS, &oTargetSRS));
 
     if (!poCT)
-      throw Spine::Exception(BCP, "OGRCreateCoordinateTransformation function call failed");
+      throw Fmi::Exception(BCP, "OGRCreateCoordinateTransformation function call failed");
 
     bool transformation_ok = (poCT->Transform(1, &(table_envelope.MinX), &(table_envelope.MinY)) &&
                               poCT->Transform(1, &(table_envelope.MaxX), &(table_envelope.MaxY)));
@@ -627,7 +627,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -649,14 +649,14 @@ std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::stri
 
     auto err = sr->SetFromUserInput(theSR.c_str());
     if (err != OGRERR_NONE)
-      throw Spine::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
+      throw Fmi::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
 
     itsSpatialReferenceCache.insert(theSR, sr);
     return sr;
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -675,7 +675,7 @@ CoordinateTransformationCache::Ptr Engine::getCoordinateTransformation(
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -693,7 +693,7 @@ BBox Engine::getBBox(int theEPSG) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -711,7 +711,7 @@ boost::optional<EPSG> Engine::getEPSG(int theEPSG) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -898,7 +898,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

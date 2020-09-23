@@ -99,7 +99,7 @@ CoordinateTransformationCache::Ptr CoordinateTransformationCache::get(const std:
 
   if (ptr == nullptr)
   {
-    throw Spine::Exception(BCP, "Failed to create coordinate transformation")
+    throw Fmi::Exception(BCP, "Failed to create coordinate transformation")
         .addParameter("Source", theSource)
         .addParameter("Target", theTarget);
   }
