@@ -136,6 +136,7 @@ void getCoordinateTransformation()
 
   if (!ok)
     TEST_FAILED("Failed to project coordinate 25,60 to YKJ");
+  TEST_PASSED();
 }
 
 // Test driver
@@ -162,6 +163,7 @@ int main(void)
   opts.parseConfig();
 
   SmartMet::Spine::Reactor reactor(opts);
+  reactor.init();
 
   gengine = reinterpret_cast<SmartMet::Engine::Gis::Engine *>(reactor.getSingleton("Gis", NULL));
   cout << endl << "Engine tester" << endl << "=============" << endl;

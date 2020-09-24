@@ -28,8 +28,15 @@ CFLAGS = -DUNIX -O0 -g $(FLAGS) -Wno-write-strings
 # Boost 1.69
 
 ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -I/usr/include/boost169
+  INCLUDES += -isystem /usr/include/boost169
   LIBS += -L/usr/lib64/boost169
+endif
+
+ifneq "$(wildcard /usr/gdal30/include)" ""
+  INCLUDES += -isystem /usr/gdal30/include
+  LIBS += -L/usr/gdal30/lib
+else
+  INCLUDES += -isystem /usr/include/gdal
 endif
 
 INCLUDES += \
@@ -58,4 +65,4 @@ test: $(PROG)
 	done
 
 $(PROG) : % : %.cpp ../gis.so
-	$(CC) $(CFLAGS) -o $@ $@.cpp $(INCLUDES) $(LIBS)
+	$(CXX) $(CFLAGS) -o $@ $@.cpp $(INCLUDES) $(LIBS)
