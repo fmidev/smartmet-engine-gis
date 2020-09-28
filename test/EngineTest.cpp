@@ -164,6 +164,7 @@ int main(void)
   opts.parseConfig();
 
   SmartMet::Spine::Reactor reactor(opts);
+  reactor.init();
 
   gengine = reinterpret_cast<SmartMet::Engine::Gis::Engine *>(reactor.getSingleton("Gis", NULL));
   cout << endl << "Engine tester" << endl << "=============" << endl;

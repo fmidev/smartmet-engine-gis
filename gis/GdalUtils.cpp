@@ -1,5 +1,6 @@
 #include "GdalUtils.h"
-#include <spine/Exception.h>
+#include <macgyver/Exception.h>
+#include <gdal_version.h>
 
 namespace SmartMet
 {
@@ -25,7 +26,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -47,7 +48,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -82,7 +83,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -93,12 +94,16 @@ std::string WKT(const OGRGeometry &geometry)
     char *wkt = nullptr;
     geometry.exportToWkt(&wkt);
     std::string result = wkt;
+#if GDAL_VERSION_MAJOR < 2    
+    OGRFree(wkt);
+#else
     CPLFree(wkt);
+#endif    
     return result;
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

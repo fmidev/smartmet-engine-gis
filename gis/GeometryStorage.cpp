@@ -1,8 +1,8 @@
 #include "GeometryStorage.h"
 #include "MapOptions.h"
+#include <macgyver/Exception.h>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <spine/Exception.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -30,7 +30,7 @@ std::string GeometryStorage::getSVGPath(const std::string& name) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -47,7 +47,7 @@ std::pair<double, double> GeometryStorage::getPoint(const std::string& name) con
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -78,7 +78,7 @@ const OGRGeometry* GeometryStorage::getOGRGeometry(const std::string& name, int 
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -92,7 +92,7 @@ bool GeometryStorage::geoObjectExists(const std::string& name) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -104,7 +104,7 @@ bool GeometryStorage::isPolygon(const std::string& name) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -116,7 +116,7 @@ bool GeometryStorage::isLine(const std::string& name) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -128,7 +128,7 @@ bool GeometryStorage::isPoint(const std::string& name) const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 
@@ -150,7 +150,7 @@ std::list<string> GeometryStorage::areaNames() const
   }
   catch (...)
   {
-    throw Spine::Exception::Trace(BCP, "Operation failed!");
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
 

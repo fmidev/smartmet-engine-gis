@@ -1,4 +1,5 @@
 #pragma once
+#include <ogr_spatialref.h>
 #include <macgyver/Cache.h>
 #include <spine/Thread.h>
 #include <list>

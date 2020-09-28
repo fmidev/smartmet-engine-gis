@@ -20,19 +20,30 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 20.8.21
-BuildRequires: smartmet-library-gis-devel >= 20.8.27
+BuildRequires: smartmet-library-spine-devel >= 20.9.23
+BuildRequires: smartmet-library-gis-devel >= 20.9.25
 Requires: gdal30
 Requires: geos38
 Requires: libconfig
-Requires: smartmet-library-spine >= 20.8.21
-Requires: smartmet-library-gis >= 20.8.27
+Requires: smartmet-library-spine >= 20.9.23
+Requires: smartmet-library-gis >= 20.9.25
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
 Requires: boost169-iostreams
 Requires: boost169-system
 Requires: boost169-thread
+%if 0%{rhel} >= 7
+BuildRequires: gdal30-devel
+BuildRequires: geos38-devel
+Requires: gdal30-libs
+Requires: geos
+%else
+BuildRequires: gdal-devel
+BuildRequires: geos-devel
+Requires: gdal-libs
+Requires: geos
+%endif
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -71,12 +82,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Sep 23 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.23-1.fmi
+- Use Fmi::Exception instead of Spine::Exception
+
 * Thu Aug 27 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.27-1.fmi
 - NFmiGrid API changed
 
 * Wed Aug 26 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.26-1.fmi
 - Numerous newbase API changes
-
 * Fri Aug 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.21-1.fmi
 - Upgrade to fmt 6.2
 
