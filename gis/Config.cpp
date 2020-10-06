@@ -302,6 +302,11 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
 
     try
     {
+      // Enable sensible relative include paths
+      boost::filesystem::path p = theFileName;
+      p.remove_filename();
+      itsConfig.setIncludeDir(p.c_str());
+
       itsConfig.readFile(itsFileName.c_str());
 
       itsConfig.lookupValue("quiet", itsQuiet);
