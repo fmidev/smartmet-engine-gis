@@ -43,6 +43,8 @@ Requires: geos
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
+#TestRequires: libconfig-devel
+#TestRequires: gcc-c++
 
 %description
 FMI SmartMet gis engine
