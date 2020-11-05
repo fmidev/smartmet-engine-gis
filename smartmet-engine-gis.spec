@@ -47,6 +47,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-spine-devel >= 20.9.23
 #TestRequires: smartmet-library-gis-devel >= 20.10.5
+#TestRequires: gdal-devel
 
 
 %description
