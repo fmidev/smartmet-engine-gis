@@ -43,11 +43,12 @@ Requires: geos
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
-#TestRequires: libconfig-devel
 #TestRequires: gcc-c++
-#TestRequires: smartmet-library-spine-devel >= 20.9.23
-#TestRequires: smartmet-library-gis-devel >= 20.10.5
 #TestRequires: gdal-devel
+#TestRequires: libconfig-devel
+#TestRequires: smartmet-library-gis-devel >= 20.10.5
+#TestRequires: smartmet-library-regression >= 20.5.7
+#TestRequires: smartmet-library-spine-devel >= 20.9.23
 
 
 %description
