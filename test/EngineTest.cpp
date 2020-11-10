@@ -168,5 +168,5 @@ int main(void)
   gengine = reinterpret_cast<SmartMet::Engine::Gis::Engine *>(reactor.getSingleton("Gis", NULL));
   cout << endl << "Engine tester" << endl << "=============" << endl;
   Tests::tests t;
-  t.run();
+  return t.run();
 }
