@@ -94,11 +94,11 @@ std::string WKT(const OGRGeometry &geometry)
     char *wkt = nullptr;
     geometry.exportToWkt(&wkt);
     std::string result = wkt;
-#if GDAL_VERSION_MAJOR < 2    
+#if GDAL_VERSION_MAJOR < 2
     OGRFree(wkt);
 #else
     CPLFree(wkt);
-#endif    
+#endif
     return result;
   }
   catch (...)
@@ -109,7 +109,7 @@ std::string WKT(const OGRGeometry &geometry)
 
 GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : conv(theConv) {}
 
-GeometryConv::~GeometryConv() {}
+GeometryConv::~GeometryConv() = default;
 
 // BUG?? nCount is unused
 int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)

@@ -1,15 +1,11 @@
 #include "GeometryStorage.h"
 #include "MapOptions.h"
-#include <macgyver/Exception.h>
-
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/replace.hpp>
-
+#include <macgyver/Exception.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-
-using namespace std;
 
 namespace SmartMet
 {
@@ -25,10 +21,9 @@ std::string GeometryStorage::getSVGPath(const std::string& name) const
 
     if (itsPolygons.find(key) != itsPolygons.end())
       return itsPolygons.at(key);
-    else if (itsLines.find(key) != itsLines.end())
+    if (itsLines.find(key) != itsLines.end())
       return itsLines.at(key);
-    else
-      return "";
+    return "";
   }
   catch (...)
   {
@@ -44,8 +39,7 @@ std::pair<double, double> GeometryStorage::getPoint(const std::string& name) con
 
     if (itsPoints.find(key) != itsPoints.end())
       return itsPoints.at(key);
-    else
-      return make_pair(32700.0, 32700.0);
+    return std::make_pair(32700.0, 32700.0);
   }
   catch (...)
   {
@@ -58,7 +52,7 @@ const OGRGeometry* GeometryStorage::getOGRGeometry(const std::string& name,
 {
   try
   {
-    OGRGeometry* ret(0);
+    OGRGeometry* ret = nullptr;
 
     std::string key = boost::algorithm::to_lower_copy(name);
 
@@ -131,11 +125,11 @@ bool GeometryStorage::isPoint(const std::string& name) const
   }
 }
 
-std::list<string> GeometryStorage::areaNames() const
+std::list<std::string> GeometryStorage::areaNames() const
 {
   try
   {
-    std::list<string> return_list;
+    std::list<std::string> return_list;
     for (const auto& item : itsPolygons)
     {
       return_list.push_back(item.first);

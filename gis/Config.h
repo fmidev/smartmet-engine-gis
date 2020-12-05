@@ -3,9 +3,9 @@
 #pragma once
 
 #include "EPSG.h"
-#include <spine/CRSRegistry.h>
 #include <boost/optional.hpp>
 #include <boost/utility.hpp>
+#include <spine/CRSRegistry.h>
 #include <libconfig.h++>
 #include <string>
 
@@ -15,7 +15,6 @@ namespace Engine
 {
 namespace Gis
 {
-
 // postgis settings
 struct postgis_connection_info
 {
@@ -71,7 +70,7 @@ class Config : private boost::noncopyable
   std::map<std::string, postgis_connection_info> itsConnectionInfo;
 
   // cache settings
-  int itsMaxCacheSize;
+  int itsMaxCacheSize = 0;
 
   // Default EPSG for PostGIS geometries which have no SRID
   boost::optional<int> itsDefaultEPSG;

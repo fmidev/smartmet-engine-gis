@@ -4,14 +4,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <cpl_conv.h>  // For configuring GDAL
+#include <macgyver/Exception.h>
 #include <macgyver/TimeParser.h>
 #include <spine/ConfigBase.h>
-#include <macgyver/Exception.h>
+#include <cpl_conv.h>  // For configuring GDAL
 #include <stdexcept>
-
-namespace fs = boost::filesystem;
-namespace ba = boost::algorithm;
 
 namespace SmartMet
 {
@@ -19,7 +16,6 @@ namespace Engine
 {
 namespace Gis
 {
-
 void Config::read_crs_settings()
 {
   std::string crs_dir;
@@ -50,8 +46,8 @@ void Config::require_postgis_settings() const
   if (!itsConfig.exists("postgis.database"))
   {
     throw Fmi::Exception(BCP,
-                           "The 'postgis.database' attribute not set!"
-                           "")
+                         "The 'postgis.database' attribute not set!"
+                         "")
         .addParameter("Configuration file", itsFileName);
   }
 
@@ -86,8 +82,8 @@ void Config::read_postgis_settings()
   itsConfig.lookupValue("postgis.encoding", itsDefaultConnectionInfo.encoding);
 
   libconfig::Setting& pg_sett = itsConfig.lookup("postgis");
-  unsigned int n_pgsett = pg_sett.getLength();
-  for (unsigned int i = 0; i < n_pgsett; i++)
+  int n_pgsett = pg_sett.getLength();
+  for (int i = 0; i < n_pgsett; i++)
   {
     libconfig::Setting& sett = pg_sett[i];
 
@@ -261,7 +257,7 @@ void Config::read_epsg_settings()
 
   if (has_bbox && has_epsg)
     throw Fmi::Exception(BCP,
-                           "The config has both bbox and epsg settings, the former are deprecated")
+                         "The config has both bbox and epsg settings, the former are deprecated")
         .addParameter("Configuration file", itsFileName);
 
   // TODO(mheiskan) deprecated settings
@@ -393,8 +389,7 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
       auto it = itsConnectionInfo.find("gis");
       if (it == itsConnectionInfo.end())
         throw Fmi::Exception(BCP, "Default postgis setting missing: \"gis\"");
-      else
-        return it->second;
+      return it->second;
     }
 
     if (itsConnectionInfo.find(thePGName) == itsConnectionInfo.end())
