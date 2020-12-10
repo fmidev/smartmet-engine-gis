@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.10.6
+Version: 20.12.7
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -18,11 +18,11 @@ BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 20.9.23
-BuildRequires: smartmet-library-gis-devel >= 20.10.5
+BuildRequires: smartmet-library-spine-devel >= 20.12.4
+BuildRequires: smartmet-library-gis-devel >= 20.10.28
 Requires: libconfig
-Requires: smartmet-library-spine >= 20.9.23
-Requires: smartmet-library-gis >= 20.10.5
+Requires: smartmet-library-spine >= 20.12.4
+Requires: smartmet-library-gis >= 20.10.28
 Requires: boost169-regex
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -46,9 +46,9 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
 #TestRequires: gdal-devel
 #TestRequires: libconfig-devel
-#TestRequires: smartmet-library-gis-devel >= 20.10.5
+#TestRequires: smartmet-library-gis-devel >= 20.10.28
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 20.9.23
+#TestRequires: smartmet-library-spine-devel >= 20.12.4
 
 
 %description
@@ -85,6 +85,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Dec  7 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.7-1.fmi
+- Minor fixes to silence CodeChecker warnings
+
 * Tue Oct  6 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.10.6-1.fmi
 - Enable sensible relative libconfig include paths
 

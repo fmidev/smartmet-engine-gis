@@ -3,18 +3,18 @@
 #include "Engine.h"
 #include "Config.h"
 #include <boost/algorithm/string/join.hpp>
-#include <gdal_version.h>
-#include <ogrsf_frmts.h>
 #include <gis/Box.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
-#include <macgyver/StringConversion.h>
 #include <macgyver/Exception.h>
+#include <macgyver/StringConversion.h>
+#include <gdal_version.h>
 #include <memory>
+#include <ogrsf_frmts.h>
 #include <stdexcept>
 
-auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
+const auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
 using SafeFeature = std::unique_ptr<OGRFeature, decltype(featuredeleter)>;
 
 namespace SmartMet
@@ -95,16 +95,16 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
   try
   {
     std::string wkt = "NULL";
-    if (theSR)
+    if (theSR != nullptr)
     {
-      char* tmp;
+      char* tmp = nullptr;
       theSR->exportToWkt(&tmp);
       wkt = tmp;
-#if GDAL_VERSION_MAJOR < 2      
+#if GDAL_VERSION_MAJOR < 2
       OGRFree(tmp);  // Note: NOT delete!
 #else
       CPLFree(tmp);
-#endif      
+#endif
     }
 
     std::string basic = theOptions.schema;
@@ -200,7 +200,7 @@ OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName), itsConfig() {}
+Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName) {}
 
 // ----------------------------------------------------------------------
 /*!
@@ -473,8 +473,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
         if (!pLayer)
-          throw Fmi::Exception(BCP,
-                                 "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+          throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
         while (true)
         {
@@ -518,16 +517,15 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
         if (!pLayer)
-          throw Fmi::Exception(BCP,
-                                 "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+          throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
 
         SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
 
         if (!pFeature)
-          throw Fmi::Exception(BCP,
-                                 "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+          throw Fmi::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
 
-        tm start_tm, end_tm;
+        tm start_tm;
+        tm end_tm;
 
         bool ret1 = pFeature->GetFieldAsDateTime(0,
                                                  &start_tm.tm_year,
@@ -753,11 +751,11 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
 
       Fmi::Features features = getFeatures(&srs, mo);
 
-      for (auto feature : features)
+      for (const auto& feature : features)
       {
         const OGRGeometry* geom = feature->geom.get();
 
-        if (geom)
+        if (geom != nullptr)
         {
           Fmi::Attribute attribute = feature->attributes.at(pgId.field);
           AttributeToString ats;
@@ -822,9 +820,8 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
               if (geomType == wkbMultiLineString)
               {
                 // Multilinestrings are merged with addGeometryDirectly-function
-                OGRMultiLineString* geom_tmp =
-                    static_cast<OGRMultiLineString*>(previousGeom->clone());
-                const OGRMultiLineString* new_geom = static_cast<const OGRMultiLineString*>(geom);
+                auto* geom_tmp = dynamic_cast<OGRMultiLineString*>(previousGeom->clone());
+                auto* new_geom = dynamic_cast<const OGRMultiLineString*>(geom);
                 // Iterate the LINESTRINGS inside Multilinestring and add them to old one
                 for (int i = 0; i < new_geom->getNumGeometries(); i++)
                 {
