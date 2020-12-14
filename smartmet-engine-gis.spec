@@ -30,21 +30,22 @@ Requires: boost169-iostreams
 Requires: boost169-system
 Requires: boost169-thread
 %if 0%{rhel} >= 8
-BuildRequires: gdal30-devel
+BuildRequires: gdal32-devel
 BuildRequires: geos-devel
-Requires: gdal30-libs
+Requires: gdal32-libs
 Requires: geos
+#TestRequires: gdal32-devel
 %else
 BuildRequires: gdal-devel
 BuildRequires: geos-devel
 Requires: gdal-libs
 Requires: geos
+#TestRequires: gdal-devel
 %endif
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
-#TestRequires: gdal-devel
 #TestRequires: libconfig-devel
 #TestRequires: smartmet-library-gis-devel >= 20.10.28
 #TestRequires: smartmet-library-regression >= 20.5.7
