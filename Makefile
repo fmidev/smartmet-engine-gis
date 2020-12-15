@@ -43,12 +43,7 @@ ifneq "$(wildcard /usr/gdal32/include)" ""
   INCLUDES += -isystem /usr/gdal32/include
   LIBS += -L$(PREFIX)/gdal32/lib
 else
-  ifneq "$(wildcard /usr/gdal30/include)" ""
-    INCLUDES += -isystem /usr/gdal30/include
-    LIBS += -L$(PREFIX)/gdal30/lib
-  else
-    INCLUDES += -isystem /usr/include/gdal
-  endif
+  INCLUDES += -isystem /usr/include/gdal
 endif
 
 ifeq ($(CXX), clang++)

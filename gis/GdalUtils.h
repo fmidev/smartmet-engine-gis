@@ -2,11 +2,11 @@
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <ogr_geometry.h>
-#include <ogr_spatialref.h>
 #include <newbase/NFmiPoint.h>
 #include <newbase/NFmiRect.h>
 #include <limits>
+#include <ogr_geometry.h>
+#include <ogr_spatialref.h>
 
 namespace SmartMet
 {
@@ -27,6 +27,8 @@ class GeometryConv : public OGRCoordinateTransformation
 {
  public:
   GeometryConv(boost::function1<NFmiPoint, NFmiPoint> conv);
+
+  virtual OGRCoordinateTransformation *Clone() const;
 
   virtual ~GeometryConv();
 

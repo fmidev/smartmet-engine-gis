@@ -111,6 +111,11 @@ GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : con
 
 GeometryConv::~GeometryConv() = default;
 
+OGRCoordinateTransformation *GeometryConv::Clone() const
+{
+  throw Fmi::Exception(BCP, "Attempt to clone GeometryConv");
+}
+
 // BUG?? nCount is unused
 int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)
 {
