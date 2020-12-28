@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.12.15
+Version: 20.12.28
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -43,7 +43,6 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: smartmet-library-regression >= 20.5.7
 #TestRequires: smartmet-library-spine-devel >= 20.12.15
 
-
 %description
 FMI SmartMet gis engine
 
@@ -78,6 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Dec 28 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.28-1.fmi
+- Use generic build includes
+
 * Tue Dec 15 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.15-1.fmi
 - Upgrade to pgdg12
 

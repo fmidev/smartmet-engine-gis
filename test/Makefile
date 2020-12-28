@@ -1,58 +1,26 @@
 PROG = $(patsubst %.cpp,%,$(wildcard *Test.cpp))
 
--include $(HOME)/.smartmet.mk
-GCC_DIAG_COLOR ?= always
-CXX_STD ?= c++11
+REQUIRES = geos gdal configpp
 
-FLAGS = -std=$(CXX_STD) -Wall -W -Wno-unused-parameter
+include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
-EXTRAFLAGS = -Werror -pedantic -Wpointer-arith -Wcast-qual \
-	-Wcast-align -Wconversion -Winline \
-	-Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-pmf-conversions \
-	-Wsign-promo -Wchar-subscripts -Wold-style-cast \
-	-Wshadow -Woverloaded-virtual
-
-DIFFICULTFLAGS = -Weffc++ -Wunreachable-code -Wredundant-decls
-
-ifeq ($(TSAN), yes)
-  FLAGS += -fsanitize=thread
-endif
-ifeq ($(ASAN), yes)
-  FLAGS += -fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize-address-use-after-scope
-endif
-
-
-CC = g++
-CFLAGS = -DUNIX -O0 -g $(FLAGS) -Wno-write-strings
-
-# Boost 1.69
-
-ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -isystem /usr/include/boost169
-  LIBS += -L/usr/lib64/boost169
-endif
-
-ifneq "$(wildcard /usr/gdal32/include)" ""
-  INCLUDES += -isystem /usr/gdal32/include
-  LIBS += -L/usr/gdal32/lib
-else
-  INCLUDES += -isystem /usr/include/gdal
-endif
+CFLAGS = -DUNIX -O0 -g $(FLAGS)
 
 INCLUDES += \
 	-I../gis \
-	-I/usr/include/smartmet \
-	`pkg-config --cflags libconfig++`
+	-isystem /usr/include/smartmet
 
 LIBS += \
 	../gis.so \
+	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
-	-lsmartmet-gis \
-	-lgeos \
-	-lgdal \
+	-lboost_date_time \
+	-lboost_thread \
+	-lboost_filesystem \
+	-lboost_regex \
+	-lboost_iostreams \
 	-lboost_system \
-	`pkg-config --libs libconfig++` \
-	-lpthread
+	-lbz2 -lz -lpthread
 
 all: $(PROG)
 clean:
@@ -60,9 +28,7 @@ clean:
 
 test: $(PROG)
 	@echo Running tests:
-	@for prog in $(PROG); do \
-	./$$prog; \
-	done
+	@for prog in $(PROG); do ./$$prog; done
 
 $(PROG) : % : %.cpp ../gis.so
 	$(CXX) $(CFLAGS) -o $@ $@.cpp $(INCLUDES) $(LIBS)
