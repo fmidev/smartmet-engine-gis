@@ -39,6 +39,8 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
 #TestRequires: gdal32-devel
 #TestRequires: libconfig-devel
+#TestRequires: bzip2-devel
+#TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 20.12.15
 #TestRequires: smartmet-library-regression >= 20.5.7
 #TestRequires: smartmet-library-spine-devel >= 20.12.15
