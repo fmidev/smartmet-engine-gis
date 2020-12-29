@@ -7,6 +7,7 @@
 #include <limits>
 #include <ogr_geometry.h>
 #include <ogr_spatialref.h>
+#include <gdal_version.h>
 
 namespace SmartMet
 {
@@ -28,14 +29,27 @@ class GeometryConv : public OGRCoordinateTransformation
  public:
   GeometryConv(boost::function1<NFmiPoint, NFmiPoint> conv);
 
-  virtual OGRCoordinateTransformation *Clone() const;
-
   virtual ~GeometryConv();
 
+#if GDAL_VERSION_MAJOR < 3
   virtual int Transform(int nCount, double *x, double *y, double *z = nullptr);
 
   virtual int TransformEx(
       int nCount, double *x, double *y, double *z = nullptr, int *pabSuccess = nullptr);
+#else
+    int Transform( int nCount, double *x, double *y, double *z, double *t,
+        int *pabSuccess ) override;
+
+#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 1
+    OGRCoordinateTransformation *Clone() const override;
+#endif
+
+#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 3
+    int TransformWithErrorCodes( int nCount, double *x, double *y, double *z, double *t,
+        int *panErrorCodes ) override;
+#endif
+
+#endif
 
  private:
   virtual OGRSpatialReference *GetSourceCS() { return nullptr; }
