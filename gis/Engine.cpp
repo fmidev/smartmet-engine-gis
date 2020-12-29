@@ -649,6 +649,10 @@ std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::stri
     if (err != OGRERR_NONE)
       throw Fmi::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
 
+#if GDAL_VERSION_MAJOR >= 3
+    sr->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
+
     itsSpatialReferenceCache.insert(theSR, sr);
     return sr;
   }
