@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.12.29
+Version: 21.1.5
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -14,13 +14,13 @@ BuildRequires: boost169-devel
 BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
 BuildRequires: gdal32-devel
-BuildRequires: geos38-devel
+BuildRequires: geos39-devel
 BuildRequires: libconfig-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 20.12.15
+BuildRequires: smartmet-library-gis-devel >= 21.1.4
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 20.12.15
+BuildRequires: smartmet-library-spine-devel >= 21.1.5
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -29,10 +29,10 @@ Requires: boost169-regex
 Requires: boost169-system
 Requires: boost169-thread
 Requires: gdal32-libs
-Requires: geos38
+Requires: geos39
 Requires: libconfig
-Requires: smartmet-library-gis >= 20.12.15
-Requires: smartmet-library-spine >= 20.12.15
+Requires: smartmet-library-gis >= 21.1.4
+Requires: smartmet-library-spine >= 21.1.5
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -41,9 +41,9 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: libconfig-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 20.12.15
+#TestRequires: smartmet-library-gis-devel >= 21.1.4
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 20.12.15
+#TestRequires: smartmet-library-spine-devel >= 21.1.5
 
 %description
 FMI SmartMet gis engine
@@ -79,6 +79,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Jan  5 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.5-1.fmi
+- Upgrade to GEOS 3.9
+
 * Tue Dec 29 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.29-1.fmi
 - Force traditional axis ordering on spatial references
 
