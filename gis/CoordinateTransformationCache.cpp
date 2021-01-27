@@ -83,7 +83,7 @@ CoordinateTransformationCache::Ptr CoordinateTransformationCache::get(const std:
       Ptr ret(pos->second.release(),
               Deleter(hash, std::weak_ptr<CoordinateTransformationCache *>{itsPointer}));
       itsPool.erase(pos);
-      return std::move(ret);
+      return ret;
     }
   }
 

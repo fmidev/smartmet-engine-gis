@@ -140,6 +140,40 @@ void getCoordinateTransformation()
   TEST_PASSED();
 }
 
+// ----------------------------------------------------------------------
+
+void getFeatures()
+{
+  SmartMet::Engine::Gis::MapOptions options;
+  options.pgname = "";
+  options.schema = "public";
+  options.table = "varoalueet";
+  options.fieldnames.insert("numero");
+
+  auto features = gengine->getFeatures(options);
+
+  for (const auto &feature : features)
+  {
+    if (!feature->geom || feature->geom->IsEmpty() != 0)
+      TEST_FAILED("Encountered an empty geometry");
+
+    try
+    {
+      const auto &value = feature->attributes.at("numero");
+      if (value.which() != 0)
+        TEST_FAILED("Expecting fied 'numero' values to be integers");
+    }
+    catch (...)
+    {
+      TEST_FAILED("Failed to read field 'numero'");
+    }
+  }
+
+  TEST_PASSED();
+}
+
+// ----------------------------------------------------------------------
+
 // Test driver
 class tests : public tframe::tests
 {
@@ -148,6 +182,7 @@ class tests : public tframe::tests
   // Main test suite
   void test()
   {
+    TEST(getFeatures);
     TEST(getBBox);
     TEST(getEPSG);
     TEST(getSpatialReference);
@@ -169,5 +204,5 @@ int main(void)
   gengine = reinterpret_cast<SmartMet::Engine::Gis::Engine *>(reactor.getSingleton("Gis", NULL));
   cout << endl << "Engine tester" << endl << "=============" << endl;
   Tests::tests t;
-  t.run();
+  return t.run();
 }

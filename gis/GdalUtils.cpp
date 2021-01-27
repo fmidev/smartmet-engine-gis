@@ -94,11 +94,11 @@ std::string WKT(const OGRGeometry &geometry)
     char *wkt = nullptr;
     geometry.exportToWkt(&wkt);
     std::string result = wkt;
-#if GDAL_VERSION_MAJOR < 2    
+#if GDAL_VERSION_MAJOR < 2
     OGRFree(wkt);
 #else
     CPLFree(wkt);
-#endif    
+#endif
     return result;
   }
   catch (...)
@@ -106,6 +106,94 @@ std::string WKT(const OGRGeometry &geometry)
     throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
+
+GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : conv(theConv) {}
+
+GeometryConv::~GeometryConv() = default;
+
+#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 1)
+OGRCoordinateTransformation *GeometryConv::Clone() const
+{
+  throw Fmi::Exception(BCP, "Attempt to clone GeometryConv");
+}
+#endif
+
+#if GDAL_VERSION_MAJOR < 3
+// BUG?? nCount is unused
+int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)
+{
+  try
+  {
+    NFmiPoint src(*x, *y);
+    NFmiPoint dest = conv(src);
+    *x = dest.X();
+    *y = dest.Y();
+    if (z)
+      *z = 0.0;
+    return TRUE;
+  }
+  catch (...)
+  {
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+#endif
+
+#if GDAL_VERSION_MAJOR >= 3
+int GeometryConv::Transform(int nCount, double *x, double *y, double *z, double *t, int *pabSuccess)
+{
+  try
+  {
+    (void)t;
+    for (int i = 0; i < nCount; i++)
+    {
+      NFmiPoint src(x[i], y[i]);
+      NFmiPoint dest = conv(src);
+      x[i] = dest.X();
+      y[i] = dest.Y();
+      if (z)
+        z[i] = 0.0;
+    }
+    return TRUE;
+  }
+  catch (...)
+  {
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+#endif
+
+#if GDAL_VERSION_MAJOR < 3
+int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *pabSuccess)
+{
+  try
+  {
+    for (int i = 0; i < nCount; i++)
+    {
+      NFmiPoint src(x[i], y[i]);
+      NFmiPoint dest = conv(src);
+      x[i] = dest.X();
+      y[i] = dest.Y();
+      if (z)
+        z[i] = 0.0;
+      pabSuccess[i] = TRUE;
+    }
+    return TRUE;
+  }
+  catch (...)
+  {
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+#endif
+
+#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 3
+int GeometryConv::TransformWithErrorCodes(
+    int, double *, double *, double *, double *, int *) override
+{
+  throw Fmi::Exception(BCP, "Attempt to call GeometryConv::TransformWithErrorCodes");
+}
+#endif
 
 }  // namespace Gis
 }  // namespace Engine

@@ -16,7 +16,7 @@ std::size_t MetaDataQueryOptions::hash_value() const
   if (time_column)
     boost::hash_combine(hash, boost::hash_value(*time_column));
   return hash;
-};
+}
 
 }  // namespace Gis
 }  // namespace Engine
