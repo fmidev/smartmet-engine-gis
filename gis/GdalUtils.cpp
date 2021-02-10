@@ -153,6 +153,8 @@ int GeometryConv::Transform(int nCount, double *x, double *y, double *z, double 
       y[i] = dest.Y();
       if (z)
         z[i] = 0.0;
+      if (pabSuccess != nullptr)
+        pabSuccess[i] = TRUE;
     }
     return TRUE;
   }
@@ -176,7 +178,8 @@ int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *
       y[i] = dest.Y();
       if (z)
         z[i] = 0.0;
-      pabSuccess[i] = TRUE;
+      if (pabSuccess != nullptr)
+        pabSuccess[i] = TRUE;
     }
     return TRUE;
   }
