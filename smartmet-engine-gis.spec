@@ -3,53 +3,48 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 20.12.7
+Version: 21.1.14
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: rpm-build
-BuildRequires: gcc-c++
-BuildRequires: make
 BuildRequires: boost169-devel
-BuildRequires: libconfig-devel
 BuildRequires: bzip2-devel
-BuildRequires: zlib-devel
+BuildRequires: gcc-c++
+BuildRequires: gdal32-devel
+BuildRequires: geos39-devel
+BuildRequires: libconfig-devel
+BuildRequires: make
+BuildRequires: rpm-build
+BuildRequires: smartmet-library-gis-devel >= 21.1.22
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 20.12.4
-BuildRequires: smartmet-library-gis-devel >= 20.10.28
-Requires: libconfig
-Requires: smartmet-library-spine >= 20.12.4
-Requires: smartmet-library-gis >= 20.10.28
-Requires: boost169-regex
+BuildRequires: smartmet-library-spine-devel >= 21.1.14
+BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
 Requires: boost169-iostreams
+Requires: boost169-regex
 Requires: boost169-system
 Requires: boost169-thread
-%if 0%{rhel} >= 8
-BuildRequires: gdal30-devel
-BuildRequires: geos-devel
-Requires: gdal30-libs
-Requires: geos
-%else
-BuildRequires: gdal-devel
-BuildRequires: geos-devel
-Requires: gdal-libs
-Requires: geos
-%endif
+Requires: gdal32-libs
+Requires: geos39
+Requires: libconfig
+Requires: smartmet-library-gis >= 21.1.22
+Requires: smartmet-library-spine >= 21.1.14
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
-#TestRequires: gdal-devel
+#TestRequires: gdal32-devel
 #TestRequires: libconfig-devel
-#TestRequires: smartmet-library-gis-devel >= 20.10.28
+#TestRequires: bzip2-devel
+#TestRequires: zlib-devel
+#TestRequires: smartmet-library-gis-devel >= 21.1.22
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 20.12.4
-
+#TestRequires: smartmet-library-spine-devel >= 21.1.14
+#TestRequires: smartmet-test-db >= 20.6.9
 
 %description
 FMI SmartMet gis engine
@@ -85,6 +80,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Jan 14 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.14-1.fmi
+- Repackaged smartmet to resolve debuginfo issues
+
+* Tue Jan  5 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.5-1.fmi
+- Upgrade to GEOS 3.9
+
+* Tue Dec 29 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.29-1.fmi
+- Force traditional axis ordering on spatial references
+
+* Mon Dec 28 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.28-1.fmi
+- Use generic build includes
+
+* Tue Dec 15 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.15-1.fmi
+- Upgrade to pgdg12
+
 * Mon Dec  7 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.12.7-1.fmi
 - Minor fixes to silence CodeChecker warnings
 

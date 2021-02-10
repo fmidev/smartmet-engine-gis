@@ -1,68 +1,75 @@
 PROG = $(patsubst %.cpp,%,$(wildcard *Test.cpp))
 
--include $(HOME)/.smartmet.mk
-GCC_DIAG_COLOR ?= always
-CXX_STD ?= c++11
+REQUIRES = geos gdal configpp
 
-FLAGS = -std=$(CXX_STD) -Wall -W -Wno-unused-parameter
+include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
-EXTRAFLAGS = -Werror -pedantic -Wpointer-arith -Wcast-qual \
-	-Wcast-align -Wconversion -Winline \
-	-Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-pmf-conversions \
-	-Wsign-promo -Wchar-subscripts -Wold-style-cast \
-	-Wshadow -Woverloaded-virtual
-
-DIFFICULTFLAGS = -Weffc++ -Wunreachable-code -Wredundant-decls
-
-ifeq ($(TSAN), yes)
-  FLAGS += -fsanitize=thread
-endif
-ifeq ($(ASAN), yes)
-  FLAGS += -fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize-address-use-after-scope
-endif
-
-
-CC = g++
-CFLAGS = -DUNIX -O0 -g $(FLAGS) -Wno-write-strings
-
-# Boost 1.69
-
-ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -isystem /usr/include/boost169
-  LIBS += -L/usr/lib64/boost169
-endif
-
-ifneq "$(wildcard /usr/gdal30/include)" ""
-  INCLUDES += -isystem /usr/gdal30/include
-  LIBS += -L/usr/gdal30/lib
-else
-  INCLUDES += -isystem /usr/include/gdal
-endif
+CFLAGS = -DUNIX -O0 -g $(FLAGS)
 
 INCLUDES += \
 	-I../gis \
-	-I/usr/include/smartmet \
-	`pkg-config --cflags libconfig++`
+	-isystem /usr/include/smartmet
 
 LIBS += \
 	../gis.so \
+	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
-	-lsmartmet-gis \
-	-lgeos \
-	-lgdal \
+	-lboost_date_time \
+	-lboost_thread \
+	-lboost_filesystem \
+	-lboost_regex \
+	-lboost_iostreams \
 	-lboost_system \
-	`pkg-config --libs libconfig++` \
-	-lpthread
+	-lbz2 -lz -lpthread
+
+TEST_PREPARE_TARGETS := cnf/gis.conf
+TEST_FINISH_TARGETS := dummy
+TEST_DB_DIR := $(shell pwd)/tmp-geonames-db
+
+ifdef CI
+GEONAMES_HOST_EDIT := sed -e 's/"smartmet-test"/"localhost"/g'
+TEST_PREPARE_TARGETS += geonames-database start-geonames-db
+TEST_FINISH_TARGETS += stop-geonames-db
+else
+GEONAMES_HOST_EDIT := cat
+endif
 
 all: $(PROG)
+
 clean:
 	rm -f $(PROG) *~
+	rm -f cnf/gis.conf
+	-$(MAKE) stop-geonames-db
+	rm -rm tmp-geonames-db*
 
-test: $(PROG)
-	@echo Running tests:
-	@for prog in $(PROG); do \
-	./$$prog; \
-	done
+test: $(PROG) $(TEST_PREPARE_TARGETS)
+	rm -f failures/*
+	if ./EngineTest; then \
+		ok=true; $(MAKE) $(TEST_FINISH_TARGETS); \
+	else \
+		ok=false; $(MAKE) $(TEST_FINISH_TARGETS); \
+	fi; $$ok
 
-$(PROG) : % : %.cpp ../gis.so
+geonames-database:
+	@-$(MAKE) stop-geonames-db
+	rm -rf tmp-geonames-db
+	if ! /usr/share/smartmet/test/db/create-local-db.sh $(TEST_DB_DIR) >tmp-geonames-db.log 2>&1 ; then \
+	    cat tmp-geonames-db.log; \
+	    false; \
+	fi
+
+start-geonames-db: geonames-database
+	/usr/share/smartmet/test/db/test-db-ctl.sh $(TEST_DB_DIR) start -w
+
+stop-geonames-db:
+	-/usr/share/smartmet/test/db/test-db-ctl.sh $(TEST_DB_DIR) stop
+
+dummy:
+
+cnf/gis.conf:
+	$(GEONAMES_HOST_EDIT) $@.in >$@
+
+$(PROG) : % : %.cpp Makefile ../gis.so
 	$(CXX) $(CFLAGS) -o $@ $@.cpp $(INCLUDES) $(LIBS)
+
+.PHONY: cnf/gis.conf dummy
