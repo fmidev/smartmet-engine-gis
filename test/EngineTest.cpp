@@ -79,69 +79,6 @@ void getEPSG()
 
 // ----------------------------------------------------------------------
 
-void getSpatialReference()
-{
-  using namespace SmartMet;
-
-  {
-    auto sr1 = gengine->getSpatialReference("WGS84");
-
-    if (sr1->GetReferenceCount() != 1)
-      TEST_FAILED("WGS84 reference count should be 1, not " +
-                  std::to_string(sr1->GetReferenceCount()));
-
-    if (sr1.use_count() != 2)
-      TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
-
-    {
-      auto sr2 = gengine->getSpatialReference("WGS84");
-
-      if (sr1->GetReferenceCount() != 1)
-        TEST_FAILED("WGS84 reference count should be 1 for 1st copy, not " +
-                    std::to_string(sr1->GetReferenceCount()));
-
-      if (sr2->GetReferenceCount() != 1)
-        TEST_FAILED("WGS84 reference count should be 1 for 2nd copy, not " +
-                    std::to_string(sr2->GetReferenceCount()));
-
-      if (sr1.use_count() != 3)
-        TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
-
-      if (sr2.use_count() != 3)
-        TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
-    }
-
-    if (sr1->GetReferenceCount() != 1)
-      TEST_FAILED("WGS84 reference count should be 1 at the end, not " +
-                  std::to_string(sr1->GetReferenceCount()));
-
-    if (sr1.use_count() != 2)
-      TEST_FAILED("WGS84 shared count should be 1 at the end, not " +
-                  std::to_string(sr1.use_count()));
-  }
-
-  TEST_PASSED();
-}
-
-// ----------------------------------------------------------------------
-
-void getCoordinateTransformation()
-{
-  using namespace SmartMet;
-
-  auto tr = gengine->getCoordinateTransformation("WGS84", "EPSG:2393");
-  double x = 25;
-  double y = 60;
-  auto ok = tr->Transform(1, &x, &y);
-
-  if (!ok)
-    TEST_FAILED("Failed to project coordinate 25,60 to YKJ");
-
-  TEST_PASSED();
-}
-
-// ----------------------------------------------------------------------
-
 void getFeatures()
 {
   SmartMet::Engine::Gis::MapOptions options;
@@ -185,8 +122,6 @@ class tests : public tframe::tests
     TEST(getFeatures);
     TEST(getBBox);
     TEST(getEPSG);
-    TEST(getSpatialReference);
-    TEST(getCoordinateTransformation);
   }
 };  // class tests
 
