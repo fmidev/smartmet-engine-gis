@@ -4,7 +4,6 @@
 
 #include "BBox.h"
 #include "Config.h"
-#include "CoordinateTransformationCache.h"
 #include "EPSG.h"
 #include "GeometryStorage.h"
 #include "MapOptions.h"
@@ -44,14 +43,6 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   Fmi::Features getFeatures(const MapOptions& theOptions) const;
   Fmi::Features getFeatures(const Fmi::SpatialReference& theSR, const MapOptions& theOptions) const;
 
-  // Spatial references are thread safe
-  std::shared_ptr<OGRSpatialReference> getSpatialReference(const std::string& theSR) const;
-
-  // Coordinate transformations are not, you need your own copy
-
-  CoordinateTransformationCache::Ptr getCoordinateTransformation(
-      const std::string& theSource, const std::string& theTarget) const;
-
   BBox getBBox(int theEPSG) const;
   boost::optional<EPSG> getEPSG(int theEPSG) const;
 
@@ -89,14 +80,6 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   // cache for envelopes
   using EnvelopeCache = Fmi::Cache::Cache<std::size_t, OGREnvelope>;
   mutable EnvelopeCache itsEnvelopeCache;
-
-  // cache for spatial references
-  using SpatialReferenceCache =
-      Fmi::Cache::Cache<std::string, std::shared_ptr<OGRSpatialReference>>;
-  mutable SpatialReferenceCache itsSpatialReferenceCache;
-
-  // cache for coordinate transformations
-  mutable CoordinateTransformationCache itsCoordinateTransformationCache;
 
 };  // class Engine
 

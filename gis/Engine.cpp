@@ -213,7 +213,6 @@ void Engine::init()
     itsCache.resize(itsConfig->getMaxCacheSize());
     itsFeaturesCache.resize(itsConfig->getMaxCacheSize());
     itsEnvelopeCache.resize(itsConfig->getMaxCacheSize());
-    itsSpatialReferenceCache.resize(itsConfig->getMaxCacheSize());
 
     // Register all drivers just once
 
@@ -620,58 +619,6 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     itsEnvelopeCache.insert(hash, table_envelope);
 
     return metadata;
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return cached spatial reference
- */
-// ----------------------------------------------------------------------
-
-std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::string& theSR) const
-{
-  try
-  {
-    auto obj = itsSpatialReferenceCache.find(theSR);
-    if (obj)
-      return *obj;
-
-    auto sr = std::make_shared<OGRSpatialReference>();
-
-    auto err = sr->SetFromUserInput(theSR.c_str());
-    if (err != OGRERR_NONE)
-      throw Fmi::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
-
-#if GDAL_VERSION_MAJOR >= 3
-    sr->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-#endif
-
-    itsSpatialReferenceCache.insert(theSR, sr);
-    return sr;
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return cached coordinate transformation
- */
-// ----------------------------------------------------------------------
-
-CoordinateTransformationCache::Ptr Engine::getCoordinateTransformation(
-    const std::string& theSource, const std::string& theTarget) const
-{
-  try
-  {
-    return itsCoordinateTransformationCache.get(theSource, theTarget, *this);
   }
   catch (...)
   {
