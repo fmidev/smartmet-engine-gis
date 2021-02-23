@@ -4,6 +4,7 @@
 #include "Config.h"
 #include <boost/algorithm/string/join.hpp>
 #include <gis/Box.h>
+#include <gis/CoordinateTransformation.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
@@ -90,22 +91,13 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
 // ----------------------------------------------------------------------
 
 std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
-                                               OGRSpatialReference* theSR)
+                                               const Fmi::SpatialReference* theSR)
 {
   try
   {
     std::string wkt = "NULL";
-    if (theSR != nullptr)
-    {
-      char* tmp = nullptr;
-      theSR->exportToWkt(&tmp);
-      wkt = tmp;
-#if GDAL_VERSION_MAJOR < 2
-      OGRFree(tmp);  // Note: NOT delete!
-#else
-      CPLFree(tmp);
-#endif
-    }
+    if (theSR)
+      wkt = Fmi::OGR::exportToWkt(*theSR);
 
     std::string basic = theOptions.schema;
     basic += '|';
@@ -221,7 +213,6 @@ void Engine::init()
     itsCache.resize(itsConfig->getMaxCacheSize());
     itsFeaturesCache.resize(itsConfig->getMaxCacheSize());
     itsEnvelopeCache.resize(itsConfig->getMaxCacheSize());
-    itsSpatialReferenceCache.resize(itsConfig->getMaxCacheSize());
 
     // Register all drivers just once
 
@@ -274,7 +265,8 @@ Spine::CRSRegistry& Engine::getCRSRegistry()
  */
 // ----------------------------------------------------------------------
 
-OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& theOptions) const
+OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
+                                const MapOptions& theOptions) const
 {
   try
   {
@@ -351,7 +343,19 @@ OGRGeometryPtr Engine::getShape(OGRSpatialReference* theSR, const MapOptions& th
   }
 }
 
-Fmi::Features Engine::getFeatures(OGRSpatialReference* theSR, const MapOptions& theOptions) const
+Fmi::Features Engine::getFeatures(const MapOptions& theOptions) const
+{
+  return getFeatures(nullptr, theOptions);
+}
+
+Fmi::Features Engine::getFeatures(const Fmi::SpatialReference& theSR,
+                                  const MapOptions& theOptions) const
+{
+  return getFeatures(&theSR, theOptions);
+}
+
+Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
+                                  const MapOptions& theOptions) const
 {
   try
   {
@@ -598,20 +602,13 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     int epsg = getEpsgCode(
         connection, theOptions.schema, theOptions.table, theOptions.geometry_column, *itsConfig);
 
-    OGRSpatialReference oSourceSRS;
-    oSourceSRS.importFromEPSGA(epsg);
-    OGRSpatialReference oTargetSRS;
-    oTargetSRS.importFromEPSGA(4326);
+    Fmi::SpatialReference source(epsg);
+    Fmi::SpatialReference target("WGS84");
+    Fmi::CoordinateTransformation transformation(source, target);
 
-    std::unique_ptr<OGRCoordinateTransformation> poCT(
-        OGRCreateCoordinateTransformation(&oSourceSRS, &oTargetSRS));
-
-    if (!poCT)
-      throw Fmi::Exception(BCP, "OGRCreateCoordinateTransformation function call failed");
-
-    bool transformation_ok = (poCT->Transform(1, &(table_envelope.MinX), &(table_envelope.MinY)) &&
-                              poCT->Transform(1, &(table_envelope.MaxX), &(table_envelope.MaxY)));
-    if (transformation_ok)
+    bool ok = (transformation.transform(table_envelope.MinX, table_envelope.MinY) &&
+               transformation.transform(table_envelope.MaxX, table_envelope.MaxY));
+    if (ok)
     {
       metadata.xmin = table_envelope.MinX;
       metadata.ymin = table_envelope.MinY;
@@ -622,58 +619,6 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     itsEnvelopeCache.insert(hash, table_envelope);
 
     return metadata;
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return cached spatial reference
- */
-// ----------------------------------------------------------------------
-
-std::shared_ptr<OGRSpatialReference> Engine::getSpatialReference(const std::string& theSR) const
-{
-  try
-  {
-    auto obj = itsSpatialReferenceCache.find(theSR);
-    if (obj)
-      return *obj;
-
-    auto sr = std::make_shared<OGRSpatialReference>();
-
-    auto err = sr->SetFromUserInput(theSR.c_str());
-    if (err != OGRERR_NONE)
-      throw Fmi::Exception(BCP, "Unknown spatial reference").addParameter("SR", theSR);
-
-#if GDAL_VERSION_MAJOR >= 3
-    sr->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-#endif
-
-    itsSpatialReferenceCache.insert(theSR, sr);
-    return sr;
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return cached coordinate transformation
- */
-// ----------------------------------------------------------------------
-
-CoordinateTransformationCache::Ptr Engine::getCoordinateTransformation(
-    const std::string& theSource, const std::string& theTarget) const
-{
-  try
-  {
-    return itsCoordinateTransformationCache.get(theSource, theTarget, *this);
   }
   catch (...)
   {
@@ -750,10 +695,9 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       mo.table = pgId.table;
       mo.fieldnames.insert(pgId.field);
 
-      OGRSpatialReference srs;
-      srs.importFromEPSGA(4326);
+      Fmi::SpatialReference srs("WGS84");
 
-      Fmi::Features features = getFeatures(&srs, mo);
+      Fmi::Features features = getFeatures(srs, mo);
 
       for (const auto& feature : features)
       {

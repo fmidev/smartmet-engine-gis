@@ -6,6 +6,13 @@ include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
 CFLAGS = -DUNIX -O0 -g $(FLAGS)
 
+ifneq "$(wildcard /usr/geos38/include)" ""
+  INCLUDES += -I/usr/geos38/include
+  LIBS += -L/usr/geos38/lib64
+else
+  INCLUDES += -I/usr/include/geos
+endif
+
 INCLUDES += \
 	-I../gis \
 	-isystem /usr/include/smartmet

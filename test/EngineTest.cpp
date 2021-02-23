@@ -79,68 +79,6 @@ void getEPSG()
 
 // ----------------------------------------------------------------------
 
-void getSpatialReference()
-{
-  using namespace SmartMet;
-
-  {
-    auto sr1 = gengine->getSpatialReference("WGS84");
-
-    if (sr1->GetReferenceCount() != 1)
-      TEST_FAILED("WGS84 reference count should be 1, not " +
-                  std::to_string(sr1->GetReferenceCount()));
-
-    if (sr1.use_count() != 2)
-      TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
-
-    {
-      auto sr2 = gengine->getSpatialReference("WGS84");
-
-      if (sr1->GetReferenceCount() != 1)
-        TEST_FAILED("WGS84 reference count should be 1 for 1st copy, not " +
-                    std::to_string(sr1->GetReferenceCount()));
-
-      if (sr2->GetReferenceCount() != 1)
-        TEST_FAILED("WGS84 reference count should be 1 for 2nd copy, not " +
-                    std::to_string(sr2->GetReferenceCount()));
-
-      if (sr1.use_count() != 3)
-        TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
-
-      if (sr2.use_count() != 3)
-        TEST_FAILED("WGS84 shared count should be 2, not " + std::to_string(sr1.use_count()));
-    }
-
-    if (sr1->GetReferenceCount() != 1)
-      TEST_FAILED("WGS84 reference count should be 1 at the end, not " +
-                  std::to_string(sr1->GetReferenceCount()));
-
-    if (sr1.use_count() != 2)
-      TEST_FAILED("WGS84 shared count should be 1 at the end, not " +
-                  std::to_string(sr1.use_count()));
-  }
-
-  TEST_PASSED();
-}
-
-// ----------------------------------------------------------------------
-
-void getCoordinateTransformation()
-{
-  using namespace SmartMet;
-
-  auto tr = gengine->getCoordinateTransformation("WGS84", "EPSG:2393");
-  double x = 25;
-  double y = 60;
-  auto ok = tr->Transform(1, &x, &y);
-
-  if (!ok)
-    TEST_FAILED("Failed to project coordinate 25,60 to YKJ");
-  TEST_PASSED();
-}
-
-// ----------------------------------------------------------------------
-
 void getFeatures()
 {
   SmartMet::Engine::Gis::MapOptions options;
@@ -149,30 +87,29 @@ void getFeatures()
   options.table = "varoalueet";
   options.fieldnames.insert("numero");
 
-  auto features = gengine->getFeatures(nullptr,options);
+  auto features = gengine->getFeatures(options);
 
-  for(const auto& feature : features)
+  for (const auto &feature : features)
   {
-    if(!feature->geom || feature->geom->IsEmpty() != 0)
+    if (!feature->geom || feature->geom->IsEmpty() != 0)
       TEST_FAILED("Encountered an empty geometry");
 
     try
     {
-      const auto& value = feature->attributes.at("numero");
-      if(value.which() != 0)
+      const auto &value = feature->attributes.at("numero");
+      if (value.which() != 0)
         TEST_FAILED("Expecting fied 'numero' values to be integers");
     }
-    catch(...)
+    catch (...)
     {
       TEST_FAILED("Failed to read field 'numero'");
     }
   }
-  
+
   TEST_PASSED();
 }
 
 // ----------------------------------------------------------------------
-
 
 // Test driver
 class tests : public tframe::tests
@@ -185,8 +122,6 @@ class tests : public tframe::tests
     TEST(getFeatures);
     TEST(getBBox);
     TEST(getEPSG);
-    TEST(getSpatialReference);
-    TEST(getCoordinateTransformation);
   }
 };  // class tests
 
