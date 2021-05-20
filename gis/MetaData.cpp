@@ -1,5 +1,5 @@
 #include "MetaData.h"
-#include <boost/functional/hash.hpp>
+#include <macgyver/Hash.h>
 
 namespace SmartMet
 {
@@ -9,12 +9,12 @@ namespace Gis
 {
 std::size_t MetaDataQueryOptions::hash_value() const
 {
-  auto hash = boost::hash_value(pgname);
-  boost::hash_combine(hash, boost::hash_value(schema));
-  boost::hash_combine(hash, boost::hash_value(table));
-  boost::hash_combine(hash, boost::hash_value(geometry_column));
+  auto hash = Fmi::hash_value(pgname);
+  Fmi::hash_combine(hash, Fmi::hash_value(schema));
+  Fmi::hash_combine(hash, Fmi::hash_value(table));
+  Fmi::hash_combine(hash, Fmi::hash_value(geometry_column));
   if (time_column)
-    boost::hash_combine(hash, boost::hash_value(*time_column));
+    Fmi::hash_combine(hash, Fmi::hash_value(*time_column));
   return hash;
 }
 
