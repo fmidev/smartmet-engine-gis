@@ -18,9 +18,9 @@ BuildRequires: geos39-devel
 BuildRequires: libconfig-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.5.20
+BuildRequires: smartmet-library-gis-devel >= 21.5.24
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 21.5.20
+BuildRequires: smartmet-library-spine-devel >= 21.5.21
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -31,8 +31,8 @@ Requires: boost169-thread
 Requires: gdal32-libs
 Requires: geos39
 Requires: libconfig
-Requires: smartmet-library-gis >= 21.5.20
-Requires: smartmet-library-spine >= 21.5.20
+Requires: smartmet-library-gis >= 21.5.24
+Requires: smartmet-library-spine >= 21.5.21
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -41,9 +41,9 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: libconfig-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 21.5.20
+#TestRequires: smartmet-library-gis-devel >= 21.5.24
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 21.5.20
+#TestRequires: smartmet-library-spine-devel >= 21.5.21
 #TestRequires: smartmet-test-db >= 20.6.9
 
 %description
