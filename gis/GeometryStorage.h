@@ -25,11 +25,12 @@ namespace Gis
 class Engine;
 struct postgis_identifier
 {
+  std::string source_name;
   std::string pgname;
   std::string schema;
   std::string table;
   std::string field;
-  std::string key() { return (pgname + ";" + schema + ";" + table + ";" + field); }
+  std::string key() { return (source_name + ";" + pgname + ";" + schema + ";" + table + ";" + field); }
   bool allFieldsDefined()
   {
     return (!pgname.empty() && !schema.empty() && !table.empty() && !field.empty());

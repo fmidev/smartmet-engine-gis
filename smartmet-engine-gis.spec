@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 21.5.20
+Version: 21.5.27
 Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -80,6 +80,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu May 27 2021 Anssi Reponen <anssi.reponen@fmi.fi> - 21.5.27-1.fmi
+- Make it possible to read geometries with the same identifier (name) from different tables (BRAINSTORM-2073)
+
 * Thu May 20 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.5.20-2.fmi
 - Repackaged with improved hashing functions
 
