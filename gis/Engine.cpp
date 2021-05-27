@@ -707,7 +707,8 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
         {
           Fmi::Attribute attribute = feature->attributes.at(pgId.field);
           AttributeToString ats;
-          std::string geomName = boost::apply_visitor(ats, attribute);
+          std::string geomName = boost::apply_visitor(ats, attribute);		  
+		  geomName += pgId.source_name;
           // Convert to lower case
           boost::algorithm::to_lower(geomName);
 
@@ -723,7 +724,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
           {
             if (geomid_pgkey_map.at(geom_id) != pgKey)
             {
-              // Geom of the same type processed already (from different database/table)
+              // Geom of the same type and source_name processed already
               continue;
             }
 
