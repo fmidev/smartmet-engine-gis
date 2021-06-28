@@ -1,7 +1,6 @@
 #include "GeometryStorage.h"
 #include "MapOptions.h"
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/replace.hpp>
+#include "Normalize.h"
 #include <macgyver/Exception.h>
 #include <iostream>
 #include <sstream>
@@ -17,7 +16,8 @@ std::string GeometryStorage::getSVGPath(const std::string& name) const
 {
   try
   {
-    std::string key = boost::algorithm::to_lower_copy(name);
+    std::string key = name;
+    normalize_string(key);
 
     if (itsPolygons.find(key) != itsPolygons.end())
       return itsPolygons.at(key);
@@ -35,7 +35,8 @@ std::pair<double, double> GeometryStorage::getPoint(const std::string& name) con
 {
   try
   {
-    std::string key = boost::algorithm::to_lower_copy(name);
+    std::string key = name;
+    normalize_string(key);
 
     if (itsPoints.find(key) != itsPoints.end())
       return itsPoints.at(key);
@@ -53,7 +54,8 @@ const OGRGeometry* GeometryStorage::getOGRGeometry(const std::string& name, int 
   {
     OGRGeometry* ret = nullptr;
 
-    std::string key = boost::algorithm::to_lower_copy(name);
+    std::string key = name;
+    normalize_string(key);
 
     auto geomtype = itsGeometries.find(type);
 
@@ -82,7 +84,8 @@ bool GeometryStorage::geoObjectExists(const std::string& name) const
 {
   try
   {
-    std::string key = boost::algorithm::to_lower_copy(name);
+    std::string key = name;
+    normalize_string(key);
 
     return (isPolygon(key) || isLine(key) || isPoint(key));
   }
@@ -96,7 +99,9 @@ bool GeometryStorage::isPolygon(const std::string& name) const
 {
   try
   {
-    return itsPolygons.find(boost::algorithm::to_lower_copy(name)) != itsPolygons.end();
+    std::string key = name;
+    normalize_string(key);
+    return itsPolygons.find(key) != itsPolygons.end();
   }
   catch (...)
   {
@@ -108,7 +113,9 @@ bool GeometryStorage::isLine(const std::string& name) const
 {
   try
   {
-    return itsLines.find(boost::algorithm::to_lower_copy(name)) != itsLines.end();
+    std::string key = name;
+    normalize_string(key);
+    return itsLines.find(key) != itsLines.end();
   }
   catch (...)
   {
@@ -120,7 +127,9 @@ bool GeometryStorage::isPoint(const std::string& name) const
 {
   try
   {
-    return itsPoints.find(boost::algorithm::to_lower_copy(name)) != itsPoints.end();
+    std::string key = name;
+    normalize_string(key);
+    return itsPoints.find(key) != itsPoints.end();
   }
   catch (...)
   {

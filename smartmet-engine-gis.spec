@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 21.2.10
+Version: 21.6.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -18,9 +18,9 @@ BuildRequires: geos39-devel
 BuildRequires: libconfig-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.2.10
+BuildRequires: smartmet-library-gis-devel >= 21.6.16
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 21.2.5
+BuildRequires: smartmet-library-spine-devel >= 21.6.15
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -31,8 +31,8 @@ Requires: boost169-thread
 Requires: gdal32-libs
 Requires: geos39
 Requires: libconfig
-Requires: smartmet-library-gis >= 21.2.10
-Requires: smartmet-library-spine >= 21.2.5
+Requires: smartmet-library-gis >= 21.6.16
+Requires: smartmet-library-spine >= 21.6.15
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -41,9 +41,9 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: libconfig-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 21.2.10
+#TestRequires: smartmet-library-gis-devel >= 21.6.16
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 21.2.5
+#TestRequires: smartmet-library-spine-devel >= 21.6.15
 #TestRequires: smartmet-test-db >= 20.6.9
 
 %description
@@ -80,6 +80,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Jun 17 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.6.17-1.fmi
+- Use consistent case conversions with Nordic letters
+
+* Thu May 27 2021 Anssi Reponen <anssi.reponen@fmi.fi> - 21.5.27-1.fmi
+- Make it possible to read geometries with the same identifier (name) from different tables (BRAINSTORM-2073)
+
+* Thu May 20 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.5.20-2.fmi
+- Repackaged with improved hashing functions
+
+* Thu May 20 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.5.20-1.fmi
+- Use Fmi hash functions, boost::hash_combine produces too many collisions
+
+* Tue Mar 23 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.3.23-1.fmi
+- Repackaged due to geos39 updates
+
+* Fri Feb 26 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.2.26-1.fmi
+- Fmi::CoordinateTransformation API changed
+
 * Wed Feb 10 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.2.10-1.fmi
 - Removed obsolete OGRSpatialReference and OGRCoordinateTransformation caches, use GIS-library factories instead
 

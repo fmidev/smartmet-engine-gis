@@ -1,7 +1,6 @@
-// ======================================================================
-
 #include "Engine.h"
 #include "Config.h"
+#include "Normalize.h"
 #include <boost/algorithm/string/join.hpp>
 #include <gis/Box.h>
 #include <gis/CoordinateTransformation.h>
@@ -708,13 +707,15 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
           Fmi::Attribute attribute = feature->attributes.at(pgId.field);
           AttributeToString ats;
           std::string geomName = boost::apply_visitor(ats, attribute);
-          // Convert to lower case
-          boost::algorithm::to_lower(geomName);
+          geomName += pgId.source_name;
 
           // Geometry name can not be empty, since it is used for example in timesries queries
           // like 'place=helsinki'
           if (geomName.empty())
             continue;
+
+          // Convert to lower case
+          normalize_string(geomName);
 
           OGRwkbGeometryType geomType = geom->getGeometryType();
 
@@ -723,7 +724,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
           {
             if (geomid_pgkey_map.at(geom_id) != pgKey)
             {
-              // Geom of the same type processed already (from different database/table)
+              // Geom of the same type and source_name processed already
               continue;
             }
 
