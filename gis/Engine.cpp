@@ -813,7 +813,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
           }
           else if (geomType == wkbPoint)
           {
-            const OGRPoint* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
+            const auto* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
             if (theGeometryStorage.itsPoints.find(geomName) != theGeometryStorage.itsPoints.end())
               theGeometryStorage.itsPoints[geomName] =
                   std::make_pair(ogrPoint->getX(), ogrPoint->getY());
