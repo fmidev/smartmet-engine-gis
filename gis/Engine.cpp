@@ -403,9 +403,9 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
     Fmi::Features newfeatures;
     for (const auto& feature : ret)
     {
-      Fmi::FeaturePtr newfeature = feature;
+      Fmi::FeaturePtr newfeature;
       if (theOptions.minarea)
-        newfeature->geom.reset(Fmi::OGR::despeckle(*(newfeature->geom), *theOptions.minarea));
+        newfeature->geom.reset(Fmi::OGR::despeckle(*(feature->geom), *theOptions.minarea));
 
       if (theOptions.mindistance && newfeature->geom)
       {

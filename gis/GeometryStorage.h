@@ -30,7 +30,10 @@ struct postgis_identifier
   std::string schema;
   std::string table;
   std::string field;
-  std::string key() { return (source_name + ";" + pgname + ";" + schema + ";" + table + ";" + field); }
+  std::string key()
+  {
+    return (source_name + ";" + pgname + ";" + schema + ";" + table + ";" + field);
+  }
   bool allFieldsDefined()
   {
     return (!pgname.empty() && !schema.empty() && !table.empty() && !field.empty());
@@ -48,8 +51,8 @@ struct AttributeToString : public boost::static_visitor<std::string>
   }
 };
 
-typedef std::vector<postgis_identifier> PostGISIdentifierVector;
-typedef std::map<std::string, boost::shared_ptr<OGRGeometry> > NameOGRGeometryMap;
+using PostGISIdentifierVector = std::vector<postgis_identifier>;
+using NameOGRGeometryMap = std::map<std::string, boost::shared_ptr<OGRGeometry> >;
 
 class GeometryStorage
 {
