@@ -13,9 +13,9 @@ namespace Gis
 struct EPSG
 {
   BBox bbox;
-  std::string name = "";
-  std::string scope = "";
-  std::string source = "";
+  std::string name;
+  std::string scope;
+  std::string source;
   int number = 0;
   bool deprecated = false;
 };
