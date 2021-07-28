@@ -770,7 +770,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
               {
                 // Multilinestrings are merged with addGeometryDirectly-function
                 auto* geom_tmp = dynamic_cast<OGRMultiLineString*>(previousGeom->clone());
-                auto* new_geom = dynamic_cast<const OGRMultiLineString*>(geom);
+                const auto* new_geom = dynamic_cast<const OGRMultiLineString*>(geom);
                 // Iterate the LINESTRINGS inside Multilinestring and add them to old one
                 for (int i = 0; i < new_geom->getNumGeometries(); i++)
                 {
