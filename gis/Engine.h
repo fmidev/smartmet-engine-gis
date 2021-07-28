@@ -31,6 +31,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
  public:
   // constructor is available only with a libconfig configuration file
 
+  Engine() = delete;
   Engine(const std::string& theFileName);
 
   // return the CRS registry
@@ -52,12 +53,10 @@ class Engine : public SmartMet::Spine::SmartMetEngine
                                GeometryStorage& theGeometryStorage) const;
 
  protected:
-  virtual void init();
-  void shutdown();
+  virtual void init() override;
+  void shutdown() override;
 
  private:
-  Engine();
-
   Fmi::Features getFeatures(const Fmi::SpatialReference* theSR, const MapOptions& theOptions) const;
 
   OGREnvelope getTableEnvelope(const GDALDataPtr& connection,

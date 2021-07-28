@@ -51,8 +51,8 @@ class GeometryConv : public OGRCoordinateTransformation
 #endif
 
  private:
-  virtual OGRSpatialReference *GetSourceCS() { return nullptr; }
-  virtual OGRSpatialReference *GetTargetCS() { return nullptr; }
+  OGRSpatialReference *GetSourceCS() override { return nullptr; }
+  OGRSpatialReference *GetTargetCS() override { return nullptr; }
 
  private:
   boost::function1<NFmiPoint, NFmiPoint> conv;
