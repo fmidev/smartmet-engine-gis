@@ -376,7 +376,7 @@ boost::optional<EPSG> Config::getEPSG(int theEPSG) const
   }
 }
 
-const postgis_connection_info& Config::getPostGISConnectionInfo(const std::string thePGName) const
+const postgis_connection_info& Config::getPostGISConnectionInfo(const std::string& thePGName) const
 {
   try
   {

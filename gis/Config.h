@@ -35,7 +35,7 @@ class Config : private boost::noncopyable
   // return the CRS registry
   Spine::CRSRegistry& getCRSRegistry();
 
-  const postgis_connection_info& getPostGISConnectionInfo(const std::string thePGName) const;
+  const postgis_connection_info& getPostGISConnectionInfo(const std::string& thePGName) const;
 
   int getMaxCacheSize() const { return itsMaxCacheSize; }
   BBox getBBox(int theEPSG) const;
