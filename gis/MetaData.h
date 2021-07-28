@@ -41,12 +41,12 @@ struct MetaData
   boost::optional<TimeInterval> timeinterval;
 
   // bounding box of geometries
-  double xmin;
-  double ymin;
-  double xmax;
-  double ymax;
+  double xmin = 0;
+  double ymin = 0;
+  double xmax = 0;
+  double ymax = 0;
 
-  MetaData() : xmin(0.0), ymin(0.0), xmax(0.0), ymax(0.0) {}
+  MetaData() = default;
 };
 
 }  // namespace Gis
