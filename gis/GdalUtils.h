@@ -54,7 +54,6 @@ class GeometryConv : public OGRCoordinateTransformation
   OGRSpatialReference *GetSourceCS() override { return nullptr; }
   OGRSpatialReference *GetTargetCS() override { return nullptr; }
 
- private:
   boost::function1<NFmiPoint, NFmiPoint> conv;
 };
 
