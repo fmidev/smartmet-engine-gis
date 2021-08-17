@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 21.7.28
+Version: 21.8.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -18,9 +18,9 @@ BuildRequires: geos39-devel
 BuildRequires: libconfig-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.7.27
+BuildRequires: smartmet-library-gis-devel >= 21.8.3
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 21.7.28
+BuildRequires: smartmet-library-spine-devel >= 21.8.17
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -31,8 +31,8 @@ Requires: boost169-thread
 Requires: gdal32-libs
 Requires: geos39
 Requires: libconfig
-Requires: smartmet-library-gis >= 21.7.27
-Requires: smartmet-library-spine >= 21.7.28
+Requires: smartmet-library-gis >= 21.8.3
+Requires: smartmet-library-spine >= 21.8.17
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -41,9 +41,9 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: libconfig-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 21.7.27
+#TestRequires: smartmet-library-gis-devel >= 21.8.3
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 21.7.28
+#TestRequires: smartmet-library-spine-devel >= 21.8.17
 #TestRequires: smartmet-test-db >= 20.6.9
 
 %description
@@ -80,6 +80,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Aug 17 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.8.17-1.fmi
+- Use the new API for shutting down
+
 * Wed Jul 28 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.7.28-1.fmi
 - Silenced compiler warnings
 

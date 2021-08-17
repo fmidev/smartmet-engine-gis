@@ -9,6 +9,7 @@
 #include <gis/PostGIS.h>
 #include <macgyver/Exception.h>
 #include <macgyver/StringConversion.h>
+#include <spine/Reactor.h>
 #include <gdal_version.h>
 #include <memory>
 #include <ogrsf_frmts.h>
@@ -678,7 +679,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
 
     for (auto pgId : thePostGISIdentifiers)
     {
-      if (itsShutdownRequested)
+      if (Spine::Reactor::isShuttingDown())
         return;
 
       std::string pgKey = pgId.key();
