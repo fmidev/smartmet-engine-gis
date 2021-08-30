@@ -65,6 +65,8 @@ class Engine : public SmartMet::Spine::SmartMetEngine
                                const std::string& geometry_column,
                                bool quiet) const;
 
+  Fmi::Cache::CacheStatistics getCacheStats() const override;
+
   std::string itsConfigFile;
   std::unique_ptr<Config> itsConfig;  // ptr for delayed initialization
 

@@ -7,6 +7,8 @@
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
+#include <gis/OGRSpatialReferenceFactory.h>
+#include <gis/CoordinateMatrixCache.h>
 #include <macgyver/Exception.h>
 #include <macgyver/StringConversion.h>
 #include <spine/Reactor.h>
@@ -847,6 +849,20 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
   {
     throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
+}
+
+Fmi::Cache::CacheStatistics Engine::getCacheStats() const
+{
+  Fmi::Cache::CacheStatistics ret;
+
+  ret.insert(std::make_pair("Gis::geometry_cache", itsCache.statistics()));
+  ret.insert(std::make_pair("Gis::features_cache", itsFeaturesCache.statistics()));
+  ret.insert(std::make_pair("Gis::envelope_cache", itsEnvelopeCache.statistics()));
+  ret.insert(std::make_pair("Gis::gis-library::projection_info_cache", Fmi::SpatialReference::getCacheStats()));
+  ret.insert(std::make_pair("Gis::gis-library::spatial_reference_cache", Fmi::OGRSpatialReferenceFactory::getCacheStats()));
+  ret.insert(std::make_pair("Gis::gis-library::coordinate_matrix_cache", Fmi::CoordinateMatrixCache::getCacheStats()));
+
+  return ret;
 }
 
 }  // namespace Gis

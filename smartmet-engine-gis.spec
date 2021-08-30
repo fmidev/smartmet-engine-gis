@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 21.8.17
+Version: 21.8.30
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -18,9 +18,9 @@ BuildRequires: geos39-devel
 BuildRequires: libconfig-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.8.3
+BuildRequires: smartmet-library-gis-devel >= 21.8.30
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 21.8.17
+BuildRequires: smartmet-library-spine-devel >= 21.8.30
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -31,8 +31,8 @@ Requires: boost169-thread
 Requires: gdal32-libs
 Requires: geos39
 Requires: libconfig
-Requires: smartmet-library-gis >= 21.8.3
-Requires: smartmet-library-spine >= 21.8.17
+Requires: smartmet-library-gis >= 21.8.30
+Requires: smartmet-library-spine >= 21.8.30
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -80,6 +80,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Aug 30 2021 Anssi Reponen <anssi.reponen@fmi.fi> - 21.8.30-1.fmi
+- Cache counters added (BRAINSTORM-1005)
+
 * Tue Aug 17 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.8.17-1.fmi
 - Use the new API for shutting down
 
