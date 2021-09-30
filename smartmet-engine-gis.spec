@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 21.8.30
+Version: 21.9.28
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -15,12 +15,11 @@ BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
 BuildRequires: gdal32-devel
 BuildRequires: geos39-devel
-BuildRequires: libconfig-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.8.30
+BuildRequires: smartmet-library-gis-devel >= 21.9.13
 BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 21.8.30
+BuildRequires: smartmet-library-spine-devel >= 21.9.13
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -30,20 +29,18 @@ Requires: boost169-system
 Requires: boost169-thread
 Requires: gdal32-libs
 Requires: geos39
-Requires: libconfig
-Requires: smartmet-library-gis >= 21.8.30
-Requires: smartmet-library-spine >= 21.8.30
+Requires: smartmet-library-gis >= 21.9.13
+Requires: smartmet-library-spine >= 21.9.13
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
 #TestRequires: gdal32-devel
-#TestRequires: libconfig-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 21.8.3
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 21.8.17
+#TestRequires: smartmet-library-spine-devel >= 21.9.13
 #TestRequires: smartmet-test-db >= 20.6.9
 
 %description
@@ -80,6 +77,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Sep 28 2021 Andris Pavēnis <andris.pavenis@fmi.fi> 21.9.28-1.fmi
+- Repackage due to dependency change: moving libconfig files to differentr directory
+
+* Mon Sep 13 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.9.13-1.fmi
+- Repackaged due to Fmi::Cache statistics fixes
+
+* Tue Sep  7 2021 Andris Pavēnis <andris.pavenis@fmi.fi> 21.9.7-1.fmi
+- Rebuild due to dependency changes
+
 * Mon Aug 30 2021 Anssi Reponen <anssi.reponen@fmi.fi> - 21.8.30-1.fmi
 - Cache counters added (BRAINSTORM-1005)
 
