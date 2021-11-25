@@ -13,7 +13,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: boost169-devel
 BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
-BuildRequires: gdal32-devel
+BuildRequires: gdal33-devel
 BuildRequires: geos39-devel
 BuildRequires: make
 BuildRequires: rpm-build
@@ -27,7 +27,7 @@ Requires: boost169-iostreams
 Requires: boost169-regex
 Requires: boost169-system
 Requires: boost169-thread
-Requires: gdal32-libs
+Requires: gdal33-libs
 Requires: geos39
 Requires: smartmet-library-gis >= 21.9.13
 Requires: smartmet-library-spine >= 21.9.13
@@ -35,7 +35,7 @@ Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
-#TestRequires: gdal32-devel
+#TestRequires: gdal33-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 21.8.3
