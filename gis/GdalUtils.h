@@ -39,13 +39,15 @@ class GeometryConv : public OGRCoordinateTransformation
 #else
   int Transform(int nCount, double *x, double *y, double *z, double *t, int *pabSuccess) override;
 
-#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 1
+#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR  == 3 && GDAL_VERSION_MINOR >= 1)
   OGRCoordinateTransformation *Clone() const override;
 #endif
 
-#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 3
+#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR  == 3 && GDAL_VERSION_MINOR >= 3)
   int TransformWithErrorCodes(
       int nCount, double *x, double *y, double *z, double *t, int *panErrorCodes) override;
+
+    OGRCoordinateTransformation* GetInverse() const override;
 #endif
 
 #endif
