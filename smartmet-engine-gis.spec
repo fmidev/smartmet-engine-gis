@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 21.9.28
+Version: 21.12.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -17,9 +17,9 @@ BuildRequires: gdal33-devel
 BuildRequires: geos39-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.9.13
-BuildRequires: smartmet-library-newbase-devel
-BuildRequires: smartmet-library-spine-devel >= 21.9.13
+BuildRequires: smartmet-library-gis-devel >= 21.12.1
+BuildRequires: smartmet-library-newbase-devel >= 21.12.1
+BuildRequires: smartmet-library-spine-devel >= 21.12.2
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -29,8 +29,8 @@ Requires: boost169-system
 Requires: boost169-thread
 Requires: gdal33-libs
 Requires: geos39
-Requires: smartmet-library-gis >= 21.9.13
-Requires: smartmet-library-spine >= 21.9.13
+Requires: smartmet-library-gis >= 21.12.1
+Requires: smartmet-library-spine >= 21.12.2
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -38,9 +38,9 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal33-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 21.8.3
+#TestRequires: smartmet-library-gis-devel >= 21.12.1
 #TestRequires: smartmet-library-regression >= 20.5.7
-#TestRequires: smartmet-library-spine-devel >= 21.9.13
+#TestRequires: smartmet-library-spine-devel >= 21.12.2
 #TestRequires: smartmet-test-db >= 20.6.9
 
 %description
@@ -50,6 +50,9 @@ FMI SmartMet gis engine
 Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
+Requires: %{SPECNAME} = %{version}-%{release}
+Requires: smartmet-library-gis >= 21.12.1
+Requires: smartmet-library-spine >= 21.12.2
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
