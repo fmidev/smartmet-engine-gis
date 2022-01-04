@@ -190,13 +190,19 @@ int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *
 }
 #endif
 
-#if GDAL_VERSION_MAJOR > 3 || GDAL_VERSION_MINOR >= 3
+#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR  == 3 && GDAL_VERSION_MINOR >= 3)
 int GeometryConv::TransformWithErrorCodes(
-    int, double *, double *, double *, double *, int *) override
+    int, double *, double *, double *, double *, int *)
 {
   throw Fmi::Exception(BCP, "Attempt to call GeometryConv::TransformWithErrorCodes");
 }
+
+OGRCoordinateTransformation* GeometryConv::GetInverse() const
+{
+  throw Fmi::Exception(BCP, "Attempt to call GeometryConv::GetInverse");
+}
 #endif
+
 
 }  // namespace Gis
 }  // namespace Engine
