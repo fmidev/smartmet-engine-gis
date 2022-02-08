@@ -4,7 +4,11 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 22.2.8
+<<<<<<< HEAD
 Release: 1%{?dist}.fmi
+=======
+Release: 2%{?dist}.fmi
+>>>>>>> a34c640370ef271de901d663464e4baca632ba72
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -17,11 +21,12 @@ BuildRequires: gdal34-devel
 BuildRequires: geos310-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.1.21
-BuildRequires: smartmet-library-newbase-devel >= 21.1.21
-BuildRequires: smartmet-library-spine-devel >= 21.1.21
-BuildRequires: smartmet-library-macgyver-devel >= 22.2.8
+BuildRequires: smartmet-library-gis-devel >= 22.1.24
+BuildRequires: smartmet-library-newbase-devel >= 22.1.21
+BuildRequires: smartmet-library-spine-devel >= 22.1.21
+BuildRequires: smartmet-library-macgyver-devel >= 22.1.21
 BuildRequires: zlib-devel
+BuildRequires: sqlite3pp-devel >= 1.0.9
 Requires: boost169-date-time
 Requires: boost169-filesystem
 Requires: boost169-iostreams
@@ -30,9 +35,9 @@ Requires: boost169-system
 Requires: boost169-thread
 Requires: gdal34-libs
 Requires: geos310
-Requires: smartmet-library-gis >= 21.1.21
-Requires: smartmet-library-spine >= 21.1.21
-Requires: smartmet-library-macgyver >= 22.2.8
+Requires: smartmet-library-gis >= 22.1.24
+Requires: smartmet-library-spine >= 22.1.21
+Requires: smartmet-library-macgyver >= 22.1.21
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -40,10 +45,10 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal34-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 21.1.21
+#TestRequires: smartmet-library-gis-devel >= 22.1.24
 #TestRequires: smartmet-library-regression >= 21.1.21
-#TestRequires: smartmet-library-spine-devel >= 21.1.21
-#TestRequires: smartmet-library-macgyver-devel >= 22.2.8
+#TestRequires: smartmet-library-spine-devel >= 22.1.21
+#TestRequires: smartmet-library-macgyver-devel >= 22.1.21
 #TestRequires: smartmet-test-db >= 21.1.21
 
 %description
@@ -54,8 +59,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 21.1.21
-Requires: smartmet-library-spine >= 21.1.21
+Requires: smartmet-library-gis >= 22.1.24
+Requires: smartmet-library-spine >= 22.1.21
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
@@ -83,6 +88,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Feb  8 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.8-2.fmi
+- Obsoleted EPSG source information
+
 * Tue Feb 8 2022 Anssi Reponen <anssi.reponen@fmi.fi> - 22.2.8-1.fmi
 - Read EPSG projection info from proj.db (BRAINSTORM-2187)
 

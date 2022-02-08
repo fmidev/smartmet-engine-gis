@@ -59,9 +59,6 @@ void getEPSG()
     if (epsg->scope.empty())
       TEST_FAILED("EPSG:3035 scope should not be empty, it should cover all Europe");
 
-    if (epsg->source.empty())
-      TEST_FAILED("EPSG:3035 source should be the European Commission Joint Research Centre");
-
     if (epsg->deprecated)
       TEST_FAILED("EPSG:3035 should not be deprecated");
   }
