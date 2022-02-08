@@ -222,7 +222,6 @@ EPSG Config::read_epsg(const libconfig::Setting& theSetting) const
   theSetting.lookupValue("id", epsg.number);
   theSetting.lookupValue("name", epsg.name);
   theSetting.lookupValue("scope", epsg.scope);
-  theSetting.lookupValue("source", epsg.source);
   theSetting.lookupValue("deprecated", epsg.deprecated);
   return epsg;
 }

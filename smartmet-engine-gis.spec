@@ -4,7 +4,7 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 22.2.8
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -84,6 +84,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Feb  8 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.8-2.fmi
+- Obsoleted EPSG source information
+
 * Tue Feb 8 2022 Anssi Reponen <anssi.reponen@fmi.fi> - 22.2.8-1.fmi
 - Read EPSG projection info from proj.db (BRAINSTORM-2187)
 
