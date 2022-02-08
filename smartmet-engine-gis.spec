@@ -17,11 +17,12 @@ BuildRequires: gdal34-devel
 BuildRequires: geos310-devel
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 21.1.21
-BuildRequires: smartmet-library-newbase-devel >= 21.1.21
-BuildRequires: smartmet-library-spine-devel >= 21.1.21
-BuildRequires: smartmet-library-macgyver-devel >= 22.2.8
+BuildRequires: smartmet-library-gis-devel >= 22.1.24
+BuildRequires: smartmet-library-newbase-devel >= 22.1.21
+BuildRequires: smartmet-library-spine-devel >= 22.1.21
+BuildRequires: smartmet-library-macgyver-devel >= 22.1.21
 BuildRequires: zlib-devel
+BuildRequires: sqlite3pp-devel >= 1.0.9
 Requires: boost169-date-time
 Requires: boost169-filesystem
 Requires: boost169-iostreams
@@ -30,9 +31,9 @@ Requires: boost169-system
 Requires: boost169-thread
 Requires: gdal34-libs
 Requires: geos310
-Requires: smartmet-library-gis >= 21.1.21
-Requires: smartmet-library-spine >= 21.1.21
-Requires: smartmet-library-macgyver >= 22.2.8
+Requires: smartmet-library-gis >= 22.1.24
+Requires: smartmet-library-spine >= 22.1.21
+Requires: smartmet-library-macgyver >= 22.1.21
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -40,10 +41,10 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal34-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 21.1.21
+#TestRequires: smartmet-library-gis-devel >= 22.1.24
 #TestRequires: smartmet-library-regression >= 21.1.21
-#TestRequires: smartmet-library-spine-devel >= 21.1.21
-#TestRequires: smartmet-library-macgyver-devel >= 22.2.8
+#TestRequires: smartmet-library-spine-devel >= 22.1.21
+#TestRequires: smartmet-library-macgyver-devel >= 22.1.21
 #TestRequires: smartmet-test-db >= 21.1.21
 
 %description
@@ -54,8 +55,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 21.1.21
-Requires: smartmet-library-spine >= 21.1.21
+Requires: smartmet-library-gis >= 22.1.24
+Requires: smartmet-library-spine >= 22.1.21
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.

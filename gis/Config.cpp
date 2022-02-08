@@ -4,15 +4,15 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
-#include <macgyver/Exception.h>
-#include <macgyver/TimeParser.h>
-#include <macgyver/StringConversion.h>
-#include <macgyver/sqlite3pp.h>
-#include <spine/ConfigBase.h>
-#include <cpl_conv.h>  // For configuring GDAL
-#include <stdexcept>
-#include <sqlite3.h>
 #include <fmt/format.h>
+#include <macgyver/Exception.h>
+#include <macgyver/StringConversion.h>
+#include <macgyver/TimeParser.h>
+#include <spine/ConfigBase.h>
+#include <sqlite3pp/sqlite3pp.h>
+#include <cpl_conv.h>  // For configuring GDAL
+#include <sqlite3.h>
+#include <stdexcept>
 
 namespace SmartMet
 {
@@ -231,70 +231,72 @@ void Config::read_proj_db()
 {
   std::string projdb_file;
   try
-	{
-	  sqlite3pp::database projdb;
-	  itsConfig.lookupValue("proj_db", projdb_file);
-	  
-	  bool readOnly = (access(projdb_file.c_str(), W_OK) != 0);
-	  
-	  if(readOnly)
-		{
-		  // The immutable option prevents shm/wal files from being created, but can apparently
-		  // only be specified using the URI format. Additionally, mode=ro must be in the flags
-		  // option, not as a mode=ro query. Strange, but works (requires sqlite >= 3.15)
-		  projdb.connect(
-						 fmt::format("file:{}?immutable=1",projdb_file.c_str()).c_str(),
-						 SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_PRIVATECACHE | SQLITE_OPEN_NOMUTEX);
-		}
-	  else
-		{
-		  projdb.connect(projdb_file.c_str(),
-						 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_PRIVATECACHE |
-						 SQLITE_OPEN_NOMUTEX);
-		}
-	  
-	  
-	  sqlite3pp::query qry(projdb, "select usage.object_code,extent.west_lon,extent.east_lon,\
+  {
+    sqlite3pp::database projdb;
+    itsConfig.lookupValue("proj_db", projdb_file);
+
+    bool readOnly = (access(projdb_file.c_str(), W_OK) != 0);
+
+    if (readOnly)
+    {
+      // The immutable option prevents shm/wal files from being created, but can apparently
+      // only be specified using the URI format. Additionally, mode=ro must be in the flags
+      // option, not as a mode=ro query. Strange, but works (requires sqlite >= 3.15)
+      projdb.connect(
+          fmt::format("file:{}?immutable=1", projdb_file.c_str()).c_str(),
+          SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_PRIVATECACHE | SQLITE_OPEN_NOMUTEX);
+    }
+    else
+    {
+      projdb.connect(projdb_file.c_str(),
+                     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_PRIVATECACHE |
+                         SQLITE_OPEN_NOMUTEX);
+    }
+
+    sqlite3pp::query qry(projdb,
+                         "select usage.object_code,extent.west_lon,extent.east_lon,\
 extent.south_lat,extent.north_lat,projected_crs.name,scope.scope,projected_crs.deprecated \
 from projected_crs,extent,scope,usage where extent.code=usage.extent_code and \
 scope.code=usage.scope_code and projected_crs.code=usage.object_code and \
 usage.object_auth_name='EPSG' and usage.object_table_name='projected_crs' and \
 projected_crs.auth_name='EPSG' and scope.auth_name='EPSG' and extent.auth_name='EPSG'");
-	  
-	  for (const auto &row : qry)
-		{
-		  EPSG epsg;
-		  epsg.number = Fmi::stoi(row.get<std::string>(0));
-		  epsg.bbox.west = row.get<double>(1);
-		  epsg.bbox.east = row.get<double>(2);
-		  epsg.bbox.south = row.get<double>(3);
-		  epsg.bbox.north = row.get<double>(4);
-		  epsg.name = row.get<std::string>(5);
-		  epsg.scope = row.get<std::string>(6);
-		  epsg.deprecated = row.get<bool>(7);
-		  
-		  // If longitude_east < longitude_west, add 360.0 to logitude_east
-		  if(epsg.bbox.east < epsg.bbox.west)
-			epsg.bbox.east += 360.0;
-		  
-		  if(itsEPSGMap.find(epsg.number) != itsEPSGMap.end())
-			{
-			  // Handle duplicates, use projection with larger area
-			  const EPSG& ex_epsg = itsEPSGMap.at(epsg.number);
-			  double ex_area = (ex_epsg.bbox.east - ex_epsg.bbox.west) * (ex_epsg.bbox.north - ex_epsg.bbox.south);
-			  double duplicate_area = (epsg.bbox.east - epsg.bbox.west) * (epsg.bbox.north - epsg.bbox.south);
-			  
-			  if(duplicate_area > ex_area)
-				itsEPSGMap[epsg.number] = epsg;
-			}
-		  else
-			itsEPSGMap.insert(std::make_pair(epsg.number, epsg));
-		}
-	}
+
+    for (const auto& row : qry)
+    {
+      EPSG epsg;
+      epsg.number = Fmi::stoi(row.get<std::string>(0));
+      epsg.bbox.west = row.get<double>(1);
+      epsg.bbox.east = row.get<double>(2);
+      epsg.bbox.south = row.get<double>(3);
+      epsg.bbox.north = row.get<double>(4);
+      epsg.name = row.get<std::string>(5);
+      epsg.scope = row.get<std::string>(6);
+      epsg.deprecated = row.get<bool>(7);
+
+      // If longitude_east < longitude_west, add 360.0 to logitude_east
+      if (epsg.bbox.east < epsg.bbox.west)
+        epsg.bbox.east += 360.0;
+
+      if (itsEPSGMap.find(epsg.number) != itsEPSGMap.end())
+      {
+        // Handle duplicates, use projection with larger area
+        const EPSG& ex_epsg = itsEPSGMap.at(epsg.number);
+        double ex_area =
+            (ex_epsg.bbox.east - ex_epsg.bbox.west) * (ex_epsg.bbox.north - ex_epsg.bbox.south);
+        double duplicate_area =
+            (epsg.bbox.east - epsg.bbox.west) * (epsg.bbox.north - epsg.bbox.south);
+
+        if (duplicate_area > ex_area)
+          itsEPSGMap[epsg.number] = epsg;
+      }
+      else
+        itsEPSGMap.insert(std::make_pair(epsg.number, epsg));
+    }
+  }
   catch (...)
-	{
-	  throw Fmi::Exception::Trace(BCP, "Reading proj.db '" + projdb_file + "' failed!");
-	}
+  {
+    throw Fmi::Exception::Trace(BCP, "Reading proj.db '" + projdb_file + "' failed!");
+  }
 }
 
 // TODO(mheiskan) Deprecated
@@ -323,7 +325,7 @@ void Config::read_bbox_settings()
     itsEPSGMap.insert(std::make_pair(id, std::move(epsg)));
   }
 }
-  
+
 void Config::read_epsg_settings()
 {
   const bool has_bbox = itsConfig.exists("bbox");
@@ -335,8 +337,8 @@ void Config::read_epsg_settings()
                          "The config has both bbox and epsg settings, the former are deprecated")
         .addParameter("Configuration file", itsFileName);
 
-  if(has_proj_db)
-   read_proj_db();
+  if (has_proj_db)
+    read_proj_db();
 
   // TODO(mheiskan) deprecated settings
   else if (has_bbox)
