@@ -60,6 +60,7 @@ class Config : private boost::noncopyable
   void read_bbox_settings();
   BBox read_bbox(const libconfig::Setting& theSetting) const;
   EPSG read_epsg(const libconfig::Setting& theSetting) const;
+  void read_proj_db();
 
   libconfig::Config itsConfig;
   std::string itsFileName;

@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 22.1.21
+Version: 22.2.8
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -20,6 +20,7 @@ BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 21.1.21
 BuildRequires: smartmet-library-newbase-devel >= 21.1.21
 BuildRequires: smartmet-library-spine-devel >= 21.1.21
+BuildRequires: smartmet-library-macgyver-devel >= 22.2.8
 BuildRequires: zlib-devel
 Requires: boost169-date-time
 Requires: boost169-filesystem
@@ -31,6 +32,7 @@ Requires: gdal34-libs
 Requires: geos310
 Requires: smartmet-library-gis >= 21.1.21
 Requires: smartmet-library-spine >= 21.1.21
+Requires: smartmet-library-macgyver >= 22.2.8
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -41,6 +43,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: smartmet-library-gis-devel >= 21.1.21
 #TestRequires: smartmet-library-regression >= 21.1.21
 #TestRequires: smartmet-library-spine-devel >= 21.1.21
+#TestRequires: smartmet-library-macgyver-devel >= 22.2.8
 #TestRequires: smartmet-test-db >= 21.1.21
 
 %description
@@ -80,6 +83,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Feb 8 2022 Anssi Reponen <anssi.reponen@fmi.fi> - 22.2.8-1.fmi
+- Read EPSG projection info from proj.db (BRAINSTORM-2187)
+
 * Fri Jan 21 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.1.21-1.fmi
 - Repackage due to upgrade of packages from PGDG repo: gdal-3.4, geos-3.10, proj-8.2
 
