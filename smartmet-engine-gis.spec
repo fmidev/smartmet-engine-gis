@@ -4,7 +4,11 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 22.2.8
+<<<<<<< HEAD
+Release: 1%{?dist}.fmi
+=======
 Release: 2%{?dist}.fmi
+>>>>>>> a34c640370ef271de901d663464e4baca632ba72
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
