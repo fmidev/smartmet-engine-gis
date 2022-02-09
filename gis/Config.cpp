@@ -12,11 +12,13 @@
 #include <macgyver/sqlite3pp.h>
 #include <spine/ConfigBase.h>
 #include <sqlite3pp/sqlite3pp.h>
+#include <sqlite3pp/sqlite3ppext.h>
 #include <cpl_conv.h>  // For configuring GDAL
 #include <sqlite3.h>
 #include <stdexcept>
 #include <sqlite3.h>
 #include <fmt/format.h>
+#include <proj/io.hpp>
 
 namespace SmartMet
 {
@@ -232,29 +234,11 @@ EPSG Config::read_epsg(const libconfig::Setting& theSetting) const
 
 void Config::read_proj_db()
 {
-  std::string projdb_file;
   try
   {
-    sqlite3pp::database projdb;
-    itsConfig.lookupValue("proj_db", projdb_file);
-
-    bool readOnly = (access(projdb_file.c_str(), W_OK) != 0);
-
-    if (readOnly)
-    {
-      // The immutable option prevents shm/wal files from being created, but can apparently
-      // only be specified using the URI format. Additionally, mode=ro must be in the flags
-      // option, not as a mode=ro query. Strange, but works (requires sqlite >= 3.15)
-      projdb.connect(
-          fmt::format("file:{}?immutable=1", projdb_file.c_str()).c_str(),
-          SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_PRIVATECACHE | SQLITE_OPEN_NOMUTEX);
-    }
-    else
-    {
-      projdb.connect(projdb_file.c_str(),
-                     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_PRIVATECACHE |
-                         SQLITE_OPEN_NOMUTEX);
-    }
+	auto db_context = NS_PROJ::io::DatabaseContext::create().as_nullable();
+	auto* sqlite_handle = reinterpret_cast<sqlite3*>(db_context->getSqliteHandle());	
+	auto projdb = sqlite3pp::ext::borrow(sqlite_handle);
 
     sqlite3pp::query qry(projdb,
                          "select usage.object_code,extent.west_lon,extent.east_lon,\
@@ -298,7 +282,7 @@ projected_crs.auth_name='EPSG' and scope.auth_name='EPSG' and extent.auth_name='
   }
   catch (...)
   {
-    throw Fmi::Exception::Trace(BCP, "Reading proj.db '" + projdb_file + "' failed!");
+    throw Fmi::Exception::Trace(BCP, "Reading proj.db file failed!");
   }
 }
 
@@ -333,20 +317,16 @@ void Config::read_epsg_settings()
 {
   const bool has_bbox = itsConfig.exists("bbox");
   const bool has_epsg = itsConfig.exists("epsg");
-  const bool has_proj_db = itsConfig.exists("proj_db");
 
   if (has_bbox && has_epsg)
     throw Fmi::Exception(BCP,
                          "The config has both bbox and epsg settings, the former are deprecated")
         .addParameter("Configuration file", itsFileName);
 
-  if (has_proj_db)
-    read_proj_db();
-
   // TODO(mheiskan) deprecated settings
   else if (has_bbox)
     read_bbox_settings();
-  else
+  else if(has_epsg)
   {
     // New style settings
 
@@ -364,6 +344,10 @@ void Config::read_epsg_settings()
       itsEPSGMap.insert(std::make_pair(epsg.number, std::move(epsg)));
     }
   }
+  else
+	{
+	  read_proj_db();
+	}
 }
 
 // ----------------------------------------------------------------------
