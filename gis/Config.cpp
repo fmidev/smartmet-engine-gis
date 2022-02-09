@@ -8,17 +8,13 @@
 #include <macgyver/Exception.h>
 #include <macgyver/StringConversion.h>
 #include <macgyver/TimeParser.h>
-#include <macgyver/StringConversion.h>
-#include <macgyver/sqlite3pp.h>
+#include <proj/io.hpp>
 #include <spine/ConfigBase.h>
 #include <sqlite3pp/sqlite3pp.h>
 #include <sqlite3pp/sqlite3ppext.h>
 #include <cpl_conv.h>  // For configuring GDAL
 #include <sqlite3.h>
 #include <stdexcept>
-#include <sqlite3.h>
-#include <fmt/format.h>
-#include <proj/io.hpp>
 
 namespace SmartMet
 {
@@ -236,9 +232,9 @@ void Config::read_proj_db()
 {
   try
   {
-	auto db_context = NS_PROJ::io::DatabaseContext::create().as_nullable();
-	auto* sqlite_handle = reinterpret_cast<sqlite3*>(db_context->getSqliteHandle());	
-	auto projdb = sqlite3pp::ext::borrow(sqlite_handle);
+    auto db_context = NS_PROJ::io::DatabaseContext::create().as_nullable();
+    auto* sqlite_handle = reinterpret_cast<sqlite3*>(db_context->getSqliteHandle());
+    auto projdb = sqlite3pp::ext::borrow(sqlite_handle);
 
     sqlite3pp::query qry(projdb,
                          "select usage.object_code,extent.west_lon,extent.east_lon,\
@@ -312,7 +308,7 @@ void Config::read_bbox_settings()
     itsEPSGMap.insert(std::make_pair(id, std::move(epsg)));
   }
 }
-  
+
 void Config::read_epsg_settings()
 {
   const bool has_bbox = itsConfig.exists("bbox");
@@ -326,7 +322,7 @@ void Config::read_epsg_settings()
   // TODO(mheiskan) deprecated settings
   else if (has_bbox)
     read_bbox_settings();
-  else if(has_epsg)
+  else if (has_epsg)
   {
     // New style settings
 
@@ -345,9 +341,9 @@ void Config::read_epsg_settings()
     }
   }
   else
-	{
-	  read_proj_db();
-	}
+  {
+    read_proj_db();
+  }
 }
 
 // ----------------------------------------------------------------------

@@ -3,9 +3,6 @@ crsDefinitionDir = "crs"
 // Default for tables whose SRID is not set. Comment out to report an error instead.
 // default_epsg = 4326
 
-// Source of EPGS information
-proj_db = "/usr/proj72/share/proj/proj.db";
-
 // To silence warnings, for example from the above default
 quiet = true
 

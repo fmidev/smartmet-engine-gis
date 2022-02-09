@@ -3,12 +3,8 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 22.2.8
-<<<<<<< HEAD
+Version: 22.2.9
 Release: 1%{?dist}.fmi
-=======
-Release: 2%{?dist}.fmi
->>>>>>> a34c640370ef271de901d663464e4baca632ba72
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -19,6 +15,15 @@ BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
 BuildRequires: gdal34-devel
 BuildRequires: geos310-devel
+
+%if %{defined el7}
+BuildRequires: proj72-devel
+Requires: proj72
+%else
+BuildRequires: proj82-devel
+Requires: proj82
+%endif
+
 BuildRequires: make
 BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 22.1.24
@@ -88,6 +93,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Feb  9 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.9
+- Use PROJ library to open proj.db instead of placing the path into gis.conf
+
 * Tue Feb  8 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.8-2.fmi
 - Obsoleted EPSG source information
 
