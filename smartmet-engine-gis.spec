@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 22.2.9
+Version: 22.2.10
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -93,6 +93,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Feb 10 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.2.10-1.fmi
+- Fix SPEC file broken from previous commit
+
 * Wed Feb  9 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.2.9
 - Use PROJ library to open proj.db instead of placing the path into gis.conf
 
