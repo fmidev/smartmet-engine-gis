@@ -2,7 +2,7 @@ SUBNAME = gis
 SPEC = smartmet-engine-$(SUBNAME)
 INCDIR = smartmet/engines/$(SUBNAME)
 
-REQUIRES = geos gdal configpp proj
+REQUIRES = geos gdal sqlite3 configpp proj
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 

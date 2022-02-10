@@ -18,10 +18,14 @@ BuildRequires: geos310-devel
 
 %if %{defined el7}
 BuildRequires: proj72-devel
+BuildRequires: sqlite33-devel
 Requires: proj72
+Requires: sqlite33-libs
 %else
 BuildRequires: proj82-devel
+BuildRequires: sqlite-devel
 Requires: proj82
+Requires: sqlite-libs
 %endif
 
 BuildRequires: make
@@ -30,6 +34,7 @@ BuildRequires: smartmet-library-gis-devel >= 22.1.24
 BuildRequires: smartmet-library-newbase-devel >= 22.1.21
 BuildRequires: smartmet-library-spine-devel >= 22.1.21
 BuildRequires: smartmet-library-macgyver-devel >= 22.1.21
+BuildRequires: smartmet-utils-devel >= 22.2.8
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
 Requires: boost169-date-time
@@ -55,6 +60,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: smartmet-library-spine-devel >= 22.1.21
 #TestRequires: smartmet-library-macgyver-devel >= 22.1.21
 #TestRequires: smartmet-test-db >= 21.1.21
+#TestRequires: smartmet-utils-devel >= 22.2.8
 
 %description
 FMI SmartMet gis engine
