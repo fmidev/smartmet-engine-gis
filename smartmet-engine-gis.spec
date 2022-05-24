@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 22.5.20
+Version: 22.5.24
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -31,9 +31,9 @@ Requires: sqlite-libs
 BuildRequires: make
 BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 22.5.4
-BuildRequires: smartmet-library-newbase-devel >= 22.5.20
-BuildRequires: smartmet-library-spine-devel >= 22.5.16
-BuildRequires: smartmet-library-macgyver-devel >= 22.3.28
+BuildRequires: smartmet-library-newbase-devel >= 22.5.24
+BuildRequires: smartmet-library-spine-devel >= 22.5.24
+BuildRequires: smartmet-library-macgyver-devel >= 22.5.24
 BuildRequires: smartmet-utils-devel >= 22.2.8
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
@@ -46,8 +46,8 @@ Requires: boost169-thread
 Requires: gdal34-libs
 Requires: geos310
 Requires: smartmet-library-gis >= 22.5.4
-Requires: smartmet-library-spine >= 22.5.16
-Requires: smartmet-library-macgyver >= 22.3.28
+Requires: smartmet-library-spine >= 22.5.24
+Requires: smartmet-library-macgyver >= 22.5.24
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -57,8 +57,8 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 22.5.4
 #TestRequires: smartmet-library-regression >= 21.1.21
-#TestRequires: smartmet-library-spine-devel >= 22.5.16
-#TestRequires: smartmet-library-macgyver-devel >= 22.3.28
+#TestRequires: smartmet-library-spine-devel >= 22.5.24
+#TestRequires: smartmet-library-macgyver-devel >= 22.5.24
 #TestRequires: smartmet-test-db >= 21.1.21
 #TestRequires: smartmet-utils-devel >= 22.2.8
 
@@ -71,7 +71,7 @@ Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
 Requires: smartmet-library-gis >= 22.5.4
-Requires: smartmet-library-spine >= 22.5.16
+Requires: smartmet-library-spine >= 22.5.24
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
@@ -99,6 +99,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue May 24 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.5.24-1.fmi
+- Repackaged due to NFmiArea ABI changes
+
 * Fri May 20 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.5.20-1.fmi
 - Repackaged due to ABI changes to newbase LatLon methods
 
