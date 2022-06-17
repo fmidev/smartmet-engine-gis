@@ -10,7 +10,14 @@ Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: boost169-devel
+
+%if 0%{?rhel} && 0%{rhel} < 9
+%define smartmet_boost boost169
+%else
+%define smartmet_boost boost
+%endif
+
+BuildRequires: %{smartmet_boost}-devel
 BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
 BuildRequires: gdal34-devel
@@ -30,24 +37,24 @@ Requires: sqlite-libs
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 22.5.4
-BuildRequires: smartmet-library-newbase-devel >= 22.5.24
-BuildRequires: smartmet-library-spine-devel >= 22.5.24
-BuildRequires: smartmet-library-macgyver-devel >= 22.5.24
+BuildRequires: smartmet-library-gis-devel >= 22.6.16
+BuildRequires: smartmet-library-newbase-devel >= 22.6.16
+BuildRequires: smartmet-library-spine-devel >= 22.6.16
+BuildRequires: smartmet-library-macgyver-devel >= 22.6.16
 BuildRequires: smartmet-utils-devel >= 22.2.8
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
-Requires: boost169-date-time
-Requires: boost169-filesystem
-Requires: boost169-iostreams
-Requires: boost169-regex
-Requires: boost169-system
-Requires: boost169-thread
+Requires: %{smartmet_boost}-date-time
+Requires: %{smartmet_boost}-filesystem
+Requires: %{smartmet_boost}-iostreams
+Requires: %{smartmet_boost}-regex
+Requires: %{smartmet_boost}-system
+Requires: %{smartmet_boost}-thread
 Requires: gdal34-libs
 Requires: geos310
-Requires: smartmet-library-gis >= 22.5.4
-Requires: smartmet-library-spine >= 22.5.24
-Requires: smartmet-library-macgyver >= 22.5.24
+Requires: smartmet-library-gis >= 22.6.16
+Requires: smartmet-library-spine >= 22.6.16
+Requires: smartmet-library-macgyver >= 22.6.16
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -55,10 +62,10 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal34-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 22.5.4
+#TestRequires: smartmet-library-gis-devel >= 22.6.16
 #TestRequires: smartmet-library-regression >= 21.1.21
-#TestRequires: smartmet-library-spine-devel >= 22.5.24
-#TestRequires: smartmet-library-macgyver-devel >= 22.5.24
+#TestRequires: smartmet-library-spine-devel >= 22.6.16
+#TestRequires: smartmet-library-macgyver-devel >= 22.6.16
 #TestRequires: smartmet-test-db >= 21.1.21
 #TestRequires: smartmet-utils-devel >= 22.2.8
 
@@ -70,8 +77,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 22.5.4
-Requires: smartmet-library-spine >= 22.5.24
+Requires: smartmet-library-gis >= 22.6.16
+Requires: smartmet-library-spine >= 22.6.16
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
