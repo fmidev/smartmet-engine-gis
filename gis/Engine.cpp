@@ -3,12 +3,12 @@
 #include "Normalize.h"
 #include <boost/algorithm/string/join.hpp>
 #include <gis/Box.h>
+#include <gis/CoordinateMatrixCache.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
-#include <gis/PostGIS.h>
 #include <gis/OGRSpatialReferenceFactory.h>
-#include <gis/CoordinateMatrixCache.h>
+#include <gis/PostGIS.h>
 #include <macgyver/Exception.h>
 #include <macgyver/StringConversion.h>
 #include <spine/Reactor.h>
@@ -410,7 +410,7 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
       if (theOptions.minarea)
         newfeature->geom.reset(Fmi::OGR::despeckle(*(feature->geom), *theOptions.minarea));
 
-      if (theOptions.mindistance && newfeature->geom)
+      if (theOptions.mindistance && newfeature && newfeature->geom)
       {
         const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
         const double kilometers_to_meters = 1000;
@@ -426,7 +426,7 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
               kilometers_to_degrees * (*theOptions.mindistance)));
       }
 
-      if (newfeature->geom)
+      if (newfeature && newfeature->geom)
         newfeatures.push_back(newfeature);
     }
 
@@ -858,9 +858,12 @@ Fmi::Cache::CacheStatistics Engine::getCacheStats() const
   ret.insert(std::make_pair("Gis::geometry_cache", itsCache.statistics()));
   ret.insert(std::make_pair("Gis::features_cache", itsFeaturesCache.statistics()));
   ret.insert(std::make_pair("Gis::envelope_cache", itsEnvelopeCache.statistics()));
-  ret.insert(std::make_pair("Gis::gis-library::projection_info_cache", Fmi::SpatialReference::getCacheStats()));
-  ret.insert(std::make_pair("Gis::gis-library::spatial_reference_cache", Fmi::OGRSpatialReferenceFactory::getCacheStats()));
-  ret.insert(std::make_pair("Gis::gis-library::coordinate_matrix_cache", Fmi::CoordinateMatrixCache::getCacheStats()));
+  ret.insert(std::make_pair("Gis::gis-library::projection_info_cache",
+                            Fmi::SpatialReference::getCacheStats()));
+  ret.insert(std::make_pair("Gis::gis-library::spatial_reference_cache",
+                            Fmi::OGRSpatialReferenceFactory::getCacheStats()));
+  ret.insert(std::make_pair("Gis::gis-library::coordinate_matrix_cache",
+                            Fmi::CoordinateMatrixCache::getCacheStats()));
 
   return ret;
 }
