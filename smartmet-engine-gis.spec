@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 22.8.1
+Version: 22.8.25
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -38,9 +38,9 @@ Requires: sqlite-libs
 BuildRequires: make
 BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 22.7.27
-BuildRequires: smartmet-library-newbase-devel >= 22.6.16
-BuildRequires: smartmet-library-spine-devel >= 22.7.27
-BuildRequires: smartmet-library-macgyver-devel >= 22.7.27
+BuildRequires: smartmet-library-newbase-devel >= 22.8.24
+BuildRequires: smartmet-library-spine-devel >= 22.8.25
+BuildRequires: smartmet-library-macgyver-devel >= 22.8.23
 BuildRequires: smartmet-utils-devel >= 22.2.8
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
@@ -53,8 +53,8 @@ Requires: %{smartmet_boost}-thread
 Requires: gdal34-libs
 Requires: geos310
 Requires: smartmet-library-gis >= 22.7.27
-Requires: smartmet-library-spine >= 22.7.27
-Requires: smartmet-library-macgyver >= 22.7.27
+Requires: smartmet-library-spine >= 22.8.25
+Requires: smartmet-library-macgyver >= 22.8.23
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -63,10 +63,10 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 22.7.27
-#TestRequires: smartmet-library-regression >= 21.1.21
-#TestRequires: smartmet-library-spine-devel >= 22.7.27
-#TestRequires: smartmet-library-macgyver-devel >= 22.7.27
-#TestRequires: smartmet-test-db >= 21.1.21
+#TestRequires: smartmet-library-regression >= 21.11.23
+#TestRequires: smartmet-library-spine-devel >= 22.8.25
+#TestRequires: smartmet-library-macgyver-devel >= 22.8.23
+#TestRequires: smartmet-test-db >= 22.4.14
 #TestRequires: smartmet-utils-devel >= 22.2.8
 
 %description
@@ -77,8 +77,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 22.6.16
-Requires: smartmet-library-spine >= 22.6.16
+Requires: smartmet-library-gis >= 22.7.27
+Requires: smartmet-library-spine >= 22.8.25
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
@@ -106,6 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Aug 25 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.25-1.fmi
+- Use a generic exception handler for configuration file errors
+
 * Mon Aug  1 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.1-1.fmi
 - Silenced compiler warning on potential use of nullptr
 

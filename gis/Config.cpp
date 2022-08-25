@@ -10,6 +10,7 @@
 #include <macgyver/TimeParser.h>
 #include <proj/io.hpp>
 #include <spine/ConfigBase.h>
+#include <spine/Exceptions.h>
 #include <sqlite3pp/sqlite3pp.h>
 #include <sqlite3pp/sqlite3ppext.h>
 #include <cpl_conv.h>  // For configuring GDAL
@@ -377,25 +378,9 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
       read_epsg_settings();
       read_postgis_info();
     }
-    catch (const libconfig::SettingException& err)
+    catch (...)
     {
-      throw Fmi::Exception(BCP, "Configuration file setting error!")
-          .addParameter("Configuration file", itsFileName)
-          .addParameter("Path", err.getPath())
-          .addParameter("Error description", err.what());
-    }
-    catch (const libconfig::ParseException& err)
-    {
-      throw Fmi::Exception(BCP, "Configuration file parsing failed!")
-          .addParameter("Configuration file", itsFileName)
-          .addParameter("Error line", std::to_string(err.getLine()))
-          .addParameter("Error description", err.getError());
-    }
-    catch (const libconfig::ConfigException& err)
-    {
-      throw Fmi::Exception(BCP, "Configuration exception!")
-          .addParameter("Configuration file", itsFileName)
-          .addParameter("Error description", err.what());
+      Spine::Exceptions::handle("GIS engine");
     }
   }
   catch (...)
