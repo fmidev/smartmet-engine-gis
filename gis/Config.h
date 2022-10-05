@@ -4,7 +4,6 @@
 
 #include "EPSG.h"
 #include <boost/optional.hpp>
-#include <boost/utility.hpp>
 #include <spine/CRSRegistry.h>
 #include <libconfig.h++>
 #include <string>
@@ -26,10 +25,12 @@ struct postgis_connection_info
   std::string encoding;
 };
 
-class Config : private boost::noncopyable
+class Config
 {
  public:
   Config() = delete;
+  Config(const Config& other) = delete;
+  Config& operator=(const Config& other) = delete;
   Config(std::string theFileName);
 
   // return the CRS registry
