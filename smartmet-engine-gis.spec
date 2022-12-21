@@ -4,7 +4,7 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 22.12.21
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -37,7 +37,7 @@ Requires: sqlite-libs
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 22.12.14
+BuildRequires: smartmet-library-gis-devel >= 22.12.21
 BuildRequires: smartmet-library-newbase-devel >= 22.11.14
 BuildRequires: smartmet-library-spine-devel >= 22.12.2
 BuildRequires: smartmet-library-macgyver-devel >= 22.12.16
@@ -52,7 +52,7 @@ Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
 Requires: gdal34-libs
 Requires: geos310
-Requires: smartmet-library-gis >= 22.12.14
+Requires: smartmet-library-gis >= 22.12.21
 Requires: smartmet-library-spine >= 22.12.2
 Requires: smartmet-library-macgyver >= 22.12.16
 Provides: %{SPECNAME}
@@ -62,7 +62,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal34-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 22.12.14
+#TestRequires: smartmet-library-gis-devel >= 22.12.21
 #TestRequires: smartmet-library-regression >= 21.11.23
 #TestRequires: smartmet-library-spine-devel >= 22.12.2
 #TestRequires: smartmet-library-macgyver-devel >= 22.12.16
@@ -77,7 +77,7 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 22.12.14
+Requires: smartmet-library-gis >= 22.12.21
 Requires: smartmet-library-spine >= 22.12.2
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
@@ -106,6 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Dec 21 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.12.21-2.fmi
+- Repackaged since GIS-library ABI changed
+
 * Wed Dec 21 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.12.21-1.fmi
 - Silenced several CodeChecker warnings
 
