@@ -107,7 +107,10 @@ std::string WKT(const OGRGeometry &geometry)
   }
 }
 
-GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv) : conv(theConv) {}
+GeometryConv::GeometryConv(boost::function1<NFmiPoint, NFmiPoint> theConv)
+    : conv(std::move(theConv))
+{
+}
 
 GeometryConv::~GeometryConv() = default;
 
@@ -190,19 +193,22 @@ int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *
 }
 #endif
 
-#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR  == 3 && GDAL_VERSION_MINOR >= 3)
-int GeometryConv::TransformWithErrorCodes(
-    int, double *, double *, double *, double *, int *)
+#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 3)
+int GeometryConv::TransformWithErrorCodes(int /* nCount*/,
+                                          double * /* x */,
+                                          double * /* y */,
+                                          double * /* z */,
+                                          double * /* t */,
+                                          int * /* panErrorCodes */)
 {
   throw Fmi::Exception(BCP, "Attempt to call GeometryConv::TransformWithErrorCodes");
 }
 
-OGRCoordinateTransformation* GeometryConv::GetInverse() const
+OGRCoordinateTransformation *GeometryConv::GetInverse() const
 {
   throw Fmi::Exception(BCP, "Attempt to call GeometryConv::GetInverse");
 }
 #endif
-
 
 }  // namespace Gis
 }  // namespace Engine

@@ -321,7 +321,8 @@ void Config::read_epsg_settings()
         .addParameter("Configuration file", itsFileName);
 
   // TODO(mheiskan) deprecated settings
-  else if (has_bbox)
+
+  if (has_bbox)
     read_bbox_settings();
   else if (has_epsg)
   {
@@ -363,7 +364,7 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
     try
     {
       // Enable sensible relative include paths
-      boost::filesystem::path p = theFileName;
+      boost::filesystem::path p = itsFileName;
       p.remove_filename();
       itsConfig.setIncludeDir(p.c_str());
 

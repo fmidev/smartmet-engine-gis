@@ -32,7 +32,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
   // constructor is available only with a libconfig configuration file
 
   Engine() = delete;
-  Engine(const std::string& theFileName);
+  explicit Engine(std::string theFileName);
 
   // return the CRS registry
   Spine::CRSRegistry& getCRSRegistry();
@@ -53,7 +53,7 @@ class Engine : public SmartMet::Spine::SmartMetEngine
                                GeometryStorage& theGeometryStorage) const;
 
  protected:
-  virtual void init() override;
+  void init() override;
   void shutdown() override;
 
  private:

@@ -28,10 +28,14 @@ struct postgis_connection_info
 class Config
 {
  public:
+  ~Config() = default;
+  explicit Config(std::string theFileName);
+
   Config() = delete;
   Config(const Config& other) = delete;
   Config& operator=(const Config& other) = delete;
-  Config(std::string theFileName);
+  Config(Config&& other) = delete;
+  Config& operator=(Config&& other) = delete;
 
   // return the CRS registry
   Spine::CRSRegistry& getCRSRegistry();

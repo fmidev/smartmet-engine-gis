@@ -30,11 +30,11 @@ struct postgis_identifier
   std::string schema;
   std::string table;
   std::string field;
-  std::string key()
+  std::string key() const
   {
     return (source_name + ";" + pgname + ";" + schema + ";" + table + ";" + field);
   }
-  bool allFieldsDefined()
+  bool allFieldsDefined() const
   {
     return (!pgname.empty() && !schema.empty() && !table.empty() && !field.empty());
   }

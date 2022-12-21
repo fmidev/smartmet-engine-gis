@@ -84,6 +84,38 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
     throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
+
+Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOptions)
+{
+  Fmi::Features newfeatures;
+  for (const auto& feature : theFeatures)
+  {
+    Fmi::FeaturePtr newfeature;
+    if (theOptions.minarea)
+      newfeature->geom.reset(Fmi::OGR::despeckle(*(feature->geom), *theOptions.minarea));
+
+    if (theOptions.mindistance && newfeature && newfeature->geom)
+    {
+      const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
+      const double kilometers_to_meters = 1000;
+
+      OGRSpatialReference* crs = newfeature->geom->getSpatialReference();
+      bool geographic = (crs ? crs->IsGeographic() : false);
+
+      if (!geographic)
+        newfeature->geom.reset(newfeature->geom->SimplifyPreserveTopology(
+            kilometers_to_meters * (*theOptions.mindistance)));
+      else
+        newfeature->geom.reset(newfeature->geom->SimplifyPreserveTopology(
+            kilometers_to_degrees * (*theOptions.mindistance)));
+    }
+
+    if (newfeature && newfeature->geom)
+      newfeatures.push_back(newfeature);
+  }
+  return newfeatures;
+}
+
 }  // namespace
 
 // ----------------------------------------------------------------------
@@ -194,7 +226,7 @@ OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
  */
 // ----------------------------------------------------------------------
 
-Engine::Engine(const std::string& theFileName) : itsConfigFile(theFileName) {}
+Engine::Engine(std::string theFileName) : itsConfigFile(std::move(theFileName)) {}
 
 // ----------------------------------------------------------------------
 /*!
@@ -403,32 +435,7 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
 
     // Apply simplification options
 
-    Fmi::Features newfeatures;
-    for (const auto& feature : ret)
-    {
-      Fmi::FeaturePtr newfeature;
-      if (theOptions.minarea)
-        newfeature->geom.reset(Fmi::OGR::despeckle(*(feature->geom), *theOptions.minarea));
-
-      if (theOptions.mindistance && newfeature && newfeature->geom)
-      {
-        const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
-        const double kilometers_to_meters = 1000;
-
-        OGRSpatialReference* crs = newfeature->geom->getSpatialReference();
-        bool geographic = (crs ? crs->IsGeographic() : false);
-
-        if (!geographic)
-          newfeature->geom.reset(newfeature->geom->SimplifyPreserveTopology(
-              kilometers_to_meters * (*theOptions.mindistance)));
-        else
-          newfeature->geom.reset(newfeature->geom->SimplifyPreserveTopology(
-              kilometers_to_degrees * (*theOptions.mindistance)));
-      }
-
-      if (newfeature && newfeature->geom)
-        newfeatures.push_back(newfeature);
-    }
+    Fmi::Features newfeatures = simplify(ret, theOptions);
 
     // Cache the result
     if (!newfeatures.empty())

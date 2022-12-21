@@ -142,14 +142,12 @@ std::list<std::string> GeometryStorage::areaNames() const
   try
   {
     std::list<std::string> return_list;
+
     for (const auto& item : itsPolygons)
-    {
       return_list.push_back(item.first);
-    }
+
     for (const auto& item : itsPoints)
-    {
       return_list.push_back(item.first);
-    }
 
     return return_list;
   }
