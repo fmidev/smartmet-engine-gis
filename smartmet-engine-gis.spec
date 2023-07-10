@@ -20,8 +20,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
-BuildRequires: gdal34-devel
-BuildRequires: geos310-devel
+BuildRequires: gdal35-devel
+BuildRequires: geos311-devel
 
 %if %{defined el7}
 BuildRequires: proj72-devel
@@ -29,19 +29,19 @@ BuildRequires: sqlite33-devel
 Requires: proj72
 Requires: sqlite33-libs
 %else
-BuildRequires: proj82-devel
+BuildRequires: proj90-devel
 BuildRequires: sqlite-devel
-Requires: proj82
+Requires: proj90
 Requires: sqlite-libs
 %endif
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 22.12.21
-BuildRequires: smartmet-library-newbase-devel >= 22.11.14
-BuildRequires: smartmet-library-spine-devel >= 22.12.2
+BuildRequires: smartmet-library-gis-devel >= 23.7.10
+BuildRequires: smartmet-library-newbase-devel >= 23.7.10
+BuildRequires: smartmet-library-spine-devel >= 23.7.10
 BuildRequires: smartmet-library-macgyver-devel >= 22.12.16
-BuildRequires: smartmet-utils-devel >= 22.12.14
+BuildRequires: smartmet-utils-devel >= 23.7.7
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
 Requires: %{smartmet_boost}-date-time
@@ -50,24 +50,24 @@ Requires: %{smartmet_boost}-iostreams
 Requires: %{smartmet_boost}-regex
 Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
-Requires: gdal34-libs
-Requires: geos310
-Requires: smartmet-library-gis >= 22.12.21
-Requires: smartmet-library-spine >= 22.12.2
+Requires: gdal35-libs
+Requires: geos311
+Requires: smartmet-library-gis >= 23.7.10
+Requires: smartmet-library-spine >= 23.7.10
 Requires: smartmet-library-macgyver >= 22.12.16
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
-#TestRequires: gdal34-devel
+#TestRequires: gdal35-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 22.12.21
+#TestRequires: smartmet-library-gis-devel >= 23.7.10
 #TestRequires: smartmet-library-regression >= 21.11.23
-#TestRequires: smartmet-library-spine-devel >= 22.12.2
+#TestRequires: smartmet-library-spine-devel >= 23.7.10
 #TestRequires: smartmet-library-macgyver-devel >= 22.12.16
-#TestRequires: smartmet-test-db >= 22.4.14
-#TestRequires: smartmet-utils-devel >= 22.12.14
+#TestRequires: smartmet-test-db >= 23.7.7
+#TestRequires: smartmet-utils-devel >= 23.7.7
 
 %description
 FMI SmartMet gis engine
