@@ -44,6 +44,7 @@ BuildRequires: smartmet-library-macgyver-devel >= 22.12.16
 BuildRequires: smartmet-utils-devel >= 23.7.7
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
+BuildRequires: libcurl-devel
 Requires: %{smartmet_boost}-date-time
 Requires: %{smartmet_boost}-filesystem
 Requires: %{smartmet_boost}-iostreams
