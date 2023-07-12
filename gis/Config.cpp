@@ -10,6 +10,7 @@
 #include <macgyver/TimeParser.h>
 #include <proj/io.hpp>
 #include <spine/ConfigBase.h>
+#include <spine/ConfigTools.h>
 #include <spine/Exceptions.h>
 #include <sqlite3pp/sqlite3pp.h>
 #include <sqlite3pp/sqlite3ppext.h>
@@ -369,6 +370,7 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
       itsConfig.setIncludeDir(p.c_str());
 
       itsConfig.readFile(itsFileName.c_str());
+      Spine::expandVariables(itsConfig);
 
       itsConfig.lookupValue("quiet", itsQuiet);
 
