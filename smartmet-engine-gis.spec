@@ -38,9 +38,9 @@ Requires: sqlite-libs
 BuildRequires: make
 BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 23.7.10
-BuildRequires: smartmet-library-newbase-devel >= 23.7.10
-BuildRequires: smartmet-library-spine-devel >= 23.7.10
-BuildRequires: smartmet-library-macgyver-devel >= 23.6.6
+BuildRequires: smartmet-library-newbase-devel >= 23.7.28
+BuildRequires: smartmet-library-spine-devel >= 23.7.28
+BuildRequires: smartmet-library-macgyver-devel >= 23.7.28
 BuildRequires: smartmet-utils-devel >= 23.7.7
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
@@ -54,8 +54,8 @@ Requires: %{smartmet_boost}-thread
 Requires: gdal35-libs
 Requires: geos311
 Requires: smartmet-library-gis >= 23.7.10
-Requires: smartmet-library-spine >= 23.7.10
-Requires: smartmet-library-macgyver >= 23.6.6
+Requires: smartmet-library-spine >= 23.7.28
+Requires: smartmet-library-macgyver >= 23.7.28
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -65,8 +65,8 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 23.7.10
 #TestRequires: smartmet-library-regression >= 21.11.23
-#TestRequires: smartmet-library-spine-devel >= 23.7.10
-#TestRequires: smartmet-library-macgyver-devel >= 23.6.6
+#TestRequires: smartmet-library-spine-devel >= 23.7.28
+#TestRequires: smartmet-library-macgyver-devel >= 23.7.28
 #TestRequires: smartmet-test-db >= 23.7.7
 #TestRequires: smartmet-utils-devel >= 23.7.7
 
@@ -79,7 +79,7 @@ Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
 Requires: smartmet-library-gis >= 23.6.7
-Requires: smartmet-library-spine >= 23.6.13
+Requires: smartmet-library-spine >= 23.7.28
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
