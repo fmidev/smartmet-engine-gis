@@ -9,6 +9,9 @@
 #include <ogr_geometry.h>
 #include <ogr_spatialref.h>
 
+#undef GDAL_VERSION_ID
+#define GDAL_VERSION_ID (100*GDAL_VERSION_MAJOR + GDAL_VERSION_MINOR)
+
 namespace SmartMet
 {
 namespace Engine
@@ -39,11 +42,11 @@ class GeometryConv : public OGRCoordinateTransformation
 #else
   int Transform(int nCount, double *x, double *y, double *z, double *t, int *pabSuccess) override;
 
-#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 1)
+#if GDAL_VERSION_ID >= 301
   OGRCoordinateTransformation *Clone() const override;
 #endif
 
-#if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 3)
+#if GDAL_VERSION_ID >= 303
   int TransformWithErrorCodes(
       int nCount, double *x, double *y, double *z, double *t, int *panErrorCodes) override;
 
@@ -53,8 +56,13 @@ class GeometryConv : public OGRCoordinateTransformation
 #endif
 
  private:
+#if GDAL_VERSION_ID >= 307
+  const OGRSpatialReference *GetSourceCS() const override { return nullptr; }
+  const OGRSpatialReference *GetTargetCS() const override { return nullptr; }
+#else
   OGRSpatialReference *GetSourceCS() override { return nullptr; }
   OGRSpatialReference *GetTargetCS() override { return nullptr; }
+#endif
 
   boost::function1<NFmiPoint, NFmiPoint> conv;
 };

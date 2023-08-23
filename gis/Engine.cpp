@@ -99,7 +99,7 @@ Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOp
       const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
       const double kilometers_to_meters = 1000;
 
-      OGRSpatialReference* crs = newfeature->geom->getSpatialReference();
+      auto* crs = newfeature->geom->getSpatialReference();
       bool geographic = (crs ? crs->IsGeographic() : false);
 
       if (!geographic)
@@ -354,7 +354,7 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
       const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
       const double kilometers_to_meters = 1000;
 
-      OGRSpatialReference* crs = geom->getSpatialReference();
+      auto* crs = geom->getSpatialReference();
       bool geographic = (crs ? crs->IsGeographic() : false);
       if (!geographic)
         geom.reset(
