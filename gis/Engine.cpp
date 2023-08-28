@@ -5,6 +5,7 @@
 #include <gis/Box.h>
 #include <gis/CoordinateMatrixCache.h>
 #include <gis/CoordinateTransformation.h>
+#include <gis/EPSGInfo.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/OGRSpatialReferenceFactory.h>
@@ -635,42 +636,6 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
   }
 }
 
-// ----------------------------------------------------------------------
-/*!
- * \brief Return the bounding box for a EPSG
- */
-// ----------------------------------------------------------------------
-
-BBox Engine::getBBox(int theEPSG) const
-{
-  try
-  {
-    return itsConfig->getBBox(theEPSG);
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-// ----------------------------------------------------------------------
-/*!
- * \brief Return EPSG information
- */
-// ----------------------------------------------------------------------
-
-boost::optional<EPSG> Engine::getEPSG(int theEPSG) const
-{
-  try
-  {
-    return itsConfig->getEPSG(theEPSG);
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
 void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISIdentifiers,
                                      GeometryStorage& theGeometryStorage) const
 {
@@ -871,6 +836,7 @@ Fmi::Cache::CacheStatistics Engine::getCacheStats() const
                             Fmi::OGRSpatialReferenceFactory::getCacheStats()));
   ret.insert(std::make_pair("Gis::gis-library::coordinate_matrix_cache",
                             Fmi::CoordinateMatrixCache::getCacheStats()));
+  ret.insert(std::make_pair("Gis::gis-library::epsginfo_cache", Fmi::EPSGInfo::getCacheStats()));
 
   return ret;
 }

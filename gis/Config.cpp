@@ -186,7 +186,7 @@ void Config::read_gdal_settings()
   }
 }
 
-BBox Config::read_bbox(const libconfig::Setting& theSetting) const
+Fmi::BBox Config::read_bbox(const libconfig::Setting& theSetting) const
 {
   if (!theSetting.isArray())
   {
@@ -205,148 +205,7 @@ BBox Config::read_bbox(const libconfig::Setting& theSetting) const
   double e = theSetting[1];
   double s = theSetting[2];
   double n = theSetting[3];
-  return BBox{w, e, s, n};
-}
-
-EPSG Config::read_epsg(const libconfig::Setting& theSetting) const
-{
-  if (!theSetting.isGroup())
-  {
-    throw Fmi::Exception(BCP, "The 'epsg' elements must be groups!")
-        .addParameter("Configuration file", itsFileName);
-  }
-
-  if (!theSetting.exists("id"))
-    throw Fmi::Exception(BCP, "The 'epsg' elements must have an 'id' field");
-  if (!theSetting.exists("bbox"))
-    throw Fmi::Exception(BCP, "The 'epsg' elements must have a 'bbox' field");
-
-  EPSG epsg;
-  epsg.bbox = read_bbox(theSetting["bbox"]);
-  theSetting.lookupValue("id", epsg.number);
-  theSetting.lookupValue("name", epsg.name);
-  theSetting.lookupValue("scope", epsg.scope);
-  theSetting.lookupValue("deprecated", epsg.deprecated);
-  return epsg;
-}
-
-void Config::read_proj_db()
-{
-  try
-  {
-    auto db_context = NS_PROJ::io::DatabaseContext::create().as_nullable();
-    auto* sqlite_handle = reinterpret_cast<sqlite3*>(db_context->getSqliteHandle());
-    auto projdb = sqlite3pp::ext::borrow(sqlite_handle);
-
-    sqlite3pp::query qry(projdb,
-                         "select usage.object_code,extent.west_lon,extent.east_lon,\
-extent.south_lat,extent.north_lat,projected_crs.name,scope.scope,projected_crs.deprecated \
-from projected_crs,extent,scope,usage where extent.code=usage.extent_code and \
-scope.code=usage.scope_code and projected_crs.code=usage.object_code and \
-usage.object_auth_name='EPSG' and usage.object_table_name='projected_crs' and \
-projected_crs.auth_name='EPSG' and scope.auth_name='EPSG' and extent.auth_name='EPSG'");
-
-    for (const auto& row : qry)
-    {
-      EPSG epsg;
-      epsg.number = Fmi::stoi(row.get<std::string>(0));
-      epsg.bbox.west = row.get<double>(1);
-      epsg.bbox.east = row.get<double>(2);
-      epsg.bbox.south = row.get<double>(3);
-      epsg.bbox.north = row.get<double>(4);
-      epsg.name = row.get<std::string>(5);
-      epsg.scope = row.get<std::string>(6);
-      epsg.deprecated = row.get<bool>(7);
-
-      // If longitude_east < longitude_west, add 360.0 to logitude_east
-      if (epsg.bbox.east < epsg.bbox.west)
-        epsg.bbox.east += 360.0;
-
-      if (itsEPSGMap.find(epsg.number) != itsEPSGMap.end())
-      {
-        // Handle duplicates, use projection with larger area
-        const EPSG& ex_epsg = itsEPSGMap.at(epsg.number);
-        double ex_area =
-            (ex_epsg.bbox.east - ex_epsg.bbox.west) * (ex_epsg.bbox.north - ex_epsg.bbox.south);
-        double duplicate_area =
-            (epsg.bbox.east - epsg.bbox.west) * (epsg.bbox.north - epsg.bbox.south);
-
-        if (duplicate_area > ex_area)
-          itsEPSGMap[epsg.number] = epsg;
-      }
-      else
-        itsEPSGMap.insert(std::make_pair(epsg.number, epsg));
-    }
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Reading proj.db file failed!");
-  }
-}
-
-// TODO(mheiskan) Deprecated
-void Config::read_bbox_settings()
-{
-  std::cerr << "Warning: gis-engine bbox setting is deprecated, please use epsg setting instead"
-            << std::endl;
-
-  const auto& bboxes = itsConfig.lookup("bbox");
-  if (!bboxes.isGroup())
-  {
-    throw Fmi::Exception(BCP, "The 'bbox' attribute must be a group!")
-        .addParameter("Configuration file", itsFileName);
-  }
-
-  for (int i = 0; i < bboxes.getLength(); i++)
-  {
-    const auto& value = bboxes[i];
-    std::string field_name = value.getName();
-    int id = boost::lexical_cast<int>(field_name.substr(5));
-
-    EPSG epsg;
-    epsg.bbox = read_bbox(value);
-    epsg.number = id;
-
-    itsEPSGMap.insert(std::make_pair(id, std::move(epsg)));
-  }
-}
-
-void Config::read_epsg_settings()
-{
-  const bool has_bbox = itsConfig.exists("bbox");
-  const bool has_epsg = itsConfig.exists("epsg");
-
-  if (has_bbox && has_epsg)
-    throw Fmi::Exception(BCP,
-                         "The config has both bbox and epsg settings, the former are deprecated")
-        .addParameter("Configuration file", itsFileName);
-
-  // TODO(mheiskan) deprecated settings
-
-  if (has_bbox)
-    read_bbox_settings();
-  else if (has_epsg)
-  {
-    // New style settings
-
-    const auto& epsg_list = itsConfig.lookup("epsg");
-
-    if (!epsg_list.isList())
-    {
-      throw Fmi::Exception(BCP, "The 'epsg' attribute must be a list of groups!")
-          .addParameter("Configuration file", itsFileName);
-    }
-
-    for (int i = 0; i < epsg_list.getLength(); i++)
-    {
-      EPSG epsg = read_epsg(epsg_list[i]);
-      itsEPSGMap.insert(std::make_pair(epsg.number, std::move(epsg)));
-    }
-  }
-  else
-  {
-    read_proj_db();
-  }
+  return {w, e, s, n};
 }
 
 // ----------------------------------------------------------------------
@@ -378,8 +237,18 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
       read_postgis_settings();
       read_cache_settings();
       read_gdal_settings();
-      read_epsg_settings();
       read_postgis_info();
+
+      if (itsConfig.exists("bbox"))
+        std::cerr
+            << "Warning: GIS-engine configuration file setting 'bbox' is deprecated, using PROJ "
+               "library database instead"
+            << std::endl;
+      if (itsConfig.exists("epsg"))
+        std::cerr
+            << "Warning: GIS-engine configuration file setting 'epsg' is deprecated, using PROJ "
+               "library database instead"
+            << std::endl;
     }
     catch (...)
     {
@@ -395,36 +264,6 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
 Spine::CRSRegistry& Config::getCRSRegistry()
 {
   return itsCRSRegistry;
-}
-
-BBox Config::getBBox(int theEPSG) const
-{
-  try
-  {
-    const auto it = itsEPSGMap.find(theEPSG);
-    if (it != itsEPSGMap.end())
-      return it->second.bbox;
-    return BBox{-180, 180, -90, 90};
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
-}
-
-boost::optional<EPSG> Config::getEPSG(int theEPSG) const
-{
-  try
-  {
-    const auto it = itsEPSGMap.find(theEPSG);
-    if (it != itsEPSGMap.end())
-      return it->second;
-    return {};
-  }
-  catch (...)
-  {
-    throw Fmi::Exception::Trace(BCP, "Operation failed!");
-  }
 }
 
 const postgis_connection_info& Config::getPostGISConnectionInfo(const std::string& thePGName) const
@@ -471,8 +310,8 @@ boost::optional<int> Config::getDefaultEPSG() const
  */
 // ----------------------------------------------------------------------
 
-boost::optional<BBox> Config::getTableBBox(const std::string& theSchema,
-                                           const std::string& theTable) const
+boost::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
+                                                const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
   auto pos = itsPostGisBBoxMap.find(key);
