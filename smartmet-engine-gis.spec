@@ -67,7 +67,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: smartmet-library-regression >= 21.11.23
 #TestRequires: smartmet-library-spine-devel >= 23.8.8
 #TestRequires: smartmet-library-macgyver-devel >= 23.8.21
-#TestRequires: smartmet-test-db >= 23.7.21 smartmet-test-db is not installed
+#TestRequires: smartmet-test-db >= 23.7.21
 #TestRequires: smartmet-utils-devel >= 23.8.23
 
 %description
