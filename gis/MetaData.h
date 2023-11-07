@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <macgyver/DateTime.h>
 #include <boost/optional.hpp>
 #include <vector>
 
@@ -29,15 +29,15 @@ struct MetaDataQueryOptions
 
 struct TimeInterval
 {
-  boost::posix_time::ptime starttime;
-  boost::posix_time::ptime endtime;
-  boost::posix_time::time_duration timestep;
+  Fmi::DateTime starttime;
+  Fmi::DateTime endtime;
+  Fmi::TimeDuration timestep;
 };
 
 struct MetaData
 {
   // list of steps or fixed steps
-  std::vector<boost::posix_time::ptime> timesteps;
+  std::vector<Fmi::DateTime> timesteps;
   boost::optional<TimeInterval> timeinterval;
 
   // bounding box of geometries

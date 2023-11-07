@@ -12,6 +12,7 @@
 #include <gis/PostGIS.h>
 #include <macgyver/Exception.h>
 #include <macgyver/StringConversion.h>
+#include <macgyver/DateTime.h>
 #include <spine/Reactor.h>
 #include <gdal_version.h>
 #include <memory>

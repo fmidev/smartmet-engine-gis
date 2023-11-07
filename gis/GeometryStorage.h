@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <macgyver/DateTime.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 #include <gis/OGR.h>
@@ -45,7 +45,7 @@ struct AttributeToString : public boost::static_visitor<std::string>
   std::string operator()(const std::string& s) const { return s; }
   std::string operator()(double d) const { return Fmi::to_string(d); }
   std::string operator()(int i) const { return Fmi::to_string(i); }
-  std::string operator()(const boost::posix_time::ptime& t) const
+  std::string operator()(const Fmi::DateTime& t) const
   {
     return boost::posix_time::to_iso_string(t);
   }
