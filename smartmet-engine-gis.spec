@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 23.8.28
+Version: 24.1.30
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -107,6 +107,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Tue Jan 30 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> 24.1.30-1.fmi
+- Repackaged due to newbase ABI changes
+
 * Mon Aug 28 2023 Mika Heiskanen <mika.heiskanen@fmi.fi> - 23.8.28-1.fmi
 - Moved some functionality to GIS-library to avoid a dependency between Contour-engine
 - Removed reading EPSG information from configuration files as obsolete, using PROJ database instead
