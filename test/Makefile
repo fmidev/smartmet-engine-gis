@@ -21,6 +21,7 @@ LIBS += \
 	../gis.so \
 	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
+	-lsmartmet-macgyver \
 	-lboost_date_time \
 	-lboost_thread \
 	-lboost_filesystem \

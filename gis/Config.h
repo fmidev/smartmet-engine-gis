@@ -47,7 +47,7 @@ class Config
   boost::optional<int> getDefaultEPSG() const;
   boost::optional<Fmi::BBox> getTableBBox(const std::string& theSchema,
                                           const std::string& theTable) const;
-  boost::optional<boost::posix_time::time_duration> getTableTimeStep(
+  boost::optional<Fmi::TimeDuration> getTableTimeStep(
       const std::string& theSchema, const std::string& theTable) const;
 
   bool quiet() const;
@@ -83,7 +83,7 @@ class Config
   using PostGisBBoxMap = std::map<std::string, Fmi::BBox>;
   PostGisBBoxMap itsPostGisBBoxMap;
 
-  using PostGisTimeStepMap = std::map<std::string, boost::posix_time::time_duration>;
+  using PostGisTimeStepMap = std::map<std::string, Fmi::TimeDuration>;
   PostGisTimeStepMap itsPostGisTimeStepMap;
 };
 

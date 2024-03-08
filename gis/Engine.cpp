@@ -517,7 +517,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
           timeinfo.tm_year -= 1900;  // years after 1900
           timeinfo.tm_mon -= 1;      // months 0..11
 
-          metadata.timesteps.push_back(boost::posix_time::ptime_from_tm(timeinfo));
+          metadata.timesteps.push_back(Fmi::DateTime::from_tm(timeinfo));
         }
       }
 
@@ -572,8 +572,8 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
           end_tm.tm_year -= 1900;  // years after 1900
           end_tm.tm_mon -= 1;      // months 0..11
 
-          auto starttime = boost::posix_time::ptime_from_tm(start_tm);
-          auto endtime = boost::posix_time::ptime_from_tm(end_tm);
+          auto starttime = Fmi::DateTime::from_tm(start_tm);
+          auto endtime = Fmi::DateTime::from_tm(end_tm);
           metadata.timeinterval = TimeInterval{starttime, endtime, *timestep};
         }
       }

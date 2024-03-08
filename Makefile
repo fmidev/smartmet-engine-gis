@@ -10,10 +10,10 @@ DEFINES = -DUNIX -D_REENTRANT
 
 LIBS += -L$(libdir) \
 	$(REQUIRED_LIBS) \
-	-lsmartmet-macgyver \
 	-lsmartmet-gis \
 	-lsmartmet-spine \
 	-lsmartmet-newbase \
+	-lsmartmet-macgyver \
 	-lboost_regex \
 	-lboost_date_time \
 	-lboost_thread \

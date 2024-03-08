@@ -47,7 +47,7 @@ struct AttributeToString : public boost::static_visitor<std::string>
   std::string operator()(int i) const { return Fmi::to_string(i); }
   std::string operator()(const Fmi::DateTime& t) const
   {
-    return boost::posix_time::to_iso_string(t);
+    return Fmi::date_time::to_iso_string(t);
   }
 };
 

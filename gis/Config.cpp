@@ -16,6 +16,7 @@
 #include <sqlite3pp/sqlite3ppext.h>
 #include <cpl_conv.h>  // For configuring GDAL
 #include <sqlite3.h>
+#include <iostream>
 #include <stdexcept>
 
 namespace SmartMet
@@ -326,7 +327,7 @@ boost::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
  */
 // ----------------------------------------------------------------------
 
-boost::optional<boost::posix_time::time_duration> Config::getTableTimeStep(
+boost::optional<Fmi::TimeDuration> Config::getTableTimeStep(
     const std::string& theSchema, const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
