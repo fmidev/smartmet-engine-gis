@@ -6,6 +6,7 @@ Dependencies*
 doc/
 obj/
 *Test
+/test/tmp-geonames-db*
 .sconsign.dblite
 *.pb.h
 *.pb.cpp
