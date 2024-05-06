@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 24.4.17
+Version: 24.5.6
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -107,6 +107,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon May  6 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.5.6-1.fmi
+- Use Date library (https://github.com/HowardHinnant/date) instead of boost date_time
+
 * Wed Apr 17 2024 Mika Heiskanen <mheiskan@rhel8.dev.fmi.fi> - 24.4.17-1.fmi
 - Force traditional axis mapping strategy for features read from the database
 
