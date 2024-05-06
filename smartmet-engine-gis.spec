@@ -54,8 +54,8 @@ Requires: %{smartmet_boost}-thread
 Requires: gdal35-libs
 Requires: geos311
 Requires: smartmet-library-gis >= 24.3.25
-Requires: smartmet-library-spine >= 24.4.5
-Requires: smartmet-library-macgyver >= 24.1.17
+Requires: smartmet-library-spine >= 24.5.6-1
+Requires: smartmet-library-macgyver >= 24.5.6-1
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -79,7 +79,7 @@ Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
 Requires: smartmet-library-gis >= 24.3.25
-Requires: smartmet-library-spine >= 24.4.5
+Requires: smartmet-library-spine >= 24.5.6-1
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
