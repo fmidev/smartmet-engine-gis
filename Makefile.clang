@@ -53,7 +53,6 @@ LIBS = -L$(libdir) \
 	-lsmartmet-macgyver \
 	-lgeos \
 	-lgdal \
-	-lboost_date_time-mt \
 	-lboost_thread-mt \
 	-lboost_filesystem-mt \
 	-lboost_iostreams-mt \
