@@ -45,7 +45,6 @@ BuildRequires: smartmet-utils-devel >= 24.3.13
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
 BuildRequires: libcurl-devel
-Requires: %{smartmet_boost}-date-time
 Requires: %{smartmet_boost}-filesystem
 Requires: %{smartmet_boost}-iostreams
 Requires: %{smartmet_boost}-regex
