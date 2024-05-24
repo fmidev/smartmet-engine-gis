@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 24.5.16
+Version: 24.5.24
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -37,11 +37,11 @@ Requires: sqlite-libs
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 24.3.25
-BuildRequires: smartmet-library-newbase-devel >= 24.3.11
-BuildRequires: smartmet-library-spine-devel >= 24.4.5
-BuildRequires: smartmet-library-macgyver-devel >= 24.1.17
-BuildRequires: smartmet-utils-devel >= 24.3.13
+BuildRequires: smartmet-library-gis-devel >= 24.4.24
+BuildRequires: smartmet-library-newbase-devel >= 24.5.17
+BuildRequires: smartmet-library-spine-devel >= 24.5.21
+BuildRequires: smartmet-library-macgyver-devel >= 24.5.16
+BuildRequires: smartmet-utils-devel >= 24.5.10
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
 BuildRequires: libcurl-devel
@@ -52,9 +52,9 @@ Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
 Requires: gdal35-libs
 Requires: geos311
-Requires: smartmet-library-gis >= 24.3.25
-Requires: smartmet-library-spine >= 24.5.6-1
-Requires: smartmet-library-macgyver >= 24.5.6-1
+Requires: smartmet-library-gis >= 24.4.24
+Requires: smartmet-library-spine >= 24.5.21
+Requires: smartmet-library-macgyver >= 24.5.16
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -62,12 +62,12 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal35-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 24.3.25
+#TestRequires: smartmet-library-gis-devel >= 24.4.24
 #TestRequires: smartmet-library-regression >= 21.11.23
-#TestRequires: smartmet-library-spine-devel >= 24.4.5
-#TestRequires: smartmet-library-macgyver-devel >= 24.1.17
-#TestRequires: smartmet-test-db >= 23.7.21
-#TestRequires: smartmet-utils-devel >= 24.3.13
+#TestRequires: smartmet-library-spine-devel >= 24.5.21
+#TestRequires: smartmet-library-macgyver-devel >= 24.5.16
+#TestRequires: smartmet-test-db >= 24.5.14
+#TestRequires: smartmet-utils-devel >= 24.5.10
 
 %description
 FMI SmartMet gis engine
@@ -77,8 +77,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 24.3.25
-Requires: smartmet-library-spine >= 24.5.6-1
+Requires: smartmet-library-gis >= 24.4.24
+Requires: smartmet-library-spine >= 24.5.21
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
@@ -106,6 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri May 24 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> - 24.5.24-1.fmi
+- Minor speed improvements
+
 * Thu May 16 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.5.16-1.fmi
 - Clean up boost date-time uses
 
