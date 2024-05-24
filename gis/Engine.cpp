@@ -10,9 +10,9 @@
 #include <gis/OGR.h>
 #include <gis/OGRSpatialReferenceFactory.h>
 #include <gis/PostGIS.h>
+#include <macgyver/DateTime.h>
 #include <macgyver/Exception.h>
 #include <macgyver/StringConversion.h>
-#include <macgyver/DateTime.h>
 #include <spine/Reactor.h>
 #include <gdal_version.h>
 #include <memory>
@@ -431,13 +431,14 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
         itsFeaturesCache.insert(basic_key, ret);
     }
 
-    // Set axis mapping strategy so that user does not have to clone spatial references which was bugged in proj 9.0
-    for(auto ptr : ret)
+    // Set axis mapping strategy so that user does not have to clone spatial references which was
+    // bugged in proj 9.0
+    for (const auto& ptr : ret)
     {
-       if(ptr && ptr->geom && ptr->geom->getSpatialReference() != nullptr)
-	 ptr->geom->getSpatialReference()->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+      if (ptr && ptr->geom && ptr->geom->getSpatialReference() != nullptr)
+        ptr->geom->getSpatialReference()->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
     }
-    
+
     // If no simplification was requested we're done
     if (!theOptions.minarea && !theOptions.mindistance)
       return ret;
@@ -659,7 +660,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
     // 'pgname:schema:table:field'
     std::set<std::string> pgKeys;
 
-    for (auto pgId : thePostGISIdentifiers)
+    for (const auto& pgId : thePostGISIdentifiers)
     {
       if (Spine::Reactor::isShuttingDown())
         return;
