@@ -20,20 +20,14 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
-BuildRequires: gdal35-devel
-BuildRequires: geos311-devel
+BuildRequires: gdal38-devel
+BuildRequires: geos312-devel
 
-%if %{defined el7}
-BuildRequires: proj72-devel
-BuildRequires: sqlite33-devel
-Requires: proj72
-Requires: sqlite33-libs
-%else
-BuildRequires: proj90-devel
+BuildRequires: proj94-devel
 BuildRequires: sqlite-devel
-Requires: proj90
+Requires: proj94
 Requires: sqlite-libs
-%endif
+
 
 BuildRequires: make
 BuildRequires: rpm-build
@@ -50,8 +44,8 @@ Requires: %{smartmet_boost}-iostreams
 Requires: %{smartmet_boost}-regex
 Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
-Requires: gdal35-libs
-Requires: geos311
+Requires: gdal38-libs
+Requires: geos312
 Requires: smartmet-library-gis >= 24.4.24
 Requires: smartmet-library-spine >= 24.5.21
 Requires: smartmet-library-macgyver >= 24.5.16
