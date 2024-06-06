@@ -435,8 +435,11 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
     // bugged in proj 9.0
     for (const auto& ptr : ret)
     {
-      if (ptr && ptr->geom && ptr->geom->getSpatialReference() != nullptr)
-        ptr->geom->getSpatialReference()->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+      if (ptr && ptr->geom && ptr->geom->getSpatialReference() != nullptr) {
+        const OGRSpatialReference* sr = ptr->geom->getSpatialReference();
+        // FIXME: real fix required instead of casting away const
+        const_cast<OGRSpatialReference*>(sr)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+      }
     }
 
     // If no simplification was requested we're done
