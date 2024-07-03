@@ -1,7 +1,7 @@
 #pragma once
 
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <newbase/NFmiPoint.h>
 #include <newbase/NFmiRect.h>
 #include <gdal_version.h>
@@ -18,11 +18,11 @@ namespace Engine
 {
 namespace Gis
 {
-boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect);
+std::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect);
 
-boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax, double ymax);
+std::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax, double ymax);
 
-boost::shared_ptr<OGRPolygon> bbox2polygon(
+std::shared_ptr<OGRPolygon> bbox2polygon(
     double xmin, double ymin, double xmax, double ymax, int num_side_points = 10);
 
 std::string WKT(const OGRGeometry &geometry);

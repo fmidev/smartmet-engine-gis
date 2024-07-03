@@ -300,7 +300,7 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
  */
 // ----------------------------------------------------------------------
 
-boost::optional<int> Config::getDefaultEPSG() const
+std::optional<int> Config::getDefaultEPSG() const
 {
   return itsDefaultEPSG;
 }
@@ -311,7 +311,7 @@ boost::optional<int> Config::getDefaultEPSG() const
  */
 // ----------------------------------------------------------------------
 
-boost::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
+std::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
                                                 const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
@@ -327,7 +327,7 @@ boost::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
  */
 // ----------------------------------------------------------------------
 
-boost::optional<Fmi::TimeDuration> Config::getTableTimeStep(
+std::optional<Fmi::TimeDuration> Config::getTableTimeStep(
     const std::string& theSchema, const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;

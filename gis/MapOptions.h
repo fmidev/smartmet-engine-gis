@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <set>
 #include <string>
 
@@ -22,9 +22,9 @@ struct MapOptions
   std::string schema;
   std::string table;
   std::set<std::string> fieldnames;
-  boost::optional<std::string> where;
-  boost::optional<double> minarea;
-  boost::optional<double> mindistance;
+  std::optional<std::string> where;
+  std::optional<double> minarea;
+  std::optional<double> mindistance;
 };
 
 }  // namespace Gis

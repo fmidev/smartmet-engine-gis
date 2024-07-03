@@ -733,7 +733,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
             // If that type of geometries not found, add new one
             NameOGRGeometryMap nameOGRGeometryMap;
             nameOGRGeometryMap.insert(
-                make_pair(geomName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+                make_pair(geomName, std::shared_ptr<OGRGeometry>(geom->clone())));
             theGeometryStorage.itsGeometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
           }
           else
@@ -744,12 +744,12 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
             if (nameOGRGeometryMap.find(geomName) == nameOGRGeometryMap.end())
             {
               nameOGRGeometryMap.insert(
-                  std::make_pair(geomName, boost::shared_ptr<OGRGeometry>(geom->clone())));
+                  std::make_pair(geomName, std::shared_ptr<OGRGeometry>(geom->clone())));
             }
             else
             {
               // Do the merge with the new and old one
-              boost::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[geomName];
+              std::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[geomName];
               if (geomType == wkbMultiLineString)
               {
                 // Multilinestrings are merged with addGeometryDirectly-function
