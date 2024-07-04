@@ -40,7 +40,7 @@ struct postgis_identifier
   }
 };
 
-struct AttributeToString : public boost::static_visitor<std::string>
+struct AttributeToString
 {
   std::string operator()(const std::string& s) const { return s; }
   std::string operator()(double d) const { return Fmi::to_string(d); }

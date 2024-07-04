@@ -690,7 +690,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
         {
           Fmi::Attribute attribute = feature->attributes.at(pgId.field);
           AttributeToString ats;
-          std::string geomName = boost::apply_visitor(ats, attribute);
+          std::string geomName = std::visit(ats, attribute);
           geomName += pgId.source_name;
 
           // Geometry name can not be empty, since it is used for example in timesries queries

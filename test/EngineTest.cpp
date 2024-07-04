@@ -28,8 +28,8 @@ void getFeatures()
     try
     {
       const auto &value = feature->attributes.at("numero");
-      if (value.which() != 0)
-        TEST_FAILED("Expecting fied 'numero' values to be integers");
+      if (value.index() != 0)
+        TEST_FAILED("Expecting find 'numero' values to be integers");
     }
     catch (...)
     {
