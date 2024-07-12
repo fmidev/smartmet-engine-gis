@@ -6,7 +6,7 @@
 #include "GeometryStorage.h"
 #include "MapOptions.h"
 #include "MetaData.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <gis/SpatialReference.h>
 #include <gis/Types.h>
 #include <macgyver/Cache.h>

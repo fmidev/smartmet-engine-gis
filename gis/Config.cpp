@@ -2,7 +2,7 @@
 
 #include "Config.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/format.hpp>
 #include <fmt/format.h>
 #include <macgyver/Exception.h>
@@ -32,7 +32,7 @@ void Config::read_crs_settings()
   if (!crs_dir.empty() && crs_dir[0] != '/')
   {
     // Handle relative paths assuming they are relative to the config itself
-    boost::filesystem::path p(itsFileName);
+    std::filesystem::path p(itsFileName);
     crs_dir = p.parent_path().string() + "/" + crs_dir;
   }
   itsCRSRegistry.read_crs_dir(crs_dir);
@@ -225,7 +225,7 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
     try
     {
       // Enable sensible relative include paths
-      boost::filesystem::path p = itsFileName;
+      std::filesystem::path p = itsFileName;
       p.remove_filename();
       itsConfig.setIncludeDir(p.c_str());
 
@@ -300,7 +300,7 @@ const postgis_connection_info& Config::getPostGISConnectionInfo(const std::strin
  */
 // ----------------------------------------------------------------------
 
-boost::optional<int> Config::getDefaultEPSG() const
+std::optional<int> Config::getDefaultEPSG() const
 {
   return itsDefaultEPSG;
 }
@@ -311,7 +311,7 @@ boost::optional<int> Config::getDefaultEPSG() const
  */
 // ----------------------------------------------------------------------
 
-boost::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
+std::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
                                                 const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
@@ -327,7 +327,7 @@ boost::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
  */
 // ----------------------------------------------------------------------
 
-boost::optional<Fmi::TimeDuration> Config::getTableTimeStep(
+std::optional<Fmi::TimeDuration> Config::getTableTimeStep(
     const std::string& theSchema, const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;

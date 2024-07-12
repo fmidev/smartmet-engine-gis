@@ -1,7 +1,7 @@
 #pragma once
 
 #include <macgyver/DateTime.h>
-#include <boost/optional.hpp>
+#include <optional>
 #include <vector>
 
 namespace SmartMet
@@ -23,7 +23,7 @@ struct MetaDataQueryOptions
   std::string schema;
   std::string table;
   std::string geometry_column;
-  boost::optional<std::string> time_column;
+  std::optional<std::string> time_column;
   std::size_t hash_value() const;
 };
 
@@ -38,7 +38,7 @@ struct MetaData
 {
   // list of steps or fixed steps
   std::vector<Fmi::DateTime> timesteps;
-  boost::optional<TimeInterval> timeinterval;
+  std::optional<TimeInterval> timeinterval;
 
   // bounding box of geometries
   double xmin = 0;
