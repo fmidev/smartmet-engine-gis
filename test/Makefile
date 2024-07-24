@@ -46,7 +46,7 @@ clean:
 	rm -f $(PROG) *~
 	rm -f cnf/gis.conf
 	-$(MAKE) stop-geonames-db
-	rm -rm tmp-geonames-db*
+	rm -rf tmp-geonames-db*
 
 test: $(PROG) $(TEST_PREPARE_TARGETS)
 	rm -f failures/*
