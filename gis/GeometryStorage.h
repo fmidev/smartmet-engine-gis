@@ -8,8 +8,8 @@
 #pragma once
 
 #include <macgyver/DateTime.h>
-#include <boost/shared_ptr.hpp>
-#include <boost/variant.hpp>
+#include <memory>
+#include <variant>
 #include <gis/OGR.h>
 #include <macgyver/StringConversion.h>
 #include <list>
@@ -40,7 +40,7 @@ struct postgis_identifier
   }
 };
 
-struct AttributeToString : public boost::static_visitor<std::string>
+struct AttributeToString
 {
   std::string operator()(const std::string& s) const { return s; }
   std::string operator()(double d) const { return Fmi::to_string(d); }
@@ -52,7 +52,7 @@ struct AttributeToString : public boost::static_visitor<std::string>
 };
 
 using PostGISIdentifierVector = std::vector<postgis_identifier>;
-using NameOGRGeometryMap = std::map<std::string, boost::shared_ptr<OGRGeometry> >;
+using NameOGRGeometryMap = std::map<std::string, std::shared_ptr<OGRGeometry> >;
 
 class GeometryStorage
 {

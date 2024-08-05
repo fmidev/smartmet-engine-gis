@@ -8,7 +8,7 @@ namespace Engine
 {
 namespace Gis
 {
-boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
+std::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
 {
   try
   {
@@ -19,7 +19,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
     boundary.addPoint(rect.Right(), rect.Bottom());
     boundary.closeRings();
 
-    boost::shared_ptr<OGRPolygon> result(new OGRPolygon);
+    std::shared_ptr<OGRPolygon> result(new OGRPolygon);
     result->addRing(&boundary);
 
     return result;
@@ -30,7 +30,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(const NFmiRect &rect)
   }
 }
 
-boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax, double ymax)
+std::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax, double ymax)
 {
   try
   {
@@ -41,7 +41,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax
     boundary.addPoint(xmax, xmin);
     boundary.closeRings();
 
-    boost::shared_ptr<OGRPolygon> result(new OGRPolygon);
+    std::shared_ptr<OGRPolygon> result(new OGRPolygon);
     result->addRing(&boundary);
 
     return result;
@@ -52,7 +52,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(double xmin, double ymin, double xmax
   }
 }
 
-boost::shared_ptr<OGRPolygon> bbox2polygon(
+std::shared_ptr<OGRPolygon> bbox2polygon(
     double xmin, double ymin, double xmax, double ymax, int num_side_points)
 {
   try
@@ -76,7 +76,7 @@ boost::shared_ptr<OGRPolygon> bbox2polygon(
 
     boundary.closeRings();
 
-    boost::shared_ptr<OGRPolygon> result(new OGRPolygon);
+    std::shared_ptr<OGRPolygon> result(new OGRPolygon);
     result->addRing(&boundary);
 
     return result;

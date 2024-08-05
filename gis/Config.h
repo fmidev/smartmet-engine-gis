@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <gis/BBox.h>
 #include <spine/CRSRegistry.h>
 #include <libconfig.h++>
@@ -44,10 +44,10 @@ class Config
 
   int getMaxCacheSize() const { return itsMaxCacheSize; }
 
-  boost::optional<int> getDefaultEPSG() const;
-  boost::optional<Fmi::BBox> getTableBBox(const std::string& theSchema,
+  std::optional<int> getDefaultEPSG() const;
+  std::optional<Fmi::BBox> getTableBBox(const std::string& theSchema,
                                           const std::string& theTable) const;
-  boost::optional<Fmi::TimeDuration> getTableTimeStep(
+  std::optional<Fmi::TimeDuration> getTableTimeStep(
       const std::string& theSchema, const std::string& theTable) const;
 
   bool quiet() const;
@@ -74,7 +74,7 @@ class Config
   int itsMaxCacheSize = 0;
 
   // Default EPSG for PostGIS geometries which have no SRID
-  boost::optional<int> itsDefaultEPSG;
+  std::optional<int> itsDefaultEPSG;
 
   // Quiet mode
   bool itsQuiet = true;
