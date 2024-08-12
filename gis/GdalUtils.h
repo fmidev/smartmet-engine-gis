@@ -30,6 +30,12 @@ std::string WKT(const OGRGeometry &geometry);
 class GeometryConv : public OGRCoordinateTransformation
 {
  public:
+#if GDAL_VERSION_ID < 309
+  using SizeType = int;
+#else
+  using SizeType = std::size_t;
+#endif
+
   explicit GeometryConv(boost::function1<NFmiPoint, NFmiPoint> conv);
 
   ~GeometryConv() override;
@@ -40,7 +46,7 @@ class GeometryConv : public OGRCoordinateTransformation
   virtual int TransformEx(
       int nCount, double *x, double *y, double *z = nullptr, int *pabSuccess = nullptr);
 #else
-  int Transform(int nCount, double *x, double *y, double *z, double *t, int *pabSuccess) override;
+  int Transform(SizeType nCount, double *x, double *y, double *z, double *t, int *pabSuccess) override;
 
 #if GDAL_VERSION_ID >= 301
   OGRCoordinateTransformation *Clone() const override;
@@ -48,7 +54,7 @@ class GeometryConv : public OGRCoordinateTransformation
 
 #if GDAL_VERSION_ID >= 303
   int TransformWithErrorCodes(
-      int nCount, double *x, double *y, double *z, double *t, int *panErrorCodes) override;
+      SizeType nCount, double *x, double *y, double *z, double *t, int *panErrorCodes) override;
 
   OGRCoordinateTransformation *GetInverse() const override;
 #endif

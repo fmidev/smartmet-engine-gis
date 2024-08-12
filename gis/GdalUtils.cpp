@@ -143,12 +143,12 @@ int GeometryConv::Transform(int /* nCount */, double *x, double *y, double *z)
 #endif
 
 #if GDAL_VERSION_MAJOR >= 3
-int GeometryConv::Transform(int nCount, double *x, double *y, double *z, double *t, int *pabSuccess)
+int GeometryConv::Transform(GeometryConv::SizeType nCount, double *x, double *y, double *z, double *t, int *pabSuccess)
 {
   try
   {
     (void)t;
-    for (int i = 0; i < nCount; i++)
+    for (GeometryConv::SizeType i = 0; i < nCount; i++)
     {
       NFmiPoint src(x[i], y[i]);
       NFmiPoint dest = conv(src);
@@ -194,7 +194,7 @@ int GeometryConv::TransformEx(int nCount, double *x, double *y, double *z, int *
 #endif
 
 #if GDAL_VERSION_MAJOR > 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR >= 3)
-int GeometryConv::TransformWithErrorCodes(int /* nCount*/,
+int GeometryConv::TransformWithErrorCodes(GeometryConv::SizeType /* nCount*/,
                                           double * /* x */,
                                           double * /* y */,
                                           double * /* z */,
