@@ -25,8 +25,10 @@ BuildRequires: geos313-devel
 
 BuildRequires: proj95-devel
 BuildRequires: sqlite-devel
+BuildRequires: libtiff-devel >= 4.1
 Requires: proj95
 Requires: sqlite-libs
+Requires: libtiff
 
 
 BuildRequires: make
