@@ -39,7 +39,7 @@ BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 25.2.18
 BuildRequires: smartmet-library-newbase-devel >= 25.2.18
 BuildRequires: smartmet-library-spine-devel >= 25.2.18
-BuildRequires: smartmet-library-macgyver-devel >= 25.2.18
+BuildRequires: smartmet-library-macgyver-devel >= 25.7.28
 BuildRequires: smartmet-utils-devel >= 25.2.18
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
@@ -63,7 +63,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: smartmet-library-gis-devel >= 25.2.18
 #TestRequires: smartmet-library-regression >= 21.11.23
 #TestRequires: smartmet-library-spine-devel >= 25.2.18
-#TestRequires: smartmet-library-macgyver-devel >= 25.2.18
+#TestRequires: smartmet-library-macgyver-devel >= 25.7.28
 #TestRequires: smartmet-test-db >= 25.2.18
 #TestRequires: smartmet-utils-devel >= 25.2.18
 

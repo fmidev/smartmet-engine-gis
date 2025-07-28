@@ -12,6 +12,7 @@
 #include <gis/PostGIS.h>
 #include <macgyver/DateTime.h>
 #include <macgyver/Exception.h>
+#include <macgyver/Hash.h>
 #include <macgyver/StringConversion.h>
 #include <spine/Reactor.h>
 #include <gdal_version.h>
@@ -601,7 +602,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     if (theOptions.time_column && !metadata.timesteps.empty())
     {
       const auto& last_time = metadata.timesteps.back();
-      boost::hash_combine(hash, boost::hash_value(Fmi::to_iso_string(last_time)));
+      Fmi::hash_merge(hash, Fmi::to_iso_string(last_time));
     }
 
     auto obj = itsEnvelopeCache.find(hash);
