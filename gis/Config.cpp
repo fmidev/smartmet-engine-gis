@@ -2,7 +2,6 @@
 
 #include "Config.h"
 #include <boost/algorithm/string.hpp>
-#include <filesystem>
 #include <boost/format.hpp>
 #include <fmt/format.h>
 #include <macgyver/Exception.h>
@@ -15,8 +14,9 @@
 #include <sqlite3pp/sqlite3pp.h>
 #include <sqlite3pp/sqlite3ppext.h>
 #include <cpl_conv.h>  // For configuring GDAL
-#include <sqlite3.h>
+#include <filesystem>
 #include <iostream>
+#include <sqlite3.h>
 #include <stdexcept>
 
 namespace SmartMet
@@ -243,13 +243,11 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
       if (itsConfig.exists("bbox"))
         std::cerr
             << "Warning: GIS-engine configuration file setting 'bbox' is deprecated, using PROJ "
-               "library database instead"
-            << std::endl;
+               "library database instead\n";
       if (itsConfig.exists("epsg"))
         std::cerr
             << "Warning: GIS-engine configuration file setting 'epsg' is deprecated, using PROJ "
-               "library database instead"
-            << std::endl;
+               "library database instead\n";
     }
     catch (...)
     {
@@ -312,7 +310,7 @@ std::optional<int> Config::getDefaultEPSG() const
 // ----------------------------------------------------------------------
 
 std::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
-                                                const std::string& theTable) const
+                                              const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
   auto pos = itsPostGisBBoxMap.find(key);
@@ -327,8 +325,8 @@ std::optional<Fmi::BBox> Config::getTableBBox(const std::string& theSchema,
  */
 // ----------------------------------------------------------------------
 
-std::optional<Fmi::TimeDuration> Config::getTableTimeStep(
-    const std::string& theSchema, const std::string& theTable) const
+std::optional<Fmi::TimeDuration> Config::getTableTimeStep(const std::string& theSchema,
+                                                          const std::string& theTable) const
 {
   std::string key = theSchema + "." + theTable;
   auto pos = itsPostGisTimeStepMap.find(key);

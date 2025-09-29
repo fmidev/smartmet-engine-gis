@@ -18,7 +18,6 @@
 #include <gdal_version.h>
 #include <memory>
 #include <ogrsf_frmts.h>
-#include <stdexcept>
 
 const auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
 using SafeFeature = std::unique_ptr<OGRFeature, decltype(featuredeleter)>;
@@ -55,12 +54,14 @@ int getEpsgCode(const GDALDataPtr& connection,
     if (pFeature)
       return pFeature->GetFieldAsInteger(0);
 
-    if (config.getDefaultEPSG())
+    auto default_epsg = config.getDefaultEPSG();
+
+    if (default_epsg)
     {
       if (!config.quiet())
         std::cerr << "Warning: sqlStmt returned null. Setting EPSG to default value "
-                  << *config.getDefaultEPSG() << std::endl;
-      return *config.getDefaultEPSG();
+                  << *default_epsg << '\n';
+      return *default_epsg;
     }
 
     throw Fmi::Exception(BCP, "Gis-engine: Null feature received from " + sqlStmt);
@@ -102,7 +103,7 @@ Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOp
       const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
       const double kilometers_to_meters = 1000;
 
-      auto* crs = newfeature->geom->getSpatialReference();
+      const auto* crs = newfeature->geom->getSpatialReference();
       bool geographic = (crs ? crs->IsGeographic() : false);
 
       if (!geographic)
@@ -118,8 +119,6 @@ Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOp
   }
   return newfeatures;
 }
-
-}  // namespace
 
 // ----------------------------------------------------------------------
 /*!
@@ -159,6 +158,8 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
     throw Fmi::Exception::Trace(BCP, "Operation failed!");
   }
 }
+
+}  // namespace
 
 OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
                                      const std::string& schema,
@@ -357,7 +358,7 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
       const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
       const double kilometers_to_meters = 1000;
 
-      auto* crs = geom->getSpatialReference();
+      const auto* crs = geom->getSpatialReference();
       bool geographic = (crs ? crs->IsGeographic() : false);
       if (!geographic)
         geom.reset(
@@ -436,7 +437,8 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
     // bugged in proj 9.0
     for (const auto& ptr : ret)
     {
-      if (ptr && ptr->geom && ptr->geom->getSpatialReference() != nullptr) {
+      if (ptr && ptr->geom && ptr->geom->getSpatialReference() != nullptr)
+      {
         const OGRSpatialReference* sr = ptr->geom->getSpatialReference();
         // FIXME: real fix required instead of casting away const
         const_cast<OGRSpatialReference*>(sr)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
@@ -522,7 +524,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
           if (!ret)
           {
             std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
-                      << "." << *theOptions.time_column << "' failed!" << std::endl;
+                      << "." << *theOptions.time_column << "' failed!\n";
             break;
           }
 
@@ -574,7 +576,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         if (!ret1 || !ret2)
         {
           std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
-                    << "." << *theOptions.time_column << "' failed!" << std::endl;
+                    << "." << *theOptions.time_column << "' failed!\n";
         }
         else
         {
