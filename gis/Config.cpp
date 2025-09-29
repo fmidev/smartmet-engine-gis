@@ -234,6 +234,11 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
 
       itsConfig.lookupValue("quiet", itsQuiet);
 
+      int default_epsg = -1;
+      itsConfig.lookupValue("default_epsg", default_epsg);
+      if (default_epsg > 0)
+        itsDefaultEPSG = default_epsg;
+
       read_crs_settings();
       read_postgis_settings();
       read_cache_settings();
@@ -244,6 +249,7 @@ Config::Config(std::string theFileName) : itsFileName(std::move(theFileName))
         std::cerr
             << "Warning: GIS-engine configuration file setting 'bbox' is deprecated, using PROJ "
                "library database instead\n";
+
       if (itsConfig.exists("epsg"))
         std::cerr
             << "Warning: GIS-engine configuration file setting 'epsg' is deprecated, using PROJ "
