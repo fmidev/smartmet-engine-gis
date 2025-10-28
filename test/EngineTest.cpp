@@ -4,7 +4,7 @@
 
 using namespace std;
 
-SmartMet::Engine::Gis::Engine *gengine;
+std::shared_ptr<SmartMet::Engine::Gis::Engine> gengine;
 
 namespace Tests
 {
@@ -62,11 +62,13 @@ int main(void)
   SmartMet::Spine::Reactor reactor(opts);
   reactor.init();
 
-  gengine = reinterpret_cast<SmartMet::Engine::Gis::Engine *>(reactor.getSingleton("Gis", NULL));
+  gengine = reactor.getEngine<SmartMet::Engine::Gis::Engine>("Gis", NULL);
   cout << endl
        << "Engine tester\n"
           "============="
        << endl;
   Tests::tests t;
-  return t.run();
+  auto result = t.run();
+  gengine.reset();
+  return result;
 }
