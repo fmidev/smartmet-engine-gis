@@ -25,7 +25,6 @@ LIBS += \
 	-lboost_thread \
 	-lboost_regex \
 	-lboost_iostreams \
-	-lboost_system \
 	-lbz2 -lz -lpthread
 
 TEST_PREPARE_TARGETS := cnf/gis.conf

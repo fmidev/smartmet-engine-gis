@@ -17,7 +17,6 @@ LIBS += $(PREFIX_LDFLAGS) \
 	-lboost_regex \
 	-lboost_thread \
 	-lboost_iostreams \
-	-lboost_system \
 	-lbz2 -lz
 
 # What to install
