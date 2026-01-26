@@ -23,13 +23,13 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: %{smartmet_boost}-devel
 BuildRequires: bzip2-devel
 BuildRequires: gcc-c++
-BuildRequires: gdal310-devel
+BuildRequires: gdal312-devel
 BuildRequires: geos313-devel
 
-BuildRequires: proj95-devel
+BuildRequires: proj97-devel
 BuildRequires: sqlite-devel
 BuildRequires: libtiff-devel >= 4.1
-Requires: proj95
+Requires: proj97
 Requires: sqlite-libs
 Requires: libtiff
 
@@ -48,7 +48,7 @@ Requires: %{smartmet_boost}-iostreams
 Requires: %{smartmet_boost}-regex
 Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
-Requires: gdal310-libs
+Requires: gdal312-libs
 Requires: geos313
 Requires: smartmet-library-gis >= 25.9.15
 Requires: smartmet-library-spine >= 25.9.16
@@ -57,7 +57,7 @@ Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gcc-c++
-#TestRequires: gdal310-devel
+#TestRequires: gdal312-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
 #TestRequires: smartmet-library-gis-devel >= 25.9.15
