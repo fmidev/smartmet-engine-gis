@@ -36,11 +36,11 @@ Requires: libtiff
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 25.9.15
-BuildRequires: smartmet-library-newbase-devel >= 25.3.20
-BuildRequires: smartmet-library-spine-devel >= 25.9.16
-BuildRequires: smartmet-library-macgyver-devel >= 25.9.19
-BuildRequires: smartmet-utils-devel >= 25.8.19
+BuildRequires: smartmet-library-gis-devel >= 26.2.4
+BuildRequires: smartmet-library-newbase-devel >= 26.2.4
+BuildRequires: smartmet-library-spine-devel >= 26.2.4
+BuildRequires: smartmet-library-macgyver-devel >= 26.2.4
+BuildRequires: smartmet-utils-devel >= 26.2.4
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
 BuildRequires: libcurl-devel
@@ -50,9 +50,9 @@ Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
 Requires: gdal312-libs
 Requires: geos313
-Requires: smartmet-library-gis >= 25.9.15
-Requires: smartmet-library-spine >= 25.9.16
-Requires: smartmet-library-macgyver >= 25.9.19
+Requires: smartmet-library-gis >= 26.2.4
+Requires: smartmet-library-spine >= 26.2.4
+Requires: smartmet-library-macgyver >= 26.2.4
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -60,12 +60,12 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal312-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 25.9.15
+#TestRequires: smartmet-library-gis-devel >= 26.2.4
 #TestRequires: smartmet-library-regression >= 25.5.5
-#TestRequires: smartmet-library-spine-devel >= 25.9.16
-#TestRequires: smartmet-library-macgyver-devel >= 25.9.19
-#TestRequires: smartmet-test-db >= 25.6.18
-#TestRequires: smartmet-utils-devel >= 25.8.19
+#TestRequires: smartmet-library-spine-devel >= 26.2.4
+#TestRequires: smartmet-library-macgyver-devel >= 26.2.4
+#TestRequires: smartmet-test-db >= 26.2.4
+#TestRequires: smartmet-utils-devel >= 26.2.4
 
 %description
 FMI SmartMet gis engine
@@ -75,8 +75,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 25.9.15
-Requires: smartmet-library-spine >= 25.9.16
+Requires: smartmet-library-gis >= 26.2.4
+Requires: smartmet-library-spine >= 26.2.4
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
