@@ -658,7 +658,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
   {
     // If geometries with same name and type came from the same table (like roads) they are merged
     // into one. Geometries with same name and type came are not merged if they are from different
-    // tables, for example same city can be in deffirent tables (like esri.europe_cities_eureffin
+    // tables, for example same city can be in different tables (like esri.europe_cities_eureffin
     // and natural_earth.world_populated_places)
     std::map<std::string, std::string> geomid_pgkey_map;
 
@@ -699,7 +699,7 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
           std::string geomName = std::visit(ats, attribute);
           geomName += pgId.source_name;
 
-          // Geometry name can not be empty, since it is used for example in timesries queries
+          // Geometry name can not be empty, since it is used for example in timeseries queries
           // like 'place=helsinki'
           if (geomName.empty())
             continue;
