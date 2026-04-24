@@ -12,8 +12,10 @@
 #include <variant>
 #include <gis/OGR.h>
 #include <macgyver/StringConversion.h>
+#include <spine/Table.h>
 #include <list>
 #include <map>
+#include <ostream>
 #include <string>
 
 namespace SmartMet
@@ -66,6 +68,9 @@ class GeometryStorage
   std::list<std::string> areaNames() const;
 
   const OGRGeometry* getOGRGeometry(const std::string& name, int type) const;
+
+  std::unique_ptr<Spine::Table> dumpContents() const;
+  void dumpContents(std::ostream& out, const std::string& format) const;
 
  private:
   std::map<std::string, std::string> itsPolygons;

@@ -2,6 +2,9 @@
 #include "MapOptions.h"
 #include "Normalize.h"
 #include <macgyver/Exception.h>
+#include <spine/HTTP.h>
+#include <spine/TableFormatterOptions.h>
+#include <spine/TableFormatterFactory.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -150,6 +153,65 @@ std::list<std::string> GeometryStorage::areaNames() const
       return_list.push_back(item.first);
 
     return return_list;
+  }
+  catch (...)
+  {
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+
+std::unique_ptr<Spine::Table> GeometryStorage::dumpContents() const
+{
+  try
+  {
+    auto table = std::make_unique<Spine::Table>();
+
+    table->setTitle("Geometry Storage Contents");
+    table->setNames({"Name", "Type", "Data"});
+
+    int row = 0;
+    for (const auto& item : itsPolygons)
+    {
+      table->set(0, row, item.first);
+      table->set(1, row, "Polygon");
+      table->set(2, row, item.second);
+      row++;
+    }
+
+    for (const auto& item : itsLines)
+    {
+      table->set(0, row, item.first);
+      table->set(1, row, "Line");
+      table->set(2, row, item.second);
+      row++;
+    }
+
+    for (const auto& item : itsPoints)
+    {
+      table->set(0, row, item.first);
+      table->set(1, row, "Point");
+      std::string point_str = "(" + Fmi::to_string(item.second.first) + ", " + Fmi::to_string(item.second.second) + ")";
+      table->set(2, row, point_str);
+      row++;
+    }
+
+    return table;
+  }
+  catch (...)
+  {
+    throw Fmi::Exception::Trace(BCP, "Operation failed!");
+  }
+}
+
+void GeometryStorage::dumpContents(std::ostream& out, const std::string& format) const
+{
+  try
+  {
+    auto table = dumpContents();
+    Spine::TableFormatterOptions options;
+    options.setFormatType(format);
+    auto formatter = Spine::TableFormatterFactory::create(format);
+    out << formatter->format(*table, {}, Spine::HTTP::Request(), options);
   }
   catch (...)
   {
