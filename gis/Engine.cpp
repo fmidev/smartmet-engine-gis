@@ -393,7 +393,15 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
     if (geom)
     {
       std::vector<OGRGeometryPtr> wrap{geom};
-      theOptions.amalgamator.apply(wrap);
+      // Pass minarea to the amalgamator as a per-cluster total-area filter:
+      // any cluster whose summed polygon area is below this km^2 threshold
+      // cannot possibly produce a merged outline that survives the downstream
+      // minarea despeckle, so the amalgamator may skip its CDT entirely.
+      // Working on a local copy keeps theOptions logically const.
+      auto amalg = theOptions.amalgamator;
+      if (theOptions.minarea)
+        amalg.minTotalArea(*theOptions.minarea);
+      amalg.apply(wrap);
       // The amalgamator may explode a single MultiPolygon into multiple
       // polygons; re-pack into a single geometry so downstream code is
       // unchanged. The original CRS is preserved by cloning.

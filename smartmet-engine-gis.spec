@@ -4,7 +4,7 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 26.5.8
-Release: 3%{?dist}.fmi
+Release: 4%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri May  8 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.8-4.fmi
+- getShape: pass minarea (when set) into the amalgamator's new minTotalArea(km^2) hint before calling apply(). Lets the amalgamator drop entire clusters whose total polygon area is below the downstream despeckle threshold without paying for their CDT and UnaryUnion. Output is unchanged (the same clusters would have been despeckled away post-amalgamation anyway). On dense archipelago datasets this speeds up the long tail of small disjoint clusters; the dominant cost remains the per-cluster UnaryUnion inside the one large mainland-plus-archipelago cluster. Requires smartmet-library-gis >= 26.5.8-4.
+
 * Fri May  8 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.8-3.fmi
 - Map fetch pipeline simplifier: pass preserve_topology=false to the new GeometrySimplifier in both getShape and getFeatures. The cross-feature topology check in Fmi::GeometrySimplifier (originally designed for the contour engine, where adjacent isobands share vertex objects) treats every vertex of a polygon whose count is 1 as an anchor, which suppressed all simplification on natural_earth-style PostGIS data where each country/feature is stored as a separate polygon with its own copy of every vertex. Cross-feature topology preservation is now relied on only when an upstream step has produced shared vertices (e.g. after amalgamation).
 
