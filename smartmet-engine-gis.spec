@@ -4,7 +4,7 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 26.5.8
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri May  8 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.8-2.fmi
+- Fixed simplify() in the map fetch pipeline: newfeature was a default-constructed (null) shared_ptr, so the minarea branch dereferenced a null pointer and the no-options path silently dropped every feature. Now passes through the original feature when no minarea/mindistance/simplifier work is requested, otherwise allocates a private Feature copy before mutating geom (requires smartmet-library-gis >= 26.5.8-2 for GeometrySimplifier::active()).
+
 * Fri May  8 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.8-1.fmi
 - Map fetch pipeline: support GeometryAmalgamator (merging nearby polygons via constrained Delaunay triangulation) and the new pixel-based GeometrySimplifier (Douglas-Peucker / Visvalingam-Whyatt with cross-feature topology preservation), applied in order amalgamator -> minarea -> mindistance -> simplifier so minarea and the new simplifier operate on the merged outline. Cache key incorporates the new options.
 

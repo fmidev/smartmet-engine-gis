@@ -96,13 +96,23 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
 Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOptions)
 {
   Fmi::Features newfeatures;
+  const bool no_simplification =
+      !theOptions.minarea && !theOptions.mindistance && !theOptions.simplifier.active();
+
   for (const auto& feature : theFeatures)
   {
-    Fmi::FeaturePtr newfeature;
+    if (no_simplification)
+    {
+      newfeatures.push_back(feature);
+      continue;
+    }
+
+    auto newfeature = std::make_shared<Fmi::Feature>(*feature);
+
     if (theOptions.minarea)
       newfeature->geom.reset(Fmi::OGR::despeckle(*(feature->geom), *theOptions.minarea));
 
-    if (theOptions.mindistance && newfeature && newfeature->geom)
+    if (theOptions.mindistance && newfeature->geom)
     {
       const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
       const double kilometers_to_meters = 1000;
@@ -118,7 +128,7 @@ Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOp
             kilometers_to_degrees * (*theOptions.mindistance)));
     }
 
-    if (newfeature && newfeature->geom)
+    if (newfeature->geom)
     {
       std::vector<OGRGeometryPtr> wrap{newfeature->geom};
       theOptions.simplifier.apply(wrap, true);
