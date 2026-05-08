@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.5.5
+Version: 26.5.8
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri May  8 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.8-1.fmi
+- Map fetch pipeline: support GeometryAmalgamator (merging nearby polygons via constrained Delaunay triangulation) and the new pixel-based GeometrySimplifier (Douglas-Peucker / Visvalingam-Whyatt with cross-feature topology preservation), applied in order amalgamator -> minarea -> mindistance -> simplifier so minarea and the new simplifier operate on the merged outline. Cache key incorporates the new options.
+
 * Tue May  5 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.5-1..fmi
 - New release version
 

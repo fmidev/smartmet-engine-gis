@@ -89,6 +89,10 @@ GDALDataPtr db_connection(const Config& config, const std::string& pgname)
   }
 }
 
+// Apply the per-geometry simplification pipeline (minarea / mindistance /
+// new simplifier). The amalgamator is intentionally skipped for the per-feature
+// path: amalgamation merges separate polygons into one and would discard the
+// per-feature attribute association used by getFeatures().
 Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOptions)
 {
   Fmi::Features newfeatures;
@@ -115,7 +119,13 @@ Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOp
     }
 
     if (newfeature && newfeature->geom)
-      newfeatures.push_back(newfeature);
+    {
+      std::vector<OGRGeometryPtr> wrap{newfeature->geom};
+      theOptions.simplifier.apply(wrap, true);
+      newfeature->geom = wrap.front();
+      if (newfeature->geom)
+        newfeatures.push_back(newfeature);
+    }
   }
   return newfeatures;
 }
@@ -150,6 +160,10 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
     key += Fmi::to_string(theOptions.minarea ? *theOptions.minarea : 0.0);
     key += '|';
     key += Fmi::to_string(theOptions.mindistance ? *theOptions.mindistance : 0.0);
+    key += '|';
+    key += Fmi::to_string(theOptions.amalgamator.hash_value());
+    key += '|';
+    key += Fmi::to_string(theOptions.simplifier.hash_value());
 
     return std::make_pair(basic, key);
   }
@@ -344,13 +358,59 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
         itsCache.insert(basic_key, geom);
     }
 
-    // If no simplification was requested we're done
-    if (!theOptions.minarea && !theOptions.mindistance)
+    // Skip the pipeline when no simplification has been requested. The new
+    // amalgamator and simplifier objects no-op when inactive, but comparing
+    // against a default-constructed instance avoids an extra cache write.
+    static const Fmi::GeometryAmalgamator default_amalgamator;
+    static const Fmi::GeometrySimplifier default_simplifier;
+    const bool needs_pipeline =
+        theOptions.minarea || theOptions.mindistance ||
+        theOptions.amalgamator.hash_value() != default_amalgamator.hash_value() ||
+        theOptions.simplifier.hash_value() != default_simplifier.hash_value();
+
+    if (!needs_pipeline)
       return geom;
 
-    // Apply simplification options
+    // Apply the simplification pipeline. Order:
+    //   1) amalgamator (merges nearby polygons via constrained Delaunay)
+    //   2) minarea  (despeckle isolated polygons by km^2)
+    //   3) mindistance (GEOS SimplifyPreserveTopology in km)
+    //   4) simplifier (Douglas-Peucker / Visvalingam-Whyatt, pixel-based)
+    // Amalgamation runs first so that minarea drops the small islands the
+    // amalgamator could not merge into a neighbour, and so that the new
+    // simplifier operates on the merged outline.
 
-    if (theOptions.minarea)
+    if (geom)
+    {
+      std::vector<OGRGeometryPtr> wrap{geom};
+      theOptions.amalgamator.apply(wrap);
+      // The amalgamator may explode a single MultiPolygon into multiple
+      // polygons; re-pack into a single geometry so downstream code is
+      // unchanged. The original CRS is preserved by cloning.
+      const auto* sr = geom->getSpatialReference();
+      if (wrap.empty())
+      {
+        geom.reset();
+      }
+      else if (wrap.size() == 1)
+      {
+        geom = wrap.front();
+        if (geom && sr)
+          geom->assignSpatialReference(sr);
+      }
+      else
+      {
+        auto* mp = new OGRMultiPolygon();
+        if (sr)
+          mp->assignSpatialReference(sr);
+        for (const auto& g : wrap)
+          if (g && !g->IsEmpty())
+            mp->addGeometryDirectly(g->clone());
+        geom.reset(mp);
+      }
+    }
+
+    if (theOptions.minarea && geom)
       geom.reset(Fmi::OGR::despeckle(*geom, *theOptions.minarea));
 
     if (theOptions.mindistance && geom)
@@ -366,6 +426,13 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
       else
         geom.reset(
             geom->SimplifyPreserveTopology(kilometers_to_degrees * (*theOptions.mindistance)));
+    }
+
+    if (geom)
+    {
+      std::vector<OGRGeometryPtr> wrap{geom};
+      theOptions.simplifier.apply(wrap, true);
+      geom = wrap.empty() ? OGRGeometryPtr() : wrap.front();
     }
 
     // Cache the result
@@ -445,8 +512,14 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
       }
     }
 
-    // If no simplification was requested we're done
-    if (!theOptions.minarea && !theOptions.mindistance)
+    // If no simplification was requested we're done. Note that the
+    // amalgamator is intentionally not honoured on the per-feature path
+    // (see simplify() above).
+    static const Fmi::GeometrySimplifier default_simplifier;
+    const bool needs_simplify = theOptions.minarea || theOptions.mindistance ||
+                                theOptions.simplifier.hash_value() !=
+                                    default_simplifier.hash_value();
+    if (!needs_simplify)
       return ret;
 
     // Apply simplification options
