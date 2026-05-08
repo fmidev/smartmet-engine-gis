@@ -131,7 +131,7 @@ Fmi::Features simplify(const Fmi::Features& theFeatures, const MapOptions& theOp
     if (newfeature->geom)
     {
       std::vector<OGRGeometryPtr> wrap{newfeature->geom};
-      theOptions.simplifier.apply(wrap, true);
+      theOptions.simplifier.apply(wrap, false);
       newfeature->geom = wrap.front();
       if (newfeature->geom)
         newfeatures.push_back(newfeature);
@@ -441,7 +441,7 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
     if (geom)
     {
       std::vector<OGRGeometryPtr> wrap{geom};
-      theOptions.simplifier.apply(wrap, true);
+      theOptions.simplifier.apply(wrap, false);
       geom = wrap.empty() ? OGRGeometryPtr() : wrap.front();
     }
 
