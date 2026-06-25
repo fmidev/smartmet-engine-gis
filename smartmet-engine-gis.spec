@@ -4,7 +4,7 @@
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
 Version: 26.6.25
-Release: 1%{?dist}.fmi
+Release: 2%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Thu Jun 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.6.25-2.fmi
+- getShape/getFeatures: pass preserve_topology=false to the map simplifier for PostGIS map data. PostGIS map polygons (e.g. coastlines) are a standalone fetch with no edges shared across features, so topology counting marked every vertex as an anchor and the Visvalingam-Whyatt pass could not remove anything (maps came out unsimplified, only minarea applied). Topology preservation is meant for shared isoline/isoband edges, not map fetches. Restores the intended map simplification.
+
 * Thu Jun 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.6.25-1.fmi
 - Repackaged with the latest GIS library
 
