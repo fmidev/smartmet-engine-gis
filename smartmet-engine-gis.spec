@@ -3,8 +3,8 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.6.25
-Release: 2%{?dist}.fmi
+Version: 26.8.10
+Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -104,6 +104,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Mon Aug 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.8.10-1.fmi
+- Stopped caching empty map geometries in getShape(). PostGIS::read() always returns a geometry collection, and that collection is empty when the query matched no rows, so testing only the pointer cached the empty result. The geometry cache has no expiry and an entry that every request hits is never evicted, so a single failed or empty read disabled the map for the lifetime of the process: it rendered as a blank map, or, once a minarea/mindistance filter despeckled the empty collection down to nullptr, as 'Requested map data is empty' for every subsequent request. Observed on one backend for baltice/icemap, whose map layer sets minarea. The post-pipeline cache write is guarded the same way, since simplification can legitimately empty a geometry and that result would otherwise be served as a blank map forever. getFeatures() already checked emptiness correctly.
 * Thu Jun 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.6.25-2.fmi
 - getShape/getFeatures: pass preserve_topology=false to the map simplifier for PostGIS map data. PostGIS map polygons (e.g. coastlines) are a standalone fetch with no edges shared across features, so topology counting marked every vertex as an anchor and the Visvalingam-Whyatt pass could not remove anything (maps came out unsimplified, only minarea applied). Topology preservation is meant for shared isoline/isoband edges, not map fetches. Restores the intended map simplification.
 

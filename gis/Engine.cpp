@@ -363,8 +363,15 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
       std::string name = theOptions.schema + "." + theOptions.table;
       geom = Fmi::PostGIS::read(theSR, connection, name, theOptions.where);
 
-      // Cache the result if it's not empty
-      if (geom)
+      // Cache the result if it's not empty. Testing the pointer alone is not
+      // enough: PostGIS::read() always returns a geometry collection, and that
+      // collection is empty when the table has no matching rows. Caching an
+      // empty result would be permanent -- the cache has no expiry, and an
+      // entry that every request hits is never evicted -- and it renders as
+      // either a silently blank map or, once minarea/mindistance despeckles the
+      // empty collection down to nullptr, a "Requested map data is empty"
+      // error for every later request in this process.
+      if (geom && geom->IsEmpty() == 0)
         itsCache.insert(basic_key, geom);
     }
 
@@ -445,9 +452,11 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
       geom = wrap.empty() ? OGRGeometryPtr() : wrap.front();
     }
 
-    // Cache the result
+    // Cache the result. Empty is not cached for the same reason as above: the
+    // pipeline can legitimately simplify a geometry away, but the result would
+    // then be served as a blank map forever.
 
-    if (geom)
+    if (geom && geom->IsEmpty() == 0)
       itsCache.insert(full_key, geom);
 
     return geom;
