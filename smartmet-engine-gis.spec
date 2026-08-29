@@ -3,8 +3,8 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.5.8
-Release: 4%{?dist}.fmi
+Version: 26.8.29
+Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
 URL: https://github.com/fmidev/smartmet-engine-gis
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri Aug 29 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.8.29-1.fmi
+- Security (H-21): validate request-influenceable SQL identifiers (schema, table, geometry column, time column) as strict [A-Za-z_][A-Za-z0-9_]* names and quote them as PostgreSQL identifiers before placing them in ExecuteSQL statements or passing "schema.table" to GDAL's PG driver, closing SQL injection via getShape/getFeatures/getMetaData. The free-form WHERE clause cannot be parameterized through the OGR SetAttributeFilter() API and is documented as trusted-config-only; residual injection risk remains only if a deployment substitutes request parameters into the WHERE clause.
+
 * Fri May  8 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.5.8-4.fmi
 - getShape: pass minarea (when set) into the amalgamator's new minTotalArea(km^2) hint before calling apply(). Lets the amalgamator drop entire clusters whose total polygon area is below the downstream despeckle threshold without paying for their CDT and UnaryUnion. Output is unchanged (the same clusters would have been despeckled away post-amalgamation anyway). On dense archipelago datasets this speeds up the long tail of small disjoint clusters; the dominant cost remains the per-cluster UnaryUnion inside the one large mainland-plus-archipelago cluster. Requires smartmet-library-gis >= 26.5.8-4.
 
