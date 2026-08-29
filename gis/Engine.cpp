@@ -8,7 +8,6 @@
 #include <gis/EPSGInfo.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
-#include <gis/OGRSpatialReferenceFactory.h>
 #include <gis/PostGIS.h>
 #include <macgyver/DateTime.h>
 #include <macgyver/Exception.h>
@@ -937,10 +936,13 @@ Fmi::Cache::CacheStatistics Engine::getCacheStats() const
   ret.insert(std::make_pair("Gis::geometry_cache", itsCache.statistics()));
   ret.insert(std::make_pair("Gis::features_cache", itsFeaturesCache.statistics()));
   ret.insert(std::make_pair("Gis::envelope_cache", itsEnvelopeCache.statistics()));
-  ret.insert(std::make_pair("Gis::gis-library::projection_info_cache",
-                            Fmi::SpatialReference::getCacheStats()));
+  // One line, not two: the gis library used to keep a parsed OGRSpatialReference in
+  // one cache and the values derived from it in another, both keyed by the same
+  // definition string. They are now a single store, so SpatialReference::getCacheStats()
+  // and OGRSpatialReferenceFactory::getCacheStats() describe it identically and
+  // reporting both merely printed the same numbers under two names.
   ret.insert(std::make_pair("Gis::gis-library::spatial_reference_cache",
-                            Fmi::OGRSpatialReferenceFactory::getCacheStats()));
+                            Fmi::SpatialReference::getCacheStats()));
   ret.insert(std::make_pair("Gis::gis-library::coordinate_matrix_cache",
                             Fmi::CoordinateMatrixCache::getCacheStats()));
   ret.insert(std::make_pair("Gis::gis-library::epsginfo_cache", Fmi::EPSGInfo::getCacheStats()));

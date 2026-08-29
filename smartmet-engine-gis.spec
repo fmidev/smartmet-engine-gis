@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.8.10
+Version: 26.8.29
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -36,7 +36,7 @@ Requires: libtiff
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 26.6.25
+BuildRequires: smartmet-library-gis-devel >= 26.8.28
 BuildRequires: smartmet-library-newbase-devel >= 26.6.24
 BuildRequires: smartmet-library-spine-devel >= 26.6.24
 BuildRequires: smartmet-library-macgyver-devel >= 26.6.15
@@ -50,7 +50,7 @@ Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
 Requires: gdal312-libs
 Requires: geos313
-Requires: smartmet-library-gis >= 26.6.25
+Requires: smartmet-library-gis >= 26.8.28
 Requires: smartmet-library-spine >= 26.6.24
 Requires: smartmet-library-macgyver >= 26.6.15
 Provides: %{SPECNAME}
@@ -60,7 +60,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal312-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 26.6.25
+#TestRequires: smartmet-library-gis-devel >= 26.8.28
 #TestRequires: smartmet-library-regression >= 26.5.22
 #TestRequires: smartmet-library-spine-devel >= 26.6.24
 #TestRequires: smartmet-library-macgyver-devel >= 26.6.15
@@ -75,7 +75,7 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 26.6.25
+Requires: smartmet-library-gis >= 26.8.28
 Requires: smartmet-library-spine >= 26.6.24
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
@@ -104,6 +104,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Sat Aug 29 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.8.29-1.fmi
+- getCacheStats() now reports the gis library's spatial reference store once instead of twice. The library used to keep a parsed OGRSpatialReference in one cache and the values derived from it in another, both keyed by the same definition string, and the engine reported them as 'projection_info_cache' and 'spatial_reference_cache'. They are now a single store, so SpatialReference::getCacheStats() and OGRSpatialReferenceFactory::getCacheStats() describe it identically and reporting both merely printed the same numbers under two names. The line kept is 'spatial_reference_cache', which describes the merged store more accurately now that one entry holds both the parsed object and the values derived from it; anything graphing the dropped 'projection_info_cache' key will need repointing at it. Requires smartmet-library-gis >= 26.8.28, the release that merges the caches: against an older gis those two keys report two genuinely different caches with different size limits, and collapsing them would drop a real statistic.
 * Mon Aug 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.8.10-1.fmi
 - Stopped caching empty map geometries in getShape(). PostGIS::read() always returns a geometry collection, and that collection is empty when the query matched no rows, so testing only the pointer cached the empty result. The geometry cache has no expiry and an entry that every request hits is never evicted, so a single failed or empty read disabled the map for the lifetime of the process: it rendered as a blank map, or, once a minarea/mindistance filter despeckled the empty collection down to nullptr, as 'Requested map data is empty' for every subsequent request. Observed on one backend for baltice/icemap, whose map layer sets minarea. The post-pipeline cache write is guarded the same way, since simplification can legitimately empty a geometry and that result would otherwise be served as a blank map forever. getFeatures() already checked emptiness correctly.
 * Thu Jun 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.6.25-2.fmi
