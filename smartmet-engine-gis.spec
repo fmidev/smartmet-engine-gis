@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.8.10
+Version: 26.9.16
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -39,7 +39,7 @@ BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 26.6.25
 BuildRequires: smartmet-library-newbase-devel >= 26.6.24
 BuildRequires: smartmet-library-spine-devel >= 26.6.24
-BuildRequires: smartmet-library-macgyver-devel >= 26.6.15
+BuildRequires: smartmet-library-macgyver-devel >= 26.9.16
 BuildRequires: smartmet-utils-devel >= 26.6.24
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
@@ -52,7 +52,7 @@ Requires: gdal312-libs
 Requires: geos313
 Requires: smartmet-library-gis >= 26.6.25
 Requires: smartmet-library-spine >= 26.6.24
-Requires: smartmet-library-macgyver >= 26.6.15
+Requires: smartmet-library-macgyver >= 26.9.16
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -63,7 +63,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: smartmet-library-gis-devel >= 26.6.25
 #TestRequires: smartmet-library-regression >= 26.5.22
 #TestRequires: smartmet-library-spine-devel >= 26.6.24
-#TestRequires: smartmet-library-macgyver-devel >= 26.6.15
+#TestRequires: smartmet-library-macgyver-devel >= 26.9.16
 #TestRequires: smartmet-test-db >= 26.5.8
 #TestRequires: smartmet-utils-devel >= 26.6.24
 
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Sep 16 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.16-1.fmi
+- Repackaged due to Fmi::Cache::Cache locking changes
+
 * Mon Aug 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.8.10-1.fmi
 - Stopped caching empty map geometries in getShape(). PostGIS::read() always returns a geometry collection, and that collection is empty when the query matched no rows, so testing only the pointer cached the empty result. The geometry cache has no expiry and an entry that every request hits is never evicted, so a single failed or empty read disabled the map for the lifetime of the process: it rendered as a blank map, or, once a minarea/mindistance filter despeckled the empty collection down to nullptr, as 'Requested map data is empty' for every subsequent request. Observed on one backend for baltice/icemap, whose map layer sets minarea. The post-pipeline cache write is guarded the same way, since simplification can legitimately empty a geometry and that result would otherwise be served as a blank map forever. getFeatures() already checked emptiness correctly.
 * Thu Jun 25 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.6.25-2.fmi
