@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.9.16
+Version: 26.9.23
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -36,11 +36,11 @@ Requires: libtiff
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 26.6.25
-BuildRequires: smartmet-library-newbase-devel >= 26.6.24
-BuildRequires: smartmet-library-spine-devel >= 26.6.24
-BuildRequires: smartmet-library-macgyver-devel >= 26.9.16
-BuildRequires: smartmet-utils-devel >= 26.6.24
+BuildRequires: smartmet-library-gis-devel >= 26.9.23
+BuildRequires: smartmet-library-newbase-devel >= 26.9.23
+BuildRequires: smartmet-library-spine-devel >= 26.9.23
+BuildRequires: smartmet-library-macgyver-devel >= 26.9.23
+BuildRequires: smartmet-utils-devel >= 26.9.3
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
 BuildRequires: libcurl-devel
@@ -50,9 +50,9 @@ Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
 Requires: gdal312-libs
 Requires: geos313
-Requires: smartmet-library-gis >= 26.6.25
-Requires: smartmet-library-spine >= 26.6.24
-Requires: smartmet-library-macgyver >= 26.9.16
+Requires: smartmet-library-gis >= 26.9.23
+Requires: smartmet-library-spine >= 26.9.23
+Requires: smartmet-library-macgyver >= 26.9.23
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -60,12 +60,12 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal312-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 26.6.25
-#TestRequires: smartmet-library-regression >= 26.5.22
-#TestRequires: smartmet-library-spine-devel >= 26.6.24
-#TestRequires: smartmet-library-macgyver-devel >= 26.9.16
+#TestRequires: smartmet-library-gis-devel >= 26.9.23
+#TestRequires: smartmet-library-regression >= 26.9.3
+#TestRequires: smartmet-library-spine-devel >= 26.9.23
+#TestRequires: smartmet-library-macgyver-devel >= 26.9.23
 #TestRequires: smartmet-test-db >= 26.5.8
-#TestRequires: smartmet-utils-devel >= 26.6.24
+#TestRequires: smartmet-utils-devel >= 26.9.3
 
 %description
 FMI SmartMet gis engine
@@ -75,8 +75,8 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 26.6.25
-Requires: smartmet-library-spine >= 26.6.24
+Requires: smartmet-library-gis >= 26.9.23
+Requires: smartmet-library-spine >= 26.9.23
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Sep 23 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.23-1.fmi
+- Repackaged due to base library ABI changes
+
 * Wed Sep 16 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.16-1.fmi
 - Repackaged due to Fmi::Cache::Cache locking changes
 
