@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "Normalize.h"
 #include <boost/algorithm/string/join.hpp>
+#include <fmt/format.h>
 #include <gis/Box.h>
 #include <gis/CoordinateMatrixCache.h>
 #include <gis/CoordinateTransformation.h>
@@ -15,6 +16,7 @@
 #include <macgyver/Hash.h>
 #include <macgyver/StringConversion.h>
 #include <spine/Reactor.h>
+#include <cctype>
 #include <gdal_version.h>
 #include <memory>
 #include <ogrsf_frmts.h>
@@ -30,6 +32,68 @@ namespace Gis
 {
 namespace
 {
+// ----------------------------------------------------------------------
+/*!
+ * \brief Validate a SQL identifier (schema, table or column name)
+ *
+ * Several code paths below build PostGIS queries by string concatenation
+ * (ExecuteSQL), or pass a "schema.table" string to GDAL's PG driver. The
+ * schema, table and column names can originate from request-substitutable
+ * WMS product templates, so they MUST be validated before being placed in
+ * an SQL context, otherwise they enable SQL injection.
+ *
+ * We accept only the classic unquoted-identifier syntax: a letter or
+ * underscore followed by letters, digits or underscores. Such a string
+ * cannot contain quotes, whitespace, dots, semicolons, parentheses or
+ * comment markers and therefore cannot break out of the identifier
+ * context.
+ */
+// ----------------------------------------------------------------------
+
+bool is_valid_identifier(const std::string& name)
+{
+  if (name.empty())
+    return false;
+  const auto first = static_cast<unsigned char>(name.front());
+  if (std::isalpha(first) == 0 && first != '_')
+    return false;
+  for (char c : name)
+  {
+    const auto uc = static_cast<unsigned char>(c);
+    if (std::isalnum(uc) == 0 && c != '_')
+      return false;
+  }
+  return true;
+}
+
+void validate_identifier(const std::string& name, const char* what)
+{
+  if (!is_valid_identifier(name))
+    throw Fmi::Exception(BCP,
+                         fmt::format("Gis-engine: invalid {} '{}': only SQL identifiers matching "
+                                     "[A-Za-z_][A-Za-z0-9_]* are accepted",
+                                     what,
+                                     name));
+}
+
+// Quote an already-validated identifier as a PostgreSQL identifier. This is
+// defense in depth on top of validate_identifier(): it neutralizes reserved
+// words and mixed case, and doubles any embedded double quote even though
+// validation forbids one from ever reaching here.
+std::string quote_identifier(const std::string& name)
+{
+  std::string quoted = "\"";
+  for (char c : name)
+  {
+    if (c == '"')
+      quoted += "\"\"";
+    else
+      quoted += c;
+  }
+  quoted += '"';
+  return quoted;
+}
+
 int getEpsgCode(const GDALDataPtr& connection,
                 const std::string& schema,
                 const std::string& table,
@@ -41,8 +105,14 @@ int getEpsgCode(const GDALDataPtr& connection,
     auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
     using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
 
-    std::string sqlStmt =
-        "select st_srid(" + geometry_column + ") from " + schema + "." + table + " limit 1;";
+    validate_identifier(schema, "schema name");
+    validate_identifier(table, "table name");
+    validate_identifier(geometry_column, "geometry column name");
+
+    std::string sqlStmt = fmt::format("select st_srid({}) from {}.{} limit 1;",
+                                      quote_identifier(geometry_column),
+                                      quote_identifier(schema),
+                                      quote_identifier(table));
 
     SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
@@ -205,12 +275,18 @@ OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
       return bbox;
     }
 
+    validate_identifier(schema, "schema name");
+    validate_identifier(table, "table name");
+    validate_identifier(geometry_column, "geometry column name");
+
 #if 0
     std::string sqlStmt = "SELECT ST_EstimatedExtent('" + schema + "', '" + table + "', '" +
                           geometry_column + "')::geometry as extent";
 #else
-    std::string sqlStmt = "SELECT ST_Extent(" + geometry_column + ")::geometry as extent FROM " +
-                          schema + "." + table;
+    std::string sqlStmt = fmt::format("SELECT ST_Extent({})::geometry as extent FROM {}.{}",
+                                      quote_identifier(geometry_column),
+                                      quote_identifier(schema),
+                                      quote_identifier(table));
 #endif
 
     auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
@@ -338,6 +414,16 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
     if (theOptions.table.empty())
       throw Fmi::Exception(BCP, "PostGIS table name missing from map query");
 
+    // schema/table are passed as "schema.table" to GDAL's PG driver and may be
+    // request-substitutable, so validate them as strict SQL identifiers.
+    validate_identifier(theOptions.schema, "schema name");
+    validate_identifier(theOptions.table, "table name");
+
+    // NOTE on theOptions.where: this is a free-form SQL fragment passed verbatim
+    // to OGRLayer::SetAttributeFilter(). It cannot be parameterized through the
+    // OGR API, so it must originate only from trusted server configuration (WMS
+    // product templates), never from raw request parameters. See getFeatures().
+
     // Find simplified map from the cache
 
     auto keys = cache_keys(theOptions, theSR);
@@ -400,7 +486,15 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
     if (geom)
     {
       std::vector<OGRGeometryPtr> wrap{geom};
-      theOptions.amalgamator.apply(wrap);
+      // Pass minarea to the amalgamator as a per-cluster total-area filter:
+      // any cluster whose summed polygon area is below this km^2 threshold
+      // cannot possibly produce a merged outline that survives the downstream
+      // minarea despeckle, so the amalgamator may skip its CDT entirely.
+      // Working on a local copy keeps theOptions logically const.
+      auto amalg = theOptions.amalgamator;
+      if (theOptions.minarea)
+        amalg.minTotalArea(*theOptions.minarea);
+      amalg.apply(wrap);
       // The amalgamator may explode a single MultiPolygon into multiple
       // polygons; re-pack into a single geometry so downstream code is
       // unchanged. The original CRS is preserved by cloning.
@@ -489,6 +583,16 @@ Fmi::Features Engine::getFeatures(const Fmi::SpatialReference* theSR,
     if (theOptions.table.empty())
       throw Fmi::Exception(BCP, "PostGIS table name missing from map query");
 
+    // schema/table are passed as "schema.table" to GDAL's PG driver and may be
+    // request-substitutable, so validate them as strict SQL identifiers.
+    validate_identifier(theOptions.schema, "schema name");
+    validate_identifier(theOptions.table, "table name");
+
+    // NOTE on theOptions.where: this is a free-form SQL fragment passed verbatim
+    // to OGRLayer::SetAttributeFilter() and cannot be parameterized through the
+    // OGR API. It must originate only from trusted server configuration, never
+    // from raw request parameters. Residual injection risk lives entirely here.
+
     // Find simplified map from the cache
     auto keys = cache_keys(theOptions, theSR);
     const auto& basic_key = keys.first;
@@ -571,6 +675,14 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
   {
     MetaData metadata;
 
+    // Validate request-influenceable identifiers before they reach any SQL context
+    validate_identifier(theOptions.schema, "schema name");
+    validate_identifier(theOptions.table, "table name");
+    if (!theOptions.geometry_column.empty())
+      validate_identifier(theOptions.geometry_column, "geometry column name");
+    if (theOptions.time_column)
+      validate_identifier(*theOptions.time_column, "time column name");
+
     auto connection = db_connection(*itsConfig, theOptions.pgname);
 
     // Get time always in UTC
@@ -586,10 +698,11 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
       if (!timestep)
       {
         // List all available times
-        std::string sqlStmt = "SELECT DISTINCT(" + *theOptions.time_column + ")" + " FROM " +
-                              theOptions.schema + "." + theOptions.table + " WHERE " +
-                              *theOptions.time_column + " IS NOT NULL ORDER by " +
-                              *theOptions.time_column;
+        std::string sqlStmt =
+            fmt::format("SELECT DISTINCT({0}) FROM {1}.{2} WHERE {0} IS NOT NULL ORDER by {0}",
+                        quote_identifier(*theOptions.time_column),
+                        quote_identifier(theOptions.schema),
+                        quote_identifier(theOptions.table));
 
         SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 
@@ -630,10 +743,11 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
       else
       {
         // Establish starttime and endtime
-        std::string sqlStmt = "SELECT min(" + *theOptions.time_column + ") as mintime, max(" +
-                              *theOptions.time_column + ") as maxtime FROM " + theOptions.schema +
-                              "." + theOptions.table + " WHERE " + *theOptions.time_column +
-                              " IS NOT NULL";
+        std::string sqlStmt = fmt::format(
+            "SELECT min({0}) as mintime, max({0}) as maxtime FROM {1}.{2} WHERE {0} IS NOT NULL",
+            quote_identifier(*theOptions.time_column),
+            quote_identifier(theOptions.schema),
+            quote_identifier(theOptions.table));
 
         SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
 

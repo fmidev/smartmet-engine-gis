@@ -1,6 +1,8 @@
 #include "Engine.h"
 #include <regression/tframe.h>
 #include <spine/Reactor.h>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -42,13 +44,97 @@ void getFeatures()
 
 // ----------------------------------------------------------------------
 
+// Identifier validation must reject request-influenceable schema/table
+// names containing SQL metacharacters before any query is built. This
+// runs entirely in the engine (no database access) as the check happens
+// before db_connection().
+
+void sqlInjectionRejected()
+{
+  const std::vector<std::string> evil = {
+      "public; DROP TABLE varoalueet; --",
+      "public\"; DROP TABLE x; --",
+      "public.varoalueet",  // dot would collapse schema and table
+      "public'",
+      "1public",
+      "",
+      "public varoalueet"};
+
+  for (const auto &bad : evil)
+  {
+    // Malicious schema name
+    {
+      SmartMet::Engine::Gis::MapOptions options;
+      options.schema = bad;
+      options.table = "varoalueet";
+      bool threw = false;
+      try
+      {
+        gengine->getFeatures(options);
+      }
+      catch (...)
+      {
+        threw = true;
+      }
+      if (!threw)
+        TEST_FAILED("Malicious schema name was not rejected: '" + bad + "'");
+    }
+
+    // Malicious table name
+    {
+      SmartMet::Engine::Gis::MapOptions options;
+      options.schema = "public";
+      options.table = bad;
+      bool threw = false;
+      try
+      {
+        gengine->getFeatures(options);
+      }
+      catch (...)
+      {
+        threw = true;
+      }
+      if (!threw)
+        TEST_FAILED("Malicious table name was not rejected: '" + bad + "'");
+    }
+
+    // Malicious time_column via getMetaData
+    {
+      SmartMet::Engine::Gis::MetaDataQueryOptions options;
+      options.schema = "public";
+      options.table = "varoalueet";
+      options.geometry_column = "geom";
+      options.time_column = bad;
+      bool threw = false;
+      try
+      {
+        gengine->getMetaData(options);
+      }
+      catch (...)
+      {
+        threw = true;
+      }
+      if (!threw)
+        TEST_FAILED("Malicious time_column was not rejected: '" + bad + "'");
+    }
+  }
+
+  TEST_PASSED();
+}
+
+// ----------------------------------------------------------------------
+
 // Test driver
 class tests : public tframe::tests
 {
   // Overridden message separator
   virtual const char *error_message_prefix() const { return "\n\t"; }
   // Main test suite
-  void test() { TEST(getFeatures); }
+  void test()
+  {
+    TEST(sqlInjectionRejected);
+    TEST(getFeatures);
+  }
 };  // class tests
 
 }  // namespace Tests
