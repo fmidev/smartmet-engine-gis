@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.9.26
+Version: 26.10.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -39,7 +39,7 @@ BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 26.9.23
 BuildRequires: smartmet-library-newbase-devel >= 26.9.23
 BuildRequires: smartmet-library-spine-devel >= 26.9.23
-BuildRequires: smartmet-library-macgyver-devel >= 26.9.23
+BuildRequires: smartmet-library-macgyver-devel >= 26.10.2
 BuildRequires: smartmet-utils-devel >= 26.9.3
 BuildRequires: zlib-devel
 BuildRequires: sqlite3pp-devel >= 1.0.9
@@ -52,7 +52,7 @@ Requires: gdal312-libs
 Requires: geos313
 Requires: smartmet-library-gis >= 26.9.23
 Requires: smartmet-library-spine >= 26.9.23
-Requires: smartmet-library-macgyver >= 26.9.23
+Requires: smartmet-library-macgyver >= 26.10.2
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
 Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
@@ -104,6 +104,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Fri Oct 02 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.2-1.fmi
+- Rebuilt against macgyver 26.10.2 where Fmi::Cache::Cache uses CLOCK eviction instead of LRU.
+  CLOCK is faster than LRU since a cache hit only takes a shared lock (ABI change)
+
 * Sat Sep 26 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.9.26-1.fmi
 - Security (H-21): validate request-influenceable SQL identifiers (schema, table, geometry column, time column) as strict [A-Za-z_][A-Za-z0-9_]* names and quote them as PostgreSQL identifiers before placing them in ExecuteSQL statements or passing "schema.table" to GDAL's PG driver, closing SQL injection via getShape/getFeatures/getMetaData. The free-form WHERE clause cannot be parameterized through the OGR SetAttributeFilter() API and is documented as trusted-config-only; residual injection risk remains only if a deployment substitutes request parameters into the WHERE clause.
 
