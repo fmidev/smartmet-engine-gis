@@ -16,6 +16,10 @@ The GIS engine provides shared geographic information system (GIS) services to S
 
 - [smartmet-library-gis](https://github.com/fmidev/smartmet-library-gis) — GIS operations
 
+## Documentation
+
+- [Developer guide](docs/developer-guide.md) — API, caches, configuration, compatibility, pitfalls
+
 ## License
 
 MIT — see [LICENSE](LICENSE)

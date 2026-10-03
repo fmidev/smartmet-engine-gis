@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `smartmet-engine-gis` is a SmartMet Server engine that provides shared GIS services (coordinate projections, PostGIS geometry access, spatial reference management) to all server plugins. It is dynamically loaded as `gis.so` by the SmartMet Server daemon.
 
+Full developer documentation: `docs/developer-guide.md`.
+
 ## Build commands
 
 ```bash
