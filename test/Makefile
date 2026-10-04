@@ -21,6 +21,7 @@ LIBS += \
 	../gis.so \
 	$(REQUIRED_LIBS) \
 	-lsmartmet-spine \
+	-lsmartmet-gis \
 	-lsmartmet-macgyver \
 	-lboost_thread \
 	-lboost_regex \
