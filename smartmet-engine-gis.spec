@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.10.2
+Version: 26.10.4
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -36,7 +36,7 @@ Requires: libtiff
 
 BuildRequires: make
 BuildRequires: rpm-build
-BuildRequires: smartmet-library-gis-devel >= 26.9.23
+BuildRequires: smartmet-library-gis-devel >= 26.10.4
 BuildRequires: smartmet-library-newbase-devel >= 26.9.23
 BuildRequires: smartmet-library-spine-devel >= 26.9.23
 BuildRequires: smartmet-library-macgyver-devel >= 26.10.2
@@ -50,7 +50,7 @@ Requires: %{smartmet_boost}-system
 Requires: %{smartmet_boost}-thread
 Requires: gdal312-libs
 Requires: geos313
-Requires: smartmet-library-gis >= 26.9.23
+Requires: smartmet-library-gis >= 26.10.4
 Requires: smartmet-library-spine >= 26.9.23
 Requires: smartmet-library-macgyver >= 26.10.2
 Provides: %{SPECNAME}
@@ -60,7 +60,7 @@ Obsoletes: smartmet-brainstorm-gis-debuginfo < 16.11.1
 #TestRequires: gdal312-devel
 #TestRequires: bzip2-devel
 #TestRequires: zlib-devel
-#TestRequires: smartmet-library-gis-devel >= 26.9.23
+#TestRequires: smartmet-library-gis-devel >= 26.10.4
 #TestRequires: smartmet-library-regression >= 26.9.3
 #TestRequires: smartmet-library-spine-devel >= 26.9.23
 #TestRequires: smartmet-library-macgyver-devel >= 26.9.23
@@ -75,7 +75,7 @@ Summary: SmartMet %{SPECNAME} development headers
 Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
-Requires: smartmet-library-gis >= 26.9.23
+Requires: smartmet-library-gis >= 26.10.4
 Requires: smartmet-library-spine >= 26.9.23
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Sun Oct 04 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.4-1.fmi
+- Report the gis library spatial reference store once, since gis 26.10.4 keeps parsed and derived values in a single cache
+
 * Fri Oct 02 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.2-1.fmi
 - Rebuilt against macgyver 26.10.2 where Fmi::Cache::Cache uses CLOCK eviction instead of LRU.
   CLOCK is faster than LRU since a cache hit only takes a shared lock (ABI change)
