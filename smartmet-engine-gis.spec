@@ -3,7 +3,7 @@
 %define SPECNAME smartmet-engine-%{DIRNAME}
 Summary: SmartMet GIS engine
 Name: %{SPECNAME}
-Version: 26.10.4
+Version: 26.10.14
 Release: 1%{?dist}.fmi
 License: MIT
 Group: SmartMet/Engines
@@ -37,8 +37,8 @@ Requires: libtiff
 BuildRequires: make
 BuildRequires: rpm-build
 BuildRequires: smartmet-library-gis-devel >= 26.10.4
-BuildRequires: smartmet-library-newbase-devel >= 26.9.23
-BuildRequires: smartmet-library-spine-devel >= 26.9.23
+BuildRequires: smartmet-library-newbase-devel >= 26.10.13
+BuildRequires: smartmet-library-spine-devel >= 26.10.13
 BuildRequires: smartmet-library-macgyver-devel >= 26.10.2
 BuildRequires: smartmet-utils-devel >= 26.9.3
 BuildRequires: zlib-devel
@@ -51,7 +51,7 @@ Requires: %{smartmet_boost}-thread
 Requires: gdal312-libs
 Requires: geos313
 Requires: smartmet-library-gis >= 26.10.4
-Requires: smartmet-library-spine >= 26.9.23
+Requires: smartmet-library-spine >= 26.10.13
 Requires: smartmet-library-macgyver >= 26.10.2
 Provides: %{SPECNAME}
 Obsoletes: smartmet-brainstorm-gis < 16.11.1
@@ -76,7 +76,7 @@ Group: SmartMet/Development
 Provides: %{SPECNAME}-devel
 Requires: %{SPECNAME} = %{version}-%{release}
 Requires: smartmet-library-gis >= 26.10.4
-Requires: smartmet-library-spine >= 26.9.23
+Requires: smartmet-library-spine >= 26.10.13
 Obsoletes: smartmet-brainstorm-gis-devel < 16.11.1
 %description -n %{SPECNAME}-devel
 SmartMet %{SPECNAME} development headers.
@@ -104,6 +104,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/smartmet/engines/%{DIRNAME}/*.h
 
 %changelog
+* Wed Oct 14 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.14-1.fmi
+- Fixed mechanical clang-tidy findings (internal linkage, unused parameters, initialization, redundant code), no functional changes
+- Requires 26.10.13 versions of newbase, spine due to their ABI changes
+
 * Sun Oct 04 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.4-1.fmi
 - Report the gis library spatial reference store once, since gis 26.10.4 keeps parsed and derived values in a single cache
 

@@ -210,7 +210,7 @@ void GeometryStorage::dumpContents(std::ostream& out, const std::string& format)
     auto table = dumpContents();
     Spine::TableFormatterOptions options;
     options.setFormatType(format);
-    auto formatter = Spine::TableFormatterFactory::create(format);
+    auto* formatter = Spine::TableFormatterFactory::create(format);
     out << formatter->format(*table, {}, Spine::HTTP::Request(), options);
   }
   catch (...)
