@@ -714,7 +714,7 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
           if (!pFeature)
             break;
 
-          tm timeinfo;
+          tm timeinfo{};
 
           bool ret = pFeature->GetFieldAsDateTime(0,
                                                   &timeinfo.tm_year,
@@ -758,8 +758,8 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
         if (!pFeature)
           throw Fmi::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
 
-        tm start_tm;
-        tm end_tm;
+        tm start_tm{};
+        tm end_tm{};
 
         bool ret1 = pFeature->GetFieldAsDateTime(0,
                                                  &start_tm.tm_year,

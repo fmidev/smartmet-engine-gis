@@ -17,7 +17,7 @@ namespace Gis
 // postgis settings
 struct postgis_connection_info
 {
-  int port;
+  int port = 0;
   std::string host;
   std::string database;
   std::string username;
