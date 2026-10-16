@@ -377,6 +377,215 @@ void read_time_interval(const GDALDataPtr& connection,
   }
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Test whether a geometry with the same name and type has already been handled
+ *
+ * Geometries with the same name and type from the same table are merged, except
+ * for points. Geometries from different tables are not merged. Registers the
+ * geometry as seen on first encounter.
+ */
+// ----------------------------------------------------------------------
+
+bool is_handled_geometry(std::map<std::string, std::string>& geomid_pgkey_map,
+                         const std::string& geomName,
+                         OGRwkbGeometryType geomType,
+                         const std::string& pgKey)
+{
+  std::string geom_id = (geomName + Fmi::to_string(static_cast<int>(geomType)));
+  auto pos = geomid_pgkey_map.find(geom_id);
+  if (pos == geomid_pgkey_map.end())
+  {
+    // Geometry (name+type) encountered first time
+    geomid_pgkey_map[geom_id] = pgKey;
+    return false;
+  }
+
+  // Geom of the same type and source_name processed already
+  if (pos->second != pgKey)
+    return true;
+
+  // Skip POINT-geometry with the same name and type. For example city 'Brest' can be
+  // found both in France and in Belarus. Other than POINT-geometries are
+  // merged, for example roads are stored in small sections and must be merged
+  return (geomType == wkbPoint);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Merge a new geometry into a previous one with the same name and type
+ */
+// ----------------------------------------------------------------------
+
+void merge_geometry(std::shared_ptr<OGRGeometry>& previousGeom,
+                    const OGRGeometry* geom,
+                    OGRwkbGeometryType geomType)
+{
+  if (geomType == wkbMultiLineString)
+  {
+    // Multilinestrings are merged with addGeometryDirectly-function
+    auto* geom_tmp = dynamic_cast<OGRMultiLineString*>(previousGeom->clone());
+    const auto* new_geom = dynamic_cast<const OGRMultiLineString*>(geom);
+    // Iterate the LINESTRINGS inside Multilinestring and add them to old one
+    for (int i = 0; i < new_geom->getNumGeometries(); i++)
+    {
+      geom_tmp->addGeometryDirectly(new_geom->getGeometryRef(i)->clone());
+    }
+    previousGeom.reset(geom_tmp);
+  }
+  else
+  {
+    // For other geometries use Union-function
+    previousGeom.reset(previousGeom->Union(geom));
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a geometry to the geometries of the same type, merging it with a namesake
+ */
+// ----------------------------------------------------------------------
+
+void add_geometry(std::map<int, NameOGRGeometryMap>& geometries,
+                  const std::string& geomName,
+                  OGRwkbGeometryType geomType,
+                  const OGRGeometry* geom)
+{
+  // If same name and type found
+  if (geometries.find(geomType) == geometries.end())
+  {
+    // If that type of geometries not found, add new one
+    NameOGRGeometryMap nameOGRGeometryMap;
+    nameOGRGeometryMap.insert(make_pair(geomName, std::shared_ptr<OGRGeometry>(geom->clone())));
+    geometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
+    return;
+  }
+
+  // That type of geometries found
+  NameOGRGeometryMap& nameOGRGeometryMap = geometries[geomType];
+  // If named area not found, add new one
+  if (nameOGRGeometryMap.find(geomName) == nameOGRGeometryMap.end())
+  {
+    nameOGRGeometryMap.insert(
+        std::make_pair(geomName, std::shared_ptr<OGRGeometry>(geom->clone())));
+  }
+  else
+  {
+    // Do the merge with the new and old one
+    merge_geometry(nameOGRGeometryMap[geomName], geom, geomType);
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Amalgamate nearby polygons of a geometry
+ */
+// ----------------------------------------------------------------------
+
+OGRGeometryPtr amalgamate(OGRGeometryPtr geom, const MapOptions& theOptions)
+{
+  std::vector<OGRGeometryPtr> wrap{geom};
+  // Pass minarea to the amalgamator as a per-cluster total-area filter:
+  // any cluster whose summed polygon area is below this km^2 threshold
+  // cannot possibly produce a merged outline that survives the downstream
+  // minarea despeckle, so the amalgamator may skip its CDT entirely.
+  // Working on a local copy keeps theOptions logically const.
+  auto amalg = theOptions.amalgamator;
+  if (theOptions.minarea)
+    amalg.minTotalArea(*theOptions.minarea);
+  amalg.apply(wrap);
+  // The amalgamator may explode a single MultiPolygon into multiple
+  // polygons; re-pack into a single geometry so downstream code is
+  // unchanged. The original CRS is preserved by cloning.
+  const auto* sr = geom->getSpatialReference();
+  if (wrap.empty())
+  {
+    geom.reset();
+  }
+  else if (wrap.size() == 1)
+  {
+    geom = wrap.front();
+    if (geom && sr)
+      geom->assignSpatialReference(sr);
+  }
+  else
+  {
+    auto* mp = new OGRMultiPolygon();
+    if (sr)
+      mp->assignSpatialReference(sr);
+    for (const auto& g : wrap)
+      if (g && !g->IsEmpty())
+        mp->addGeometryDirectly(g->clone());
+    geom.reset(mp);
+  }
+  return geom;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Simplify a geometry preserving topology with a tolerance given in kilometers
+ */
+// ----------------------------------------------------------------------
+
+void simplify_by_distance(OGRGeometryPtr& geom, double theDistance)
+{
+  const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
+  const double kilometers_to_meters = 1000;
+
+  const auto* crs = geom->getSpatialReference();
+  bool geographic = (crs ? crs->IsGeographic() : false);
+  if (!geographic)
+    geom.reset(geom->SimplifyPreserveTopology(kilometers_to_meters * theDistance));
+  else
+    geom.reset(geom->SimplifyPreserveTopology(kilometers_to_degrees * theDistance));
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Apply the simplification pipeline to a geometry
+ *
+ * Order:
+ *   1) amalgamator (merges nearby polygons via constrained Delaunay)
+ *   2) minarea  (despeckle isolated polygons by km^2)
+ *   3) mindistance (GEOS SimplifyPreserveTopology in km)
+ *   4) simplifier (Douglas-Peucker / Visvalingam-Whyatt, pixel-based)
+ */
+// ----------------------------------------------------------------------
+
+OGRGeometryPtr apply_simplification_pipeline(OGRGeometryPtr geom, const MapOptions& theOptions)
+{
+  if (geom)
+    geom = amalgamate(geom, theOptions);
+
+  if (theOptions.minarea && geom)
+    geom.reset(Fmi::OGR::despeckle(*geom, *theOptions.minarea));
+
+  if (theOptions.mindistance && geom)
+    simplify_by_distance(geom, *theOptions.mindistance);
+
+  if (geom)
+  {
+    std::vector<OGRGeometryPtr> wrap{geom};
+    theOptions.simplifier.apply(wrap, false);
+    geom = wrap.empty() ? OGRGeometryPtr() : wrap.front();
+  }
+
+  return geom;
+}
+
+// Add quotation mark in the beginning and in the end of nonempty SVG strings
+void quote_svg_strings(std::map<std::string, std::string>& theSvgs)
+{
+  for (auto& svg : theSvgs)
+  {
+    if (!svg.second.empty() && svg.second[0] != '"')
+    {
+      svg.second.insert(0, "\"");
+      svg.second.append("\"");
+    }
+  }
+}
+
 }  // namespace
 
 OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
@@ -607,68 +816,7 @@ OGRGeometryPtr Engine::getShape(const Fmi::SpatialReference* theSR,
     // amalgamator could not merge into a neighbour, and so that the new
     // simplifier operates on the merged outline.
 
-    if (geom)
-    {
-      std::vector<OGRGeometryPtr> wrap{geom};
-      // Pass minarea to the amalgamator as a per-cluster total-area filter:
-      // any cluster whose summed polygon area is below this km^2 threshold
-      // cannot possibly produce a merged outline that survives the downstream
-      // minarea despeckle, so the amalgamator may skip its CDT entirely.
-      // Working on a local copy keeps theOptions logically const.
-      auto amalg = theOptions.amalgamator;
-      if (theOptions.minarea)
-        amalg.minTotalArea(*theOptions.minarea);
-      amalg.apply(wrap);
-      // The amalgamator may explode a single MultiPolygon into multiple
-      // polygons; re-pack into a single geometry so downstream code is
-      // unchanged. The original CRS is preserved by cloning.
-      const auto* sr = geom->getSpatialReference();
-      if (wrap.empty())
-      {
-        geom.reset();
-      }
-      else if (wrap.size() == 1)
-      {
-        geom = wrap.front();
-        if (geom && sr)
-          geom->assignSpatialReference(sr);
-      }
-      else
-      {
-        auto* mp = new OGRMultiPolygon();
-        if (sr)
-          mp->assignSpatialReference(sr);
-        for (const auto& g : wrap)
-          if (g && !g->IsEmpty())
-            mp->addGeometryDirectly(g->clone());
-        geom.reset(mp);
-      }
-    }
-
-    if (theOptions.minarea && geom)
-      geom.reset(Fmi::OGR::despeckle(*geom, *theOptions.minarea));
-
-    if (theOptions.mindistance && geom)
-    {
-      const double kilometers_to_degrees = 1.0 / 110.0;  // one degree latitude =~ 110 km
-      const double kilometers_to_meters = 1000;
-
-      const auto* crs = geom->getSpatialReference();
-      bool geographic = (crs ? crs->IsGeographic() : false);
-      if (!geographic)
-        geom.reset(
-            geom->SimplifyPreserveTopology(kilometers_to_meters * (*theOptions.mindistance)));
-      else
-        geom.reset(
-            geom->SimplifyPreserveTopology(kilometers_to_degrees * (*theOptions.mindistance)));
-    }
-
-    if (geom)
-    {
-      std::vector<OGRGeometryPtr> wrap{geom};
-      theOptions.simplifier.apply(wrap, false);
-      geom = wrap.empty() ? OGRGeometryPtr() : wrap.front();
-    }
+    geom = apply_simplification_pipeline(geom, theOptions);
 
     // Cache the result. Empty is not cached for the same reason as above: the
     // pipeline can legitimately simplify a geometry away, but the result would
@@ -921,145 +1069,56 @@ void Engine::populateGeometryStorage(const PostGISIdentifierVector& thePostGISId
       {
         const OGRGeometry* geom = feature->geom.get();
 
-        if (geom != nullptr)
+        if (geom == nullptr)
+          continue;
+
+        Fmi::Attribute attribute = feature->attributes.at(pgId.field);
+        AttributeToString ats;
+        std::string geomName = std::visit(ats, attribute);
+        geomName += pgId.source_name;
+
+        // Geometry name can not be empty, since it is used for example in timeseries queries
+        // like 'place=helsinki'
+        if (geomName.empty())
+          continue;
+
+        // Convert to lower case
+        normalize_string(geomName);
+
+        OGRwkbGeometryType geomType = geom->getGeometryType();
+
+        if (is_handled_geometry(geomid_pgkey_map, geomName, geomType, pgKey))
+          continue;
+
+        add_geometry(theGeometryStorage.itsGeometries, geomName, geomType, geom);
+
+        std::string svgString = Fmi::OGR::exportToSvg(*geom, Fmi::Box::identity(), 6);
+
+        if (geomType == wkbPolygon || geomType == wkbMultiPolygon)
         {
-          Fmi::Attribute attribute = feature->attributes.at(pgId.field);
-          AttributeToString ats;
-          std::string geomName = std::visit(ats, attribute);
-          geomName += pgId.source_name;
-
-          // Geometry name can not be empty, since it is used for example in timeseries queries
-          // like 'place=helsinki'
-          if (geomName.empty())
-            continue;
-
-          // Convert to lower case
-          normalize_string(geomName);
-
-          OGRwkbGeometryType geomType = geom->getGeometryType();
-
-          std::string geom_id = (geomName + Fmi::to_string(static_cast<int>(geomType)));
-          if (geomid_pgkey_map.find(geom_id) != geomid_pgkey_map.end())
-          {
-            if (geomid_pgkey_map.at(geom_id) != pgKey)
-            {
-              // Geom of the same type and source_name processed already
-              continue;
-            }
-
-            if (geomType == wkbPoint)
-            {
-              // Skip POINT-geometry with the same name and type. For example city 'Brest' can be
-              // found both in France and in Belarus. Other than POINT-geometries are
-              // merged below, for example roads are stored in small sections and must be merged
-              continue;
-            }
-          }
-          else
-          {
-            // Geometry (name+type) encountered first time
-            geomid_pgkey_map[geomName + Fmi::to_string(static_cast<int>(geomType))] = pgKey;
-          }
-
-          // If same name and type found
-          if (theGeometryStorage.itsGeometries.find(geomType) ==
-              theGeometryStorage.itsGeometries.end())
-          {
-            // If that type of geometries not found, add new one
-            NameOGRGeometryMap nameOGRGeometryMap;
-            nameOGRGeometryMap.insert(
-                make_pair(geomName, std::shared_ptr<OGRGeometry>(geom->clone())));
-            theGeometryStorage.itsGeometries.insert(std::make_pair(geomType, nameOGRGeometryMap));
-          }
-          else
-          {
-            // That type of geometries found
-            NameOGRGeometryMap& nameOGRGeometryMap = theGeometryStorage.itsGeometries[geomType];
-            // If named area not found, add new one
-            if (nameOGRGeometryMap.find(geomName) == nameOGRGeometryMap.end())
-            {
-              nameOGRGeometryMap.insert(
-                  std::make_pair(geomName, std::shared_ptr<OGRGeometry>(geom->clone())));
-            }
-            else
-            {
-              // Do the merge with the new and old one
-              std::shared_ptr<OGRGeometry>& previousGeom = nameOGRGeometryMap[geomName];
-              if (geomType == wkbMultiLineString)
-              {
-                // Multilinestrings are merged with addGeometryDirectly-function
-                auto* geom_tmp = dynamic_cast<OGRMultiLineString*>(previousGeom->clone());
-                const auto* new_geom = dynamic_cast<const OGRMultiLineString*>(geom);
-                // Iterate the LINESTRINGS inside Multilinestring and add them to old one
-                for (int i = 0; i < new_geom->getNumGeometries(); i++)
-                {
-                  geom_tmp->addGeometryDirectly(new_geom->getGeometryRef(i)->clone());
-                }
-                previousGeom.reset(geom_tmp);
-              }
-              else
-              {
-                // For other geometries use Union-function
-                previousGeom.reset(previousGeom->Union(geom));
-              }
-            }
-          }
-
-          std::string svgString = Fmi::OGR::exportToSvg(*geom, Fmi::Box::identity(), 6);
-
-          if (geomType == wkbPolygon || geomType == wkbMultiPolygon)
-          {
 #ifdef MYDEBUG
-            cout << "POLYGON in SVG format: " << svgString << endl;
+          cout << "POLYGON in SVG format: " << svgString << endl;
 #endif
-            if (theGeometryStorage.itsPolygons.find(geomName) !=
-                theGeometryStorage.itsPolygons.end())
-              theGeometryStorage.itsPolygons[geomName] = svgString;
-            else
-              theGeometryStorage.itsPolygons.insert(std::make_pair(geomName, svgString));
-          }
-          else if (geomType == wkbLineString || geomType == wkbMultiLineString)
-          {
+          theGeometryStorage.itsPolygons[geomName] = svgString;
+        }
+        else if (geomType == wkbLineString || geomType == wkbMultiLineString)
+        {
 #ifdef MYDEBUG
-            std::cout << "LINE in SVG format: " << svgString << std::endl;
+          std::cout << "LINE in SVG format: " << svgString << std::endl;
 #endif
-            if (theGeometryStorage.itsLines.find(geomName) != theGeometryStorage.itsLines.end())
-            {
-              theGeometryStorage.itsLines[geomName].append(svgString);
-            }
-            else
-              theGeometryStorage.itsLines.insert(std::make_pair(geomName, svgString));
-          }
-          else if (geomType == wkbPoint)
-          {
-            const auto* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
-            if (theGeometryStorage.itsPoints.find(geomName) != theGeometryStorage.itsPoints.end())
-              theGeometryStorage.itsPoints[geomName] =
-                  std::make_pair(ogrPoint->getX(), ogrPoint->getY());
-            else
-              theGeometryStorage.itsPoints.insert(
-                  std::make_pair(geomName, std::make_pair(ogrPoint->getX(), ogrPoint->getY())));
-          }
+          theGeometryStorage.itsLines[geomName].append(svgString);
+        }
+        else if (geomType == wkbPoint)
+        {
+          const auto* ogrPoint = reinterpret_cast<const OGRPoint*>(geom);
+          theGeometryStorage.itsPoints[geomName] =
+              std::make_pair(ogrPoint->getX(), ogrPoint->getY());
         }
       }
     }
     // Add quotation mark in the beginning and in the end
-    for (auto& svg : theGeometryStorage.itsLines)
-    {
-      if (!svg.second.empty() && svg.second[0] != '"')
-      {
-        svg.second.insert(0, "\"");
-        svg.second.append("\"");
-      }
-    }
-    for (auto& svg : theGeometryStorage.itsPolygons)
-    {
-      if (!svg.second.empty() && svg.second[0] != '"')
-      {
-        svg.second.insert(0, "\"");
-        svg.second.append("\"");
-      }
-    }
+    quote_svg_strings(theGeometryStorage.itsLines);
+    quote_svg_strings(theGeometryStorage.itsPolygons);
   }
   catch (...)
   {
