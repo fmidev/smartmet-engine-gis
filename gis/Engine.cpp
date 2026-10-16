@@ -252,6 +252,131 @@ std::pair<std::string, std::string> cache_keys(const MapOptions& theOptions,
   }
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Read a date-time field as GDAL returns it, returns false on failure
+ */
+// ----------------------------------------------------------------------
+
+bool get_field_time(OGRFeature& feature, int field, tm& t)
+{
+  return feature.GetFieldAsDateTime(field,
+                                    &t.tm_year,
+                                    &t.tm_mon,
+                                    &t.tm_mday,
+                                    &t.tm_hour,
+                                    &t.tm_min,
+                                    &t.tm_sec,
+                                    &t.tm_isdst);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Convert a date-time read by GDAL to a time
+ */
+// ----------------------------------------------------------------------
+
+Fmi::DateTime field_time(tm t)
+{
+  t.tm_year -= 1900;  // years after 1900
+  t.tm_mon -= 1;      // months 0..11
+  return Fmi::DateTime::from_tm(t);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief List all available times of the table
+ */
+// ----------------------------------------------------------------------
+
+void read_timesteps(const GDALDataPtr& connection,
+                    const MetaDataQueryOptions& theOptions,
+                    MetaData& metadata)
+{
+  auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
+  using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
+
+  std::string sqlStmt =
+      fmt::format("SELECT DISTINCT({0}) FROM {1}.{2} WHERE {0} IS NOT NULL ORDER by {0}",
+                  quote_identifier(*theOptions.time_column),
+                  quote_identifier(theOptions.schema),
+                  quote_identifier(theOptions.table));
+
+  SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
+
+  if (!pLayer)
+    throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+
+  while (true)
+  {
+    SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
+    if (!pFeature)
+      break;
+
+    tm timeinfo{};
+
+    bool ret = get_field_time(*pFeature, 0, timeinfo);
+
+    if (!ret)
+    {
+      std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table << "."
+                << *theOptions.time_column << "' failed!\n";
+      break;
+    }
+
+    metadata.timesteps.push_back(field_time(timeinfo));
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Establish starttime and endtime of the table
+ */
+// ----------------------------------------------------------------------
+
+void read_time_interval(const GDALDataPtr& connection,
+                        const MetaDataQueryOptions& theOptions,
+                        const Fmi::TimeDuration& timestep,
+                        MetaData& metadata)
+{
+  auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
+  using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
+
+  std::string sqlStmt = fmt::format(
+      "SELECT min({0}) as mintime, max({0}) as maxtime FROM {1}.{2} WHERE {0} IS NOT NULL",
+      quote_identifier(*theOptions.time_column),
+      quote_identifier(theOptions.schema),
+      quote_identifier(theOptions.table));
+
+  SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
+
+  if (!pLayer)
+    throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
+
+  SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
+
+  if (!pFeature)
+    throw Fmi::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
+
+  tm start_tm{};
+  tm end_tm{};
+
+  bool ret1 = get_field_time(*pFeature, 0, start_tm);
+  bool ret2 = get_field_time(*pFeature, 1, end_tm);
+
+  if (!ret1 || !ret2)
+  {
+    std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table << "."
+              << *theOptions.time_column << "' failed!\n";
+  }
+  else
+  {
+    auto starttime = field_time(start_tm);
+    auto endtime = field_time(end_tm);
+    metadata.timeinterval = TimeInterval{starttime, endtime, timestep};
+  }
+}
+
 }  // namespace
 
 OGREnvelope Engine::getTableEnvelope(const GDALDataPtr& connection,
@@ -687,115 +812,14 @@ MetaData Engine::getMetaData(const MetaDataQueryOptions& theOptions) const
     // Get time always in UTC
     connection->ExecuteSQL("SET TIME ZONE UTC", nullptr, nullptr);
 
-    auto layerdeleter = [&](OGRLayer* p) { connection->ReleaseResultSet(p); };
-    using SafeLayer = std::unique_ptr<OGRLayer, decltype(layerdeleter)>;
-
     // 1) Get timesteps
     if (theOptions.time_column)
     {
       auto timestep = itsConfig->getTableTimeStep(theOptions.schema, theOptions.table);
       if (!timestep)
-      {
-        // List all available times
-        std::string sqlStmt =
-            fmt::format("SELECT DISTINCT({0}) FROM {1}.{2} WHERE {0} IS NOT NULL ORDER by {0}",
-                        quote_identifier(*theOptions.time_column),
-                        quote_identifier(theOptions.schema),
-                        quote_identifier(theOptions.table));
-
-        SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
-
-        if (!pLayer)
-          throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
-
-        while (true)
-        {
-          SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
-          if (!pFeature)
-            break;
-
-          tm timeinfo{};
-
-          bool ret = pFeature->GetFieldAsDateTime(0,
-                                                  &timeinfo.tm_year,
-                                                  &timeinfo.tm_mon,
-                                                  &timeinfo.tm_mday,
-                                                  &timeinfo.tm_hour,
-                                                  &timeinfo.tm_min,
-                                                  &timeinfo.tm_sec,
-                                                  &timeinfo.tm_isdst);
-
-          if (!ret)
-          {
-            std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
-                      << "." << *theOptions.time_column << "' failed!\n";
-            break;
-          }
-
-          timeinfo.tm_year -= 1900;  // years after 1900
-          timeinfo.tm_mon -= 1;      // months 0..11
-
-          metadata.timesteps.push_back(Fmi::DateTime::from_tm(timeinfo));
-        }
-      }
-
+        read_timesteps(connection, theOptions, metadata);  // List all available times
       else
-      {
-        // Establish starttime and endtime
-        std::string sqlStmt = fmt::format(
-            "SELECT min({0}) as mintime, max({0}) as maxtime FROM {1}.{2} WHERE {0} IS NOT NULL",
-            quote_identifier(*theOptions.time_column),
-            quote_identifier(theOptions.schema),
-            quote_identifier(theOptions.table));
-
-        SafeLayer pLayer(connection->ExecuteSQL(sqlStmt.c_str(), nullptr, nullptr), layerdeleter);
-
-        if (!pLayer)
-          throw Fmi::Exception(BCP, "Gis-engine: PostGIS metadata query failed: '" + sqlStmt + "'");
-
-        SafeFeature pFeature(pLayer->GetNextFeature(), featuredeleter);
-
-        if (!pFeature)
-          throw Fmi::Exception(BCP, "Gis-engine: PostGIS feature query failed: '" + sqlStmt + "'");
-
-        tm start_tm{};
-        tm end_tm{};
-
-        bool ret1 = pFeature->GetFieldAsDateTime(0,
-                                                 &start_tm.tm_year,
-                                                 &start_tm.tm_mon,
-                                                 &start_tm.tm_mday,
-                                                 &start_tm.tm_hour,
-                                                 &start_tm.tm_min,
-                                                 &start_tm.tm_sec,
-                                                 &start_tm.tm_isdst);
-        bool ret2 = pFeature->GetFieldAsDateTime(1,
-                                                 &end_tm.tm_year,
-                                                 &end_tm.tm_mon,
-                                                 &end_tm.tm_mday,
-                                                 &end_tm.tm_hour,
-                                                 &end_tm.tm_min,
-                                                 &end_tm.tm_sec,
-                                                 &end_tm.tm_isdst);
-
-        if (!ret1 || !ret2)
-        {
-          std::cout << "Reading values from '" << theOptions.schema << "." << theOptions.table
-                    << "." << *theOptions.time_column << "' failed!\n";
-        }
-        else
-        {
-          start_tm.tm_year -= 1900;  // years after 1900
-          start_tm.tm_mon -= 1;      // months 0..11
-
-          end_tm.tm_year -= 1900;  // years after 1900
-          end_tm.tm_mon -= 1;      // months 0..11
-
-          auto starttime = Fmi::DateTime::from_tm(start_tm);
-          auto endtime = Fmi::DateTime::from_tm(end_tm);
-          metadata.timeinterval = TimeInterval{starttime, endtime, *timestep};
-        }
-      }
+        read_time_interval(connection, theOptions, *timestep, metadata);
     }
 
     // 2) Get bounding box
