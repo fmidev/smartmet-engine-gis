@@ -60,9 +60,10 @@ populated from spatial databases. Plugins call into this engine via
 ## 4. Geometry simplification & normalisation
 
 - **`MapOptions` simplification knobs** — caller-controlled
-  tolerance applied before returning a geometry.
-- **`Normalize`** — geometry-normalisation helpers used during
-  ingestion (e.g. snap-rounding, fixup of self-intersections).
+  amalgamation (`getShape()` only), `minarea`, `mindistance` and
+  simplifier tolerances applied before returning a geometry.
+- **`Normalize`** — name normalisation for the geometry storage
+  look-ups.
 - **Reprojection-aware** — simplification happens in the requested
   output CRS, not the source CRS.
 
@@ -90,7 +91,8 @@ populated from spatial databases. Plugins call into this engine via
 
 ## 7. Caching
 
-Three LRU caches inside the engine (each `Fmi::Cache::Cache`):
+Three caches inside the engine (each `Fmi::Cache::Cache`, CLOCK eviction
+approximating LRU):
 
 - **Geometry cache** — single-shape results keyed by schema + table
   + field + WHERE + spatial reference WKT + simplification.
@@ -106,7 +108,7 @@ libconfig file with SmartMet extensions:
 - **`crsDefinitionDir`** — directory of CRS `.conf` files.
 - **`postgis`** — default connection block plus optional named
   sub-connections.
-- **`cache.max_size`** — LRU cache entry limit.
+- **`cache.max_size`** — cache entry limit (required).
 - **`gdal`** — key/value pairs passed straight to
   `CPLSetConfigOption`.
 - **`info`** — per-schema/table overrides for `bbox` and `timestep`.

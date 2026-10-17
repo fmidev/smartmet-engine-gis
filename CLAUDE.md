@@ -32,7 +32,7 @@ The engine has a small, focused API surface:
 
 - **`Engine`** (`gis/Engine.h`) — the main entry point, loaded by the server via the `engine_class_creator` C factory function at the bottom of `Engine.cpp`. Inherits `Spine::SmartMetEngine`. Provides:
   - `getCRSRegistry()` — shared CRS (Coordinate Reference System) definitions for all plugins
-  - `getShape()` / `getFeatures()` — fetch and optionally simplify geometries from PostGIS
+  - `getShape()` / `getFeatures()` — fetch and optionally amalgamate (`getShape()` only) and simplify geometries from PostGIS
   - `getMetaData()` — query timesteps and bounding boxes from PostGIS tables
   - `populateGeometryStorage()` — bulk-load named geometries (points, lines, polygons) from multiple PostGIS sources into a `GeometryStorage` for use by plugins like timeseries
 
@@ -46,7 +46,7 @@ The engine has a small, focused API surface:
 
 ### Caching
 
-The engine maintains three LRU caches (`Fmi::Cache::Cache`): geometry cache, features cache, and envelope cache. Cache keys incorporate schema, table, field names, WHERE clause, spatial reference WKT, and simplification parameters.
+The engine maintains three caches (`Fmi::Cache::Cache`, CLOCK eviction, an approximation of LRU): geometry cache, features cache, and envelope cache. Cache keys incorporate schema, table, field names, WHERE clause, spatial reference WKT, and the amalgamation and simplification parameters.
 
 ### Key dependencies
 
@@ -65,7 +65,7 @@ The engine maintains three LRU caches (`Fmi::Cache::Cache`): geometry cache, fea
 The engine config file (libconfig format) has these sections:
 - `crsDefinitionDir` — directory of `.conf` files defining CRS projections (can be relative to the config file)
 - `postgis` — default connection info plus optional named sub-groups for multiple databases
-- `cache.max_size` — LRU cache entry limit
+- `cache.max_size` — entry limit of each cache (required)
 - `gdal` — key-value pairs passed directly to `CPLSetConfigOption`
 - `info` — optional per-schema/table overrides for `bbox` (array of 4 doubles: W, E, S, N) and `timestep` (ISO duration)
 - `default_epsg` — fallback SRID for PostGIS geometries with no SRID set

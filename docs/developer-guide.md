@@ -36,16 +36,21 @@ creates a local test database; locally the configuration points at `smartmet-tes
 | Call | Returns |
 |------|---------|
 | `getCRSRegistry()` | The shared `Spine::CRSRegistry` (CRS names and EPSG codes → spatial references and their attributes), loaded from `crsDefinitionDir`. Used by the OGC plugins. |
-| `getShape(sr, options)` | One geometry: a geometry collection of the selected rows, transformed to `sr` (or left in the data's CRS with `nullptr`), with polygons smaller than `minarea` removed. |
+| `getShape(sr, options)` | One geometry: a geometry collection of the selected rows, transformed to `sr` (or left in the data's CRS with `nullptr`) and simplified as described below. |
 | `getFeatures([sr,] options)` | The selected rows as features, with the requested attribute fields. |
 | `getMetaData(options)` | Bounding box and time steps of a PostGIS table, with configured overrides (the WMS plugin's PostGIS layers use it for their capabilities). |
 | `populateGeometryStorage(identifiers, storage)` | Loads named geometries (points, lines, polygons) from several PostGIS sources into a `GeometryStorage`, with SVG and OGR forms. The timeseries, edr and textgen plugins use it for named areas and paths that are not geonames places. |
 | `getCacheStats()` | Statistics of the three caches. |
 
 `MapOptions` selects the data: `pgname` (which configured connection), `schema`, `table`,
-`fieldnames`, an optional `where` clause, and the simplification settings: `minarea`
-(drop small polygons), `mindistance`, and a `simplifier` (the gis library's line
-simplification), applied to each feature.
+`fieldnames`, an optional `where` clause, and the simplification settings. `getShape()`
+applies them in this order: the `amalgamator` (the gis library's merging of nearby
+polygons; `minarea` is passed to it as a total area filter), `minarea` (drop polygons
+smaller than this in km²), `mindistance` (topology preserving simplification, in km) and
+the `simplifier` (the gis library's line simplification, tolerances in CRS units).
+`getFeatures()` applies the same steps to each feature except the amalgamator, which
+would merge the features and lose their attributes. All of them are part of the cache
+keys.
 
 `Normalize` normalises names for the geometry storage lookups.
 
@@ -64,9 +69,9 @@ database are seen only after the entries are evicted or the server restarts.
 
 | Key | Meaning |
 |-----|---------|
-| `postgis` | Default connection (`host`, `port`, `database`, `username`, `password`, `encoding`), and optional named sub-groups for more databases, selected with `MapOptions::pgname`. |
+| `postgis` | Default connection (`host`, `port`, `database`, `username`, `password`, `encoding`, all required), and optional named sub-groups for more databases, selected with `MapOptions::pgname`. |
 | `crsDefinitionDir` | Directory of CRS definition files (relative to the configuration file allowed). EPSG definitions themselves come from PROJ's `proj.db`. |
-| `cache.max_size` | Cache entries. |
+| `cache.max_size` | Cache entries, required. Each of the three caches gets this size. |
 | `gdal` | Key-value pairs passed to `CPLSetConfigOption`. |
 | `info` | Per schema/table overrides of `bbox` (W, E, S, N) and `timestep` (ISO duration) for `getMetaData()`. |
 | `default_epsg` | SRID for geometries that have none. |
