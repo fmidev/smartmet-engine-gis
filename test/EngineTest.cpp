@@ -1,7 +1,5 @@
-#include "../gis/Engine.h"
 #include "../gis/MapOptions.h"
 #include "../gis/MetaData.h"
-#include "../gis/Normalize.h"
 #include "Engine.h"
 #include "Normalize.h"
 #include <gis/OGR.h>
