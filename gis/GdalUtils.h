@@ -1,13 +1,14 @@
 #pragma once
 
 #include <boost/function.hpp>
-#include <memory>
-#include <newbase/NFmiPoint.h>
-#include <newbase/NFmiRect.h>
+#include <cstddef>
 #include <gdal_version.h>
-#include <limits>
+#include <memory>
 #include <ogr_geometry.h>
-#include <ogr_spatialref.h>
+#include <string>
+
+class NFmiPoint;
+class NFmiRect;
 
 #undef GDAL_VERSION_ID
 #define GDAL_VERSION_ID (100*GDAL_VERSION_MAJOR + GDAL_VERSION_MINOR)

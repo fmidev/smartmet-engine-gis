@@ -4,17 +4,25 @@
 
 #include "Config.h"
 #include "GeometryStorage.h"
-#include "MapOptions.h"
 #include "MetaData.h"
-#include <memory>
 #include <gis/SpatialReference.h>
 #include <gis/Types.h>
 #include <macgyver/Cache.h>
-#include <spine/CRSRegistry.h>
+#include <macgyver/CacheStats.h>
 #include <spine/SmartMetEngine.h>
-#include <libconfig.h++>
+#include <cstddef>
+#include <memory>
 #include <ogr_geometry.h>
 #include <string>
+
+namespace SmartMet::Engine::Gis
+{
+struct MapOptions;
+}  // namespace SmartMet::Engine::Gis
+namespace SmartMet::Spine
+{
+class CRSRegistry;
+}  // namespace SmartMet::Spine
 
 namespace SmartMet
 {

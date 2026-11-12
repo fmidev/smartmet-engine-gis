@@ -1,5 +1,7 @@
 #include "Normalize.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <algorithm>
+#include <cctype>
 
 namespace SmartMet
 {

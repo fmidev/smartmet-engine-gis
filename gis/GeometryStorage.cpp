@@ -1,13 +1,10 @@
 #include "GeometryStorage.h"
-#include "MapOptions.h"
 #include "Normalize.h"
 #include <macgyver/Exception.h>
 #include <spine/HTTP.h>
-#include <spine/TableFormatterOptions.h>
+#include <spine/TableFormatter.h>
 #include <spine/TableFormatterFactory.h>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
+#include <spine/TableFormatterOptions.h>
 
 namespace SmartMet
 {

@@ -1,12 +1,25 @@
+#include "../gis/Engine.h"
+#include "../gis/MapOptions.h"
+#include "../gis/MetaData.h"
+#include "../gis/Normalize.h"
 #include "Engine.h"
 #include "Normalize.h"
 #include <gis/OGR.h>
 #include <gis/SpatialReference.h>
-#include <cmath>
-#include <set>
+#include <gis/Types.h>
 #include <regression/tframe.h>
+#include <spine/Options.h>
 #include <spine/Reactor.h>
+#include <cmath>
+#include <cstddef>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <ogr_geometry.h>
+#include <optional>
+#include <set>
 #include <string>
+#include <variant>
 #include <vector>
 
 using namespace std;

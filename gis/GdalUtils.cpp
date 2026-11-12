@@ -1,6 +1,9 @@
 #include "GdalUtils.h"
 #include <macgyver/Exception.h>
+#include <newbase/NFmiPoint.h>
+#include <newbase/NFmiRect.h>
 #include <gdal_version.h>
+#include <utility>
 
 namespace SmartMet
 {

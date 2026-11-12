@@ -1,12 +1,16 @@
 #include "Engine.h"
 #include "Config.h"
+#include "MapOptions.h"
 #include "Normalize.h"
 #include <boost/algorithm/string/join.hpp>
 #include <fmt/format.h>
+#include <gis/BBox.h>
 #include <gis/Box.h>
 #include <gis/CoordinateMatrixCache.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/EPSGInfo.h>
+#include <gis/GeometryAmalgamator.h>
+#include <gis/GeometrySimplifier.h>
 #include <gis/Host.h>
 #include <gis/OGR.h>
 #include <gis/PostGIS.h>
@@ -16,9 +20,22 @@
 #include <macgyver/StringConversion.h>
 #include <spine/Reactor.h>
 #include <cctype>
-#include <gdal_version.h>
+#include <ctime>
+#include <iostream>
+#include <map>
 #include <memory>
 #include <ogrsf_frmts.h>
+#include <optional>
+#include <set>
+#include <utility>
+#include <variant>
+#include <vector>
+
+namespace SmartMet::Spine
+{
+class CRSRegistry;
+}  // namespace SmartMet::Spine
+struct tm;
 
 const auto featuredeleter = [](OGRFeature* p) { OGRFeature::DestroyFeature(p); };
 using SafeFeature = std::unique_ptr<OGRFeature, decltype(featuredeleter)>;

@@ -2,10 +2,12 @@
 
 #pragma once
 
-#include <optional>
 #include <gis/BBox.h>
+#include <macgyver/DateTime.h>
 #include <spine/CRSRegistry.h>
 #include <libconfig.h++>
+#include <map>
+#include <optional>
 #include <string>
 
 namespace SmartMet

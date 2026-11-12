@@ -1,23 +1,14 @@
 // ======================================================================
 
 #include "Config.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <fmt/format.h>
 #include <macgyver/Exception.h>
-#include <macgyver/StringConversion.h>
 #include <macgyver/TimeParser.h>
-#include <proj/io.hpp>
-#include <spine/ConfigBase.h>
 #include <spine/ConfigTools.h>
 #include <spine/Exceptions.h>
-#include <sqlite3pp/sqlite3pp.h>
-#include <sqlite3pp/sqlite3ppext.h>
 #include <cpl_conv.h>  // For configuring GDAL
 #include <filesystem>
 #include <iostream>
-#include <sqlite3.h>
-#include <stdexcept>
+#include <utility>
 
 namespace SmartMet
 {

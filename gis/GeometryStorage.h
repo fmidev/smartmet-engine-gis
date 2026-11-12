@@ -8,15 +8,16 @@
 #pragma once
 
 #include <macgyver/DateTime.h>
-#include <memory>
-#include <variant>
-#include <gis/OGR.h>
 #include <macgyver/StringConversion.h>
 #include <spine/Table.h>
 #include <list>
 #include <map>
+#include <memory>
+#include <ogr_geometry.h>
 #include <ostream>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace SmartMet
 {
@@ -25,6 +26,7 @@ namespace Engine
 namespace Gis
 {
 class Engine;
+
 struct postgis_identifier
 {
   std::string source_name;
